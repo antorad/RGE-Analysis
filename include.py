@@ -30,6 +30,12 @@ var_range = {"Q2": [0, 7],
              "sector": [0, 7]}
 
 
+pid_scheme = {"211": "pi+",
+              "-211": "pi-",
+              "2212": "proton",
+              "321": "Kaon +"
+              }
+
 # Style
 func_cut_style = {'color': 'orange', 'linestyle': '--', 'linewidth': 1.6}
 

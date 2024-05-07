@@ -35,13 +35,15 @@ TGraphErrors *TH1TOTGraph(TH1 *h1) {
     return g1;
 }
 
-void Calculate_mr(TString run_name_input) {
+void Calculate_mr(TString run_name_input, int pid_input) {
 
     /// input files has the name ntuple_dc_ runname, it can be the run number or
     /// target
     TString run_name = run_name_input;
+    int hadron_pid = pid_input;
 
     std::cout << "Current run/target: " << run_name << std::endl;
+    std::cout << "Looking for : pid = " << hadron_pid << std::endl;
 
     TFile *input_file =
         new TFile("./data/ntuples_dc_" + run_name + ".root", "READ");
@@ -118,7 +120,7 @@ void Calculate_mr(TString run_name_input) {
                 // if((v_z > vz_d2_min && v_z < vz_d2_max) || (v_z >
                 // vz_solid_min && v_z < vz_solid_max)) event_counter++;
 
-            } else if (pid == 211) { // Check if it is a pion
+            } else if (pid == hadron_pid) { // Check if it is a pion
                 pion_vars[0] = pid;
                 pion_vars[1] = Q2;
                 pion_vars[2] = nu;
@@ -139,7 +141,8 @@ void Calculate_mr(TString run_name_input) {
 
     //------output writing------
     TFile *output =
-        new TFile("./output/" + run_name + "/out_clas12_" + run_name + ".root",
+        new TFile("./output/" + run_name + "/out_clas12_" +
+                      std::to_string(hadron_pid) + "_" + run_name + ".root",
                   "RECREATE");
     output->cd();
     pion_tuple->Write();

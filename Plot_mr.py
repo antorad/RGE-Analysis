@@ -6,7 +6,7 @@ import numpy as np
 import awkward as ak
 import mplhep as hep
 import os
-from include import Save_Figure, Add_Clas_Pleliminary, clas_preliminary_flag, var_unit, var_range, data_directory, output_directory
+from include import Save_Figure, Add_Clas_Pleliminary, clas_preliminary_flag, var_unit, var_range, data_directory, output_directory, pid_scheme
 
 plt.style.use(hep.style.ATLAS)  # or ATLAS/LHCb2
 
@@ -14,9 +14,12 @@ plt.style.use(hep.style.ATLAS)  # or ATLAS/LHCb2
 parser = optparse.OptionParser("usage: %prog [options]\n")
 parser.add_option('-v', '--variable', dest='variable',
                   default="z_h", help="Variable you want to Plot")
+parser.add_option('-p', '--pid', dest='pid',
+                  default="211", help="Hadron pid")
 options, args = parser.parse_args()
 
 var = options.variable
+hadron_pid = options.pid
 
 nbins = 100
 shift = 0.0  # shift in the x axes for better readability
@@ -52,7 +55,7 @@ def Plot_Mr():
 
         # Read TGraph information
         file = ROOT.TFile.Open(
-            output_directory + run_number_list[i] + "/out_clas12_" + run_number_list[i] + ".root", "READ")
+            output_directory + run_number_list[i] + "/out_clas12_" + hadron_pid + "_" + run_number_list[i] + ".root", "READ")
 
         graphName = "multiplicity_ratio_" + var
         graph = file.Get(graphName)
@@ -82,13 +85,15 @@ def Plot_Mr():
         r'$R$', loc="center", fontsize=15)
 
     axs.set_xlabel(r'' + var + var_unit[var], loc="center", fontsize=14)
+    axs.annotate(r'Hadron: ' + pid_scheme[hadron_pid], xy=(0.42, 1.04))
 
     axs.legend(ncol=1, frameon=False, loc='upper right', fontsize=11)
 
     axs.grid(visible=None, axis='both', color='0.95')
     axs.set_axisbelow(True)
 
-    Save_Figure(fig, output_directory, "Multiplicity_Ratio_" + var)
+    Save_Figure(fig, output_directory, "Multiplicity_Ratio_" +
+                pid_scheme[hadron_pid] + "_" + var)
 
 
 Plot_Mr()
