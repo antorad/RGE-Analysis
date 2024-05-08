@@ -30,8 +30,11 @@ run_number_list = ["C", "Cu", "Sn", "Pb"]
 tarList = ["C", "Cu", "Sn", "Pb"]
 colorList = ["red", "Blue", "green", "black"]
 markerList = ["o", "o", "o", "o"]
-y_range = {"z_h": [0.3, 1.4],
-           "nu": [0.7, 1.2],
+y_range = {"211":  {"z_h": [0.3, 1.4], "nu": [0.7, 1.2], },
+           "-211": {"z_h": [0.3, 1.4], "nu": [0.6, 1.2], },
+           "2212": {"z_h": [0.3, 5.4], "nu": [0.7, 3.6], },
+           "321":  {"z_h": [0.3, 4.4], "nu": [0.7, 2.6], },
+
            }
 # tarList = ["Pb - First round", "Pb - Second round" ]
 # markerList = ["<", ">"]
@@ -51,7 +54,7 @@ def Plot_Mr():
     for i in range(len(run_number_list)):  # Loops on the diffrent targets
 
         axs.set_xlim(var_range[var][0], var_range[var][1])
-        axs.set_ylim(y_range[var][0], y_range[var][1])
+        axs.set_ylim(y_range[hadron_pid][var][0], y_range[hadron_pid][var][1])
 
         # Read TGraph information
         file = ROOT.TFile.Open(
@@ -84,10 +87,14 @@ def Plot_Mr():
     axs.set_ylabel(
         r'$R$', loc="center", fontsize=15)
 
-    axs.set_xlabel(r'' + var + var_unit[var], loc="center", fontsize=14)
-    axs.annotate(r'Hadron: ' + pid_scheme[hadron_pid], xy=(0.42, 1.04))
+    axs.set_xlabel(r'' + var + " " + var_unit[var], loc="center", fontsize=14)
+    axs.annotate(
+        r'Hadron: ' + pid_scheme[hadron_pid], xy=(0.55, 0.92), xycoords="axes fraction", weight="bold")
 
-    axs.legend(ncol=1, frameon=False, loc='upper right', fontsize=11)
+    if var == "z_h":
+        axs.legend(ncol=1, frameon=False, loc='upper right', fontsize=11)
+    elif var == "nu":
+        axs.legend(ncol=1, frameon=False, loc='upper left', fontsize=11)
 
     axs.grid(visible=None, axis='both', color='0.95')
     axs.set_axisbelow(True)

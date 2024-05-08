@@ -1,6 +1,31 @@
 import matplotlib.pyplot as plt
 import os
 
+# Functions
+
+
+def Save_Figure(fig, output_directory, name):
+
+    # Create the directory if doesn't exist
+    os.makedirs(output_directory, exist_ok=True)
+    fig.savefig(output_directory + name + ".pdf", bbox_inches='tight')
+    fig.savefig(output_directory + name + ".png", bbox_inches='tight', dpi=300)
+    print(output_directory + name + " Has been created")
+
+
+def Add_Clas_Pleliminary(ax):
+    ax.text(0.5, 0.5, 'CLAS Preliminary',
+            horizontalalignment='center',
+            verticalalignment='center',
+            transform=ax.transAxes,
+            color="lightgrey",
+            fontsize="xx-large",
+            fontweight="bold",
+            alpha=0.7,
+            zorder=1
+            )
+
+
 # Directories
 data_directory = "./data/"
 output_directory = "./output/"
@@ -29,7 +54,7 @@ var_range = {"Q2": [0, 7],
              "x_bjorken": [0.02, 0.7],
              "sector": [0, 7]}
 
-
+# PDG pid scheme
 pid_scheme = {"211": "pi+",
               "-211": "pi-",
               "2212": "proton",
@@ -38,26 +63,3 @@ pid_scheme = {"211": "pi+",
 
 # Style
 func_cut_style = {'color': 'orange', 'linestyle': '--', 'linewidth': 1.6}
-
-
-# Functions
-def Save_Figure(fig, outputDirectory, name):
-
-    # Create the directory if doesn't exist
-    os.makedirs(outputDirectory, exist_ok=True)
-    fig.savefig(outputDirectory + name + ".pdf", bbox_inches='tight')
-    fig.savefig(outputDirectory + name + ".png", bbox_inches='tight', dpi=300)
-    print(outputDirectory + name + " Has been created")
-
-
-def Add_Clas_Pleliminary(ax):
-    ax.text(0.5, 0.5, 'CLAS Preliminary',
-            horizontalalignment='center',
-            verticalalignment='center',
-            transform=ax.transAxes,
-            color="lightgrey",
-            fontsize="xx-large",
-            fontweight="bold",
-            alpha=0.7,
-            zorder=1
-            )

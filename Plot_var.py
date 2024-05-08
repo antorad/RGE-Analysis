@@ -53,12 +53,12 @@ def Plot_Variable(var, just_electon=False):
             branches["Q2"] > 1) & (branches["W2"] > 2)
         axs.hist(branches[var][electron_cuts], bins,
                  color=hist_color, ec=hist_color_ec)
+        print(run_number + " events : " +
+              str(len(branches[var][electron_cuts])))
     # To plot all the particles or an hadron variable
     else:
-        axs.hist(branches[var][branches[var] != 0], bins,
+        axs.hist(branches[var][branches["pid"] == 321], bins,
                  color=hist_color, ec=hist_color_ec)
-
-    print(run_number + " events : " + str(len(branches[var][electron_cuts])))
 
     axs.set_xlabel(r'' + var + " " + var_unit[var], fontsize=14)
     axs.set_ylabel(r'$dN/d%s$' % var, loc="center", fontsize=15)

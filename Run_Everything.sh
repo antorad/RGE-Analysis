@@ -6,16 +6,6 @@
 
 
 # Calculate the multiplocity ratio
-root -b -l -q "Calculate_mr.cpp(\"C\", 211)"
-root -b -l -q "Calculate_mr.cpp(\"Cu\", 211)"
-root -b -l -q "Calculate_mr.cpp(\"Sn\", 211)"
-root -b -l -q "Calculate_mr.cpp(\"Pb\", 211)"
-
-root -b -l -q "Calculate_mr.cpp(\"C\", -211)"
-root -b -l -q "Calculate_mr.cpp(\"Cu\", -211)"
-root -b -l -q "Calculate_mr.cpp(\"Sn\", -211)"
-root -b -l -q "Calculate_mr.cpp(\"Pb\", -211)"
-
 root -b -l -q "Calculate_mr.cpp(\"C\", 2212)"
 root -b -l -q "Calculate_mr.cpp(\"Cu\", 2212)"
 root -b -l -q "Calculate_mr.cpp(\"Sn\", 2212)"
@@ -26,6 +16,16 @@ root -b -l -q "Calculate_mr.cpp(\"C\", 321)"
 root -b -l -q "Calculate_mr.cpp(\"Cu\", 321)"
 root -b -l -q "Calculate_mr.cpp(\"Sn\", 321)"
 root -b -l -q "Calculate_mr.cpp(\"Pb\", 321)"
+
+root -b -l -q "Calculate_mr.cpp(\"C\", 211)"
+root -b -l -q "Calculate_mr.cpp(\"Cu\", 211)"
+root -b -l -q "Calculate_mr.cpp(\"Sn\", 211)"
+root -b -l -q "Calculate_mr.cpp(\"Pb\", 211)"
+
+root -b -l -q "Calculate_mr.cpp(\"C\", -211)"
+root -b -l -q "Calculate_mr.cpp(\"Cu\", -211)"
+root -b -l -q "Calculate_mr.cpp(\"Sn\", -211)"
+root -b -l -q "Calculate_mr.cpp(\"Pb\", -211)"
 
 # Plot multiplocity
 python3 Plot_mr.py -v z_h -p 211

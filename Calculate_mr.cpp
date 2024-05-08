@@ -11,8 +11,11 @@
 
 // Max number of events in the solid target.
 // The idea is to have the same number of events in all the solids targets
-
 int const MAX_EVENTS = 166000;
+
+// Directories
+TString data_directory = "./data/";
+TString output_directory = "./output/";
 
 // Transform a histogram(TH1) into a TGraphErrors (easy to plot in matplotlib)
 TGraphErrors *TH1TOTGraph(TH1 *h1) {
@@ -22,8 +25,8 @@ TGraphErrors *TH1TOTGraph(TH1 *h1) {
         std::cout << "TH1TOTGraph: histogram not found !" << std::endl;
         return g1;
     }
-    Double_t x, y, ex, ey;
-    for (Int_t i = 1; i <= h1->GetNbinsX(); i++) {
+    double x, y, ex, ey;
+    for (int i = 1; i <= h1->GetNbinsX(); i++) {
         y = h1->GetBinContent(i);
         ey = h1->GetBinError(i);
         x = h1->GetBinCenter(i);
@@ -46,7 +49,7 @@ void Calculate_mr(TString run_name_input, int pid_input) {
     std::cout << "Looking for : pid = " << hadron_pid << std::endl;
 
     TFile *input_file =
-        new TFile("./data/ntuples_dc_" + run_name + ".root", "READ");
+        new TFile(data_directory + "ntuples_dc_" + run_name + ".root", "READ");
     TNtuple *input_tuple = (TNtuple *)input_file->Get("data");
     gROOT->cd();
 
@@ -73,8 +76,8 @@ void Calculate_mr(TString run_name_input, int pid_input) {
     input_tuple->SetBranchAddress("y_bjorken", &yb);
 
     //------output ntuple------
-    Float_t pion_vars[10];
-    Float_t elec_vars[8];
+    float pion_vars[10];
+    float elec_vars[8];
     const char *pion_varslist =
         "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:z_h:v_z_elec";
     const char *elec_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU";
@@ -83,6 +86,7 @@ void Calculate_mr(TString run_name_input, int pid_input) {
 
     v_z_elec = 0;
     int event_counter = 0;
+    int hadron_counter = 0;
 
     // Premiliminary cuts to separate events from liquid and solid target
     float vz_d2_min = -8.01;
@@ -132,16 +136,19 @@ void Calculate_mr(TString run_name_input, int pid_input) {
                 pion_vars[8] = z_h;
                 pion_vars[9] = v_z_elec;
                 pion_tuple->Fill(pion_vars);
+                hadron_counter++;
             }
         }
     }
 
     std::cout << "Number of electrons in solid target: " << event_counter
               << std::endl;
+    std::cout << "Number of particles looked for: " << hadron_counter
+              << std::endl;
 
     //------output writing------
     TFile *output =
-        new TFile("./output/" + run_name + "/out_clas12_" +
+        new TFile(output_directory + run_name + "/out_clas12_" +
                       std::to_string(hadron_pid) + "_" + run_name + ".root",
                   "RECREATE");
     output->cd();
@@ -230,24 +237,27 @@ void Calculate_mr(TString run_name_input, int pid_input) {
     // As a funcion of a electron variable
 
     var = "nu";
-    float var_min = 0.;
-    float var_max = 11.;
+    float var_min = 0.5;
+    float var_max = 10.5;
 
     pion_tuple->Draw(var + ">>" + var +
                          Form("_d2(%i, %f, %f)", n_bins, var_min, var_max),
                      cuts_pions_d2, "COLZ");
     TH1F *pion_var_d2_hist =
         (TH1F *)gDirectory->GetList()->FindObject(var + "_d2");
+
     pion_tuple->Draw(var + ">>" + var +
                          Form("_solid(%i, %f, %f)", n_bins, var_min, var_max),
                      cuts_pions_solid, "COLZ");
     TH1F *pion_var_solid_hist =
         (TH1F *)gDirectory->GetList()->FindObject(var + "_solid");
+
     elec_tuple->Draw(var + ">>" + var +
                          Form("_d2_e(%i, %f, %f)", n_bins, var_min, var_max),
                      cuts_elec_d2, "COLZ");
     TH1F *elec_var_d2_hist =
         (TH1F *)gDirectory->GetList()->FindObject(var + "_d2_e");
+
     elec_tuple->Draw(var + ">>" + var +
                          Form("_solid_e(%i, %f, %f)", n_bins, var_min, var_max),
                      cuts_elec_solid, "COLZ");
