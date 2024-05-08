@@ -1,8 +1,8 @@
 # Plot Histogram (Also generated the output directory)
-#python3 Plot_var.py -v v_z -r C
-#python3 Plot_var.py -v v_z -r Cu
-#python3 Plot_var.py -v v_z -r Sn
-#python3 Plot_var.py -v v_z -r Pb
+python3 Plot_var.py -v v_z -r C
+python3 Plot_var.py -v v_z -r Cu
+python3 Plot_var.py -v v_z -r Sn
+python3 Plot_var.py -v v_z -r Pb
 
 
 # Calculate the multiplocity ratio
