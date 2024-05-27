@@ -5,7 +5,7 @@ import optparse
 import awkward as ak
 import mplhep as hep
 import os
-from include import Save_Figure, Add_Clas_Pleliminary, clas_preliminary_flag, var_unit, var_range, data_directory, output_directory
+from include import Save_Figure, Add_Clas_Pleliminary, clas_preliminary_flag, var_unit, var_range, var_label, data_directory, output_directory
 
 plt.style.use(hep.style.ATLAS)  # or ATLAS/LHCb2
 
@@ -60,7 +60,7 @@ def Plot_Variable(var, just_electon=False):
         axs.hist(branches[var][branches["pid"] == 321], bins,
                  color=hist_color, ec=hist_color_ec)
 
-    axs.set_xlabel(r'' + var + " " + var_unit[var], fontsize=14)
+    axs.set_xlabel(var_label[var], fontsize=14)
     axs.set_ylabel(r'$dN/d%s$' % var, loc="center", fontsize=15)
 
     Save_Figure(fig, "./output/" + run_number + "/", file_name + "_" + var)
@@ -119,7 +119,7 @@ def Plot_Variable_Sector(var, just_electon=False):
                                xycoords='axes fraction', fontsize=15, weight="bold")
 
             # axs[i][j].set_yscale('log') ## uncomment to use log scale
-            axs[i][j].set_xlabel(r'' + var + " " + var_unit[var], fontsize=14)
+            axs[i][j].set_xlabel(var_label[var], fontsize=14)
         axs[i][0].set_ylabel(r'$dN/d%s$' % var, loc="center", fontsize=15)
     fig.align_ylabels(axs[:])
     # axs[0][0].legend(frameon=False, loc='upper left', fontsize=11) ## Draw legend

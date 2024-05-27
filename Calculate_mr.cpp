@@ -8,10 +8,11 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <ostream>
 
 // Max number of events in the solid target.
 // The idea is to have the same number of events in all the solids targets
-int const MAX_EVENTS = 166000;
+int const MAX_EVENTS = 300000;
 
 // Directories
 TString data_directory = "./data/";
@@ -59,7 +60,7 @@ void Calculate_mr(TString run_name_input, int pid_input) {
 
     // Useful variables
     float pid, Q2, nu, v_z, z_h, p, E_total, E_ECIN, E_ECOU, event_num,
-        v_z_elec, phi, W2, yb;
+        v_z_elec, phi, W2, yb, pt, phi_PQ;
 
     //------Read branches with variables used and needed for cuts_pions------
     input_tuple->SetBranchAddress("pid", &pid);
@@ -68,18 +69,20 @@ void Calculate_mr(TString run_name_input, int pid_input) {
     input_tuple->SetBranchAddress("v_z", &v_z);
     input_tuple->SetBranchAddress("z_h", &z_h);
     input_tuple->SetBranchAddress("p", &p);
+    input_tuple->SetBranchAddress("p_T2", &pt);
     input_tuple->SetBranchAddress("E_total", &E_total);
     input_tuple->SetBranchAddress("E_ECIN", &E_ECIN);
     input_tuple->SetBranchAddress("E_ECOU", &E_ECOU);
     input_tuple->SetBranchAddress("event_num", &event_num);
     input_tuple->SetBranchAddress("W2", &W2);
     input_tuple->SetBranchAddress("y_bjorken", &yb);
+    input_tuple->SetBranchAddress("phi_PQ", &phi_PQ);
 
     //------output ntuple------
-    float pion_vars[10];
+    float pion_vars[14];
     float elec_vars[8];
-    const char *pion_varslist =
-        "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:z_h:v_z_elec";
+    const char *pion_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:z_h:v_z_"
+                                "elec:y_bjorken:p_t2:phi_PQ:W2";
     const char *elec_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU";
     TNtuple *pion_tuple = new TNtuple("pion_ntuple", "pions", pion_varslist);
     TNtuple *elec_tuple = new TNtuple("elec_tuple", "electrons", elec_varslist);
@@ -135,8 +138,13 @@ void Calculate_mr(TString run_name_input, int pid_input) {
                 pion_vars[7] = E_ECOU;
                 pion_vars[8] = z_h;
                 pion_vars[9] = v_z_elec;
+                pion_vars[10] = yb;
+                pion_vars[11] = pt;
+                pion_vars[12] = phi_PQ;
+                pion_vars[13] = W2;
                 pion_tuple->Fill(pion_vars);
                 hadron_counter++;
+                // std::cout << "P: " << p << std::endl;
             }
         }
     }
@@ -234,11 +242,67 @@ void Calculate_mr(TString run_name_input, int pid_input) {
 
     std::cout << "Zh finished" << std::endl;
 
+    // As a funcion of a Pt2
+
+    var = "p_t2";
+    n_bins = 10; // number of bins in the MR plot
+    float pt2_min = 0.;
+    float pt2_max = 1.5;
+
+    // Histogram with the Zh binning. All bins contain the number of electrons
+    TH1F *elec_d2_pt2_hist =
+        new TH1F("elec_d2_pt2_hist", "", n_bins, pt2_min, pt2_max);
+    TH1F *elec_solid_pt2_hist =
+        new TH1F("elec_solid_pt2_hist", "", n_bins, pt2_min, pt2_max);
+
+    for (int i = 1; i <= n_bins; i++) {
+        elec_d2_pt2_hist->SetBinContent(i, n_e_d2);
+        elec_solid_pt2_hist->SetBinContent(i, n_e_solid);
+    }
+
+    // Pt2 histogram for pions
+    pion_tuple->Draw(var + ">>" + var +
+                         Form("_d2(%i, %f, %f)", n_bins, pt2_min, pt2_max),
+                     cuts_pions_d2, "COLZ");
+    TH1F *pion_pt2_d2_hist =
+        (TH1F *)gDirectory->GetList()->FindObject(var + "_d2");
+    pion_tuple->Draw(var + ">>" + var +
+                         Form("_solid(%i, %f, %f)", n_bins, pt2_min, pt2_max),
+                     cuts_pions_solid, "COLZ");
+    TH1F *pion_pt2_solid_hist =
+        (TH1F *)gDirectory->GetList()->FindObject(var + "_solid");
+
+    pion_pt2_d2_hist->Sumw2();
+    pion_pt2_solid_hist->Sumw2();
+    elec_d2_pt2_hist->Sumw2();
+    elec_solid_pt2_hist->Sumw2();
+
+    // Multiplicity and multiplicity ratio histogram
+    TH1F *m_d2_pt2 = new TH1F("Multiplicity D2" + var, "Multiplicity D2" + var,
+                              n_bins, pt2_min, pt2_max);
+    TH1F *m_solid_pt2 =
+        new TH1F("Multiplicity Solid" + var, "Multiplicity solid" + var, n_bins,
+                 pt2_min, pt2_max);
+    TH1F *mr_pt2 =
+        new TH1F("Multiplicity ratio" + var, "Multiplicity ratio" + var, n_bins,
+                 pt2_min, pt2_max);
+
+    m_d2_pt2->Sumw2();
+    m_solid_pt2->Sumw2();
+    mr_pt2->Sumw2();
+
+    // Calculate multiplicity and multiplicity ratio
+    m_d2_pt2->Divide(pion_pt2_d2_hist, elec_d2_pt2_hist);
+    m_solid_pt2->Divide(pion_pt2_solid_hist, elec_solid_pt2_hist);
+    mr_pt2->Divide(m_solid_pt2, m_d2_pt2);
+
+    std::cout << "Pt2 finished" << std::endl;
+
     // As a funcion of a electron variable
 
     var = "nu";
-    float var_min = 0.5;
-    float var_max = 10.5;
+    float var_min = 0.0;
+    float var_max = 11.0;
 
     pion_tuple->Draw(var + ">>" + var +
                          Form("_d2(%i, %f, %f)", n_bins, var_min, var_max),
@@ -286,15 +350,16 @@ void Calculate_mr(TString run_name_input, int pid_input) {
     std::cout << var << " finished" << std::endl;
 
     TGraphErrors *graph_zh = (TGraphErrors *)TH1TOTGraph(mr_zh);
+    TGraphErrors *graph_pt2 = (TGraphErrors *)TH1TOTGraph(mr_pt2);
     TGraphErrors *graph_var = (TGraphErrors *)TH1TOTGraph(mr_var);
 
     // Save MR Tgraph
     output->cd();
     graph_zh->Write("multiplicity_ratio_z_h");
+    graph_pt2->Write("multiplicity_ratio_p_t2");
     graph_var->Write("multiplicity_ratio_nu");
     elec_d2_zh_hist->Write("elec_zh_d2");
     elec_solid_zh_hist->Write("elec_zh_solid");
-
     std::cout << "Saved!" << std::endl;
 
     output->Close();
