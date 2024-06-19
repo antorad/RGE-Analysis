@@ -15,8 +15,8 @@
 int const MAX_EVENTS = 300000;
 
 // Directories
-TString data_directory = "./data/";
-TString output_directory = "./output/";
+TString data_directory = "data/";
+TString output_directory = "output/";
 
 // Transform a histogram(TH1) into a TGraphErrors (easy to plot in matplotlib)
 TGraphErrors *TH1TOTGraph(TH1 *h1) {
@@ -157,7 +157,7 @@ void Calculate_mr(TString run_name_input, int pid_input) {
     //------output writing------
     TFile *output =
         new TFile(output_directory + run_name + "/out_clas12_" +
-                      std::to_string(hadron_pid) + "_" + run_name + ".root",
+                      TString(std::to_string(hadron_pid)) + "_" + run_name + ".root",
                   "RECREATE");
     output->cd();
     pion_tuple->Write();

@@ -1,11 +1,11 @@
 #include "TString.h"
 
 const TString dataDirectory =
-    "/home/matias/proyecto/RGE-Preliminary-Plots/output/";
+    "/home/antonio/rge_analysis/RGE-Preliminary-Plots/output/";
 const TString inputDirectory =
-    "/home/matias/proyecto/RGE-Preliminary-Plots/output/";
+    "/home/antonio/rge_analysis/RGE-Preliminary-Plots/output/";
 const TString outputDirectory =
-    "/home/matias/proyecto/RGE-Preliminary-Plots/output/";
+    "/home/antonio/rge_analysis/RGE-Preliminary-Plots/output/";
 
 // const TString inputDirectory =
 //"/home/matias/proyecto/TwoPionAnalysis/Data/AnalysisNote/Systematic/LimitHigh/";

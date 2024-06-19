@@ -27,8 +27,8 @@ def Add_Clas_Pleliminary(ax):
 
 
 # Directories
-data_directory = "./data/"
-output_directory = "./output/"
+data_directory = "data/"
+output_directory = "output/"
 
 # Flags
 clas_preliminary_flag = False
