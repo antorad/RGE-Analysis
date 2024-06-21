@@ -6,15 +6,23 @@
 #include "TList.h"
 #include "TString.h"
 #include <iostream>
+#include <string>
 #include <cmath>
 
 using namespace std;
  
-void simple_plots(){
-	TFile *file = new TFile("data/ntuples_dc_020144.root","READ");
-	TNtuple* input_tuple = (TNtuple*)file->Get("data");
+void simple_plots(int run_N=000000){
+	char buffer [10];
+	sprintf(buffer,"%0*d", 6, run_N);
+	TString run_N_str=TString(buffer);
+	cout<<"run number: "<<run_N_str<<endl;
+	TString output_location = "output/"+run_N_str+"/";
+	cout<<"output location: "<<output_location<<endl;
 
-	TFile *output = new TFile("output/020144/out_clas12.root","RECREATE");
+	TFile *input = new TFile("data/ntuples_dc_"+run_N_str+".root","READ");
+	TNtuple* input_tuple = (TNtuple*)input->Get("data");
+
+	TFile *output = new TFile(output_location+"out_clas12.root","RECREATE");
 
 	Float_t pid, Q2, nu, v_z, z_h, p, E_total, E_ECIN, E_ECOU, event_num, v_z_elec, phi, y_bjorken, W2, charge, beta; 
 	Float_t rad2deg = 57.2958;
@@ -126,40 +134,40 @@ v_z_elec = 0;
 	TH1F *e_v_z = (TH1F*)gDirectory->GetList()->FindObject("e_v_z");
 	e_v_z->GetXaxis()->SetTitle("V_z");
 	e_v_z->Draw("COLZ");
-	c->SaveAs("e_v_z.pdf");
+	c->SaveAs(output_location+"e_v_z.pdf");
 
 	elec_tuple->Draw("phi>>e_phi(360,-180,180)","p>0","COLZ");
 	TH1F *e_phi = (TH1F*)gDirectory->GetList()->FindObject("e_phi");
 	e_phi->GetXaxis()->SetTitle("Phi");
 	e_phi->Draw("COLZ");
-	c->SaveAs("e_phi.pdf");
+	c->SaveAs(output_location+"e_phi.pdf");
 
 	//pions
 	pion_tuple->Draw("v_z>>pi_v_z(100,-15,6)","p>0","COLZ");
 	TH1F *pi_v_z = (TH1F*)gDirectory->GetList()->FindObject("pi_v_z");
 	pi_v_z->GetXaxis()->SetTitle("V_z");
 	pi_v_z->Draw("COLZ");
-	c->SaveAs("pi_v_z.pdf");
+	c->SaveAs(output_location+"pi_v_z.pdf");
 
 	//pions
 	pion_tuple->Draw("z_h>>pi_zh_d2(100,0,1)","p>0 && v_z>-8.64 && v_z<-2.79","COLZ");
 	TH1F *pi_zh_d2 = (TH1F*)gDirectory->GetList()->FindObject("pi_zh_d2");
 	pi_zh_d2->GetXaxis()->SetTitle("Z_h");
 	pi_zh_d2->Draw("COLZ");
-	c->SaveAs("pi_zh_d2.pdf");
+	c->SaveAs(output_location+"pi_zh_d2.pdf");
 
 	//pions
 	pion_tuple->Draw("z_h>>pi_zh_pb(100,0,1)","p>0 && v_z>-2.78 && v_z<1.04","COLZ");
 	TH1F *pi_zh_pb = (TH1F*)gDirectory->GetList()->FindObject("pi_zh_pb");
 	pi_zh_pb->GetXaxis()->SetTitle("Z_h");
 	pi_zh_pb->Draw("COLZ");
-	c->SaveAs("pi_zh_pb.pdf");
+	c->SaveAs(output_location+"pi_zh_pb.pdf");
 
 	pion_tuple->Draw("v_z_elec>>v_z_elec(100,-15,6)","p>0","COLZ");
 	TH1F *pi_v_z_elec = (TH1F*)gDirectory->GetList()->FindObject("v_z_elec");
 	pi_v_z_elec->GetXaxis()->SetTitle("V_z");
 	pi_v_z_elec->Draw("COLZ");
-	c->SaveAs("v_z_elec.pdf");
+	c->SaveAs(output_location+"v_z_elec.pdf");
 
 	//multiplicity ratio
 	int n_e_d2 = elec_tuple->Draw("v_z>>hist","p>0 && v_z>-8.64 && v_z<-2.79 && Q2>1 && sqrt(W2)>2 && y_bjorken<0.85","goff");
@@ -179,7 +187,7 @@ v_z_elec = 0;
 	mr->Divide(z_h_pb, z_h_d2, n_e_d2, n_e_pb);
 	mr->Draw("COLZ");
 	mr->SetMarkerStyle(21);
-	c->SaveAs("mr.pdf");
+	c->SaveAs(output_location+"mr.pdf");
 
 	//p vs beta
 	positive_tuple->Draw("beta:p>>p_beta(500,0,10,500,0,1.2)","beta<1.2 && beta>0 && p>0 && p<10","COLZ");
@@ -187,5 +195,5 @@ v_z_elec = 0;
 	p_beta->GetXaxis()->SetTitle("p");
 	p_beta->GetYaxis()->SetTitle("beta");
 	p_beta->Draw("COLZ");
-	c->SaveAs("p_beta.pdf");
+	c->SaveAs(output_location+"p_beta.pdf");
 }
