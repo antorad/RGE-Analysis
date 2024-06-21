@@ -12,6 +12,8 @@
 using namespace std;
  
 void simple_plots(int run_N=000000){
+
+//TO DO: modify to give multiple files to add using TChain probably, using an input like 20150-20165 or a text files with a run list.
 	char buffer [10];
 	sprintf(buffer,"%0*d", 6, run_N);
 	TString run_N_str=TString(buffer);
@@ -56,12 +58,13 @@ void simple_plots(int run_N=000000){
 	TNtuple *elec_tuple = new TNtuple("elec_tuple","electrons",elec_varslist);
 
 
-v_z_elec = 0;
-// Selection
+v_z_elec = -99;
+// Selection of particles to plot
 	Long64_t n_entries = input_tuple->GetEntries();
 	for (Long64_t i=0;i<n_entries;i++) {
 		input_tuple->GetEntry(i);
 
+		//This part assumes that all hadrons after an electron coes from taht electron to save its v_z
 		// Check if the particle fullfills being the sactteried electron.
 		if  (pid==11) {
 			elec_vars[0] = pid;
@@ -80,6 +83,9 @@ v_z_elec = 0;
 			v_z_elec = v_z;
 		}
 
+//TO DO: maybe check to not process teh same particle in the 3 ifs
+
+		// Check if the particle is positive.
 		if  (charge>0) {
 			positive_vars[0] = pid;
 			positive_vars[1] = Q2;
@@ -98,6 +104,7 @@ v_z_elec = 0;
 			positive_tuple->Fill(positive_vars);
 		}
 
+		// Check if the particle is a positive pion
 		if  (pid==211) {
 			pion_vars[0] = pid;
 			pion_vars[1] = Q2;
@@ -117,7 +124,7 @@ v_z_elec = 0;
 		}
 	}
 
-	//------output writing------
+	//------root file output writing------
 	output->cd();
 	pion_tuple->Write();
 	positive_tuple->Write();
@@ -127,6 +134,9 @@ v_z_elec = 0;
 	//------ plots------;
 	TCanvas *c= new TCanvas("c","c",1000,600);
 	c->cd();
+
+//TO DO: make a list of variables to plot and make a function to plot it instead of copy paste.
+//TO DO: make TCut objects to use in all the cuts parts.
 
 	//electrons
 	//z vertex
@@ -189,7 +199,7 @@ v_z_elec = 0;
 	mr->SetMarkerStyle(21);
 	c->SaveAs(output_location+"mr.pdf");
 
-	//p vs beta
+	//positive particles, p vs beta
 	positive_tuple->Draw("beta:p>>p_beta(500,0,10,500,0,1.2)","beta<1.2 && beta>0 && p>0 && p<10","COLZ");
 	TH2F *p_beta = (TH2F*)gDirectory->GetList()->FindObject("p_beta");
 	p_beta->GetXaxis()->SetTitle("p");
