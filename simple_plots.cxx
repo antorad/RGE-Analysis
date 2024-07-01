@@ -5,6 +5,7 @@
 #include "TMath.h"
 #include "TList.h"
 #include "TString.h"
+#include "TCut.h"
 #include <iostream>
 #include <string>
 #include <cmath>
@@ -136,58 +137,64 @@ v_z_elec = -99;
 	c->cd();
 
 //TO DO: make a list of variables to plot and make a function to plot it instead of copy paste.
-//TO DO: make TCut objects to use in all the cuts parts.
 
-	//electrons
+	//cuts for the ṕlots
+	TCut Beta_cut="(beta>0)&&(beta<1.2)";
+	TCut P_cut="(p>0)&&(p<12)";
+	TCut Zv_d2="(v_z>-8.64)&&(v_z<-2.78)";
+	TCut Zv_solid="(v_z>-2.78)&&(v_z<1.04)";
+	TCut DIS_cut="(Q2>1)&&(sqrt(W2)>2)&&(y_bjorken<0.85)";
+
+	//ELECTRONS
 	//z vertex
-	elec_tuple->Draw("v_z>>e_v_z(100,-15,6)","p>0","COLZ");
+	elec_tuple->Draw("v_z>>e_v_z(100,-15,6)",P_cut,"COLZ");
 	TH1F *e_v_z = (TH1F*)gDirectory->GetList()->FindObject("e_v_z");
 	e_v_z->GetXaxis()->SetTitle("V_z");
 	e_v_z->Draw("COLZ");
 	c->SaveAs(output_location+"e_v_z.pdf");
 
-	elec_tuple->Draw("phi>>e_phi(360,-180,180)","p>0","COLZ");
+	elec_tuple->Draw("phi>>e_phi(360,-180,180)",P_cut,"COLZ");
 	TH1F *e_phi = (TH1F*)gDirectory->GetList()->FindObject("e_phi");
 	e_phi->GetXaxis()->SetTitle("Phi");
 	e_phi->Draw("COLZ");
 	c->SaveAs(output_location+"e_phi.pdf");
 
-	//pions
-	pion_tuple->Draw("v_z>>pi_v_z(100,-15,6)","p>0","COLZ");
+	//PIONS
+	pion_tuple->Draw("v_z>>pi_v_z(100,-15,6)",P_cut,"COLZ");
 	TH1F *pi_v_z = (TH1F*)gDirectory->GetList()->FindObject("pi_v_z");
 	pi_v_z->GetXaxis()->SetTitle("V_z");
 	pi_v_z->Draw("COLZ");
 	c->SaveAs(output_location+"pi_v_z.pdf");
 
 	//pions
-	pion_tuple->Draw("z_h>>pi_zh_d2(100,0,1)","p>0 && v_z>-8.64 && v_z<-2.79","COLZ");
+	pion_tuple->Draw("z_h>>pi_zh_d2(100,0,1)",P_cut&&Zv_d2,"COLZ");
 	TH1F *pi_zh_d2 = (TH1F*)gDirectory->GetList()->FindObject("pi_zh_d2");
 	pi_zh_d2->GetXaxis()->SetTitle("Z_h");
 	pi_zh_d2->Draw("COLZ");
 	c->SaveAs(output_location+"pi_zh_d2.pdf");
 
 	//pions
-	pion_tuple->Draw("z_h>>pi_zh_pb(100,0,1)","p>0 && v_z>-2.78 && v_z<1.04","COLZ");
+	pion_tuple->Draw("z_h>>pi_zh_pb(100,0,1)",P_cut&&Zv_solid&&DIS_cut,"COLZ");
 	TH1F *pi_zh_pb = (TH1F*)gDirectory->GetList()->FindObject("pi_zh_pb");
 	pi_zh_pb->GetXaxis()->SetTitle("Z_h");
 	pi_zh_pb->Draw("COLZ");
 	c->SaveAs(output_location+"pi_zh_pb.pdf");
 
-	pion_tuple->Draw("v_z_elec>>v_z_elec(100,-15,6)","p>0","COLZ");
+	pion_tuple->Draw("v_z_elec>>v_z_elec(100,-15,6)",P_cut&&DIS_cut,"COLZ");
 	TH1F *pi_v_z_elec = (TH1F*)gDirectory->GetList()->FindObject("v_z_elec");
 	pi_v_z_elec->GetXaxis()->SetTitle("V_z");
 	pi_v_z_elec->Draw("COLZ");
 	c->SaveAs(output_location+"v_z_elec.pdf");
 
 	//multiplicity ratio
-	int n_e_d2 = elec_tuple->Draw("v_z>>hist","p>0 && v_z>-8.64 && v_z<-2.79 && Q2>1 && sqrt(W2)>2 && y_bjorken<0.85","goff");
-	int n_e_pb = elec_tuple->Draw("v_z>>hist","p>0 && v_z>-2.78 && v_z<1.04 && Q2>1 && sqrt(W2)>2 && y_bjorken<0.85","goff");
+	int n_e_d2 = elec_tuple->Draw("v_z>>hist",P_cut&&Zv_d2&&DIS_cut,"goff");
+	int n_e_pb = elec_tuple->Draw("v_z>>hist",P_cut&&Zv_solid&&DIS_cut,"goff");
 	cout<<"elec d2 = "<<n_e_d2<<endl;
 	cout<<"elec pb = "<<n_e_pb<<endl;
 
-	pion_tuple->Draw("z_h>>z_h_d2(10,0,1)","p>0 && v_z_elec>-8.64 && v_z_elec<-2.79 && Q2> 1&& sqrt(W2)>2 && y_bjorken<0.85","COLZ");
+	pion_tuple->Draw("z_h>>z_h_d2(10,0,1)",P_cut&&Zv_d2&&DIS_cut,"COLZ");
 	TH1F *z_h_d2 = (TH1F*)gDirectory->GetList()->FindObject("z_h_d2");
-	pion_tuple->Draw("z_h>>z_h_pb(10,0,1)","p>0 && v_z_elec>-2.78 && v_z_elec<1.04 && Q2>1 && sqrt(W2)>2 && y_bjorken<0.85","COLZ");
+	pion_tuple->Draw("z_h>>z_h_pb(10,0,1)",P_cut&&Zv_solid&&DIS_cut,"COLZ");
 	TH1F *z_h_pb = (TH1F*)gDirectory->GetList()->FindObject("z_h_pb");
 
 	z_h_d2->Sumw2();
@@ -200,7 +207,7 @@ v_z_elec = -99;
 	c->SaveAs(output_location+"mr.pdf");
 
 	//positive particles, p vs beta
-	positive_tuple->Draw("beta:p>>p_beta(500,0,10,500,0,1.2)","beta<1.2 && beta>0 && p>0 && p<10","COLZ");
+	positive_tuple->Draw("beta:p>>p_beta(500,0,12,500,0,1.2)",Beta_cut&&P_cut,"COLZ");
 	TH2F *p_beta = (TH2F*)gDirectory->GetList()->FindObject("p_beta");
 	p_beta->GetXaxis()->SetTitle("p");
 	p_beta->GetYaxis()->SetTitle("beta");
