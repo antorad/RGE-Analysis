@@ -12,26 +12,28 @@
 
 using namespace std;
 
-void draw_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, int xmin, int xmax, TString title, TString output, TCanvas* c, TString location){
-	c->cd();
+void draw_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, int xmin, int xmax,
+				 TString title, TString output, TCanvas* canvas, TString location){
+	canvas->cd();
 	TString histo_to_draw;
 	histo_to_draw.Form("%s>>histo(%i,%i,%i)", var, nbins, xmin, xmax);
 	tuple->Draw(histo_to_draw,cut,"COLZ");
 	TH1F *histo = (TH1F*)gDirectory->GetList()->FindObject("histo");
 	histo->GetXaxis()->SetTitle(title);
 	histo->Draw("COLZ");
-	c->SaveAs(location+output+".pdf");
+	canvas->SaveAs(location+output+".pdf");
 }
 
-void draw_plot_2D(TNtuple* tuple, TCut cut, char const* var, int nbins, int xmin, int xmax, TString title, TString output, TCanvas* c, TString location){
-	c->cd();
+void draw_plot_2D(TNtuple* tuple, TCut cut, char const* var, int nbins, int xmin, int xmax,
+					 TString title, TString output, TCanvas* canvas, TString location){
+	canvas->cd();
 	TString histo_to_draw;
 	histo_to_draw.Form("%s>>histo(%i,%i,%i)", var, nbins, xmin, xmax);
 	tuple->Draw(histo_to_draw,cut,"COLZ");
 	TH1F *histo = (TH1F*)gDirectory->GetList()->FindObject("histo");
 	histo->GetXaxis()->SetTitle(title);
 	histo->Draw("COLZ");
-	c->SaveAs(location+output+".pdf");
+	canvas->SaveAs(location+output+".pdf");
 }
 
 void simple_plots(int run_N=000000){
@@ -159,6 +161,8 @@ v_z_elec = -99;
 	//c->cd();
 
 //TO DO: make a list of variables to plot and make a function to plot it instead of copy paste.
+
+//TO DO add plots by sector
 
 	//cuts for the ṕlots
 	TCut Beta_cut="(beta>0)&&(beta<1.2)";
