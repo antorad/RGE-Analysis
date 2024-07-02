@@ -11,7 +11,29 @@
 #include <cmath>
 
 using namespace std;
- 
+
+void draw_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, int xmin, int xmax, TString title, TString output, TCanvas* c, TString location){
+	c->cd();
+	TString histo_to_draw;
+	histo_to_draw.Form("%s>>histo(%i,%i,%i)", var, nbins, xmin, xmax);
+	tuple->Draw(histo_to_draw,cut,"COLZ");
+	TH1F *histo = (TH1F*)gDirectory->GetList()->FindObject("histo");
+	histo->GetXaxis()->SetTitle(title);
+	histo->Draw("COLZ");
+	c->SaveAs(location+output+".pdf");
+}
+
+void draw_plot_2D(TNtuple* tuple, TCut cut, char const* var, int nbins, int xmin, int xmax, TString title, TString output, TCanvas* c, TString location){
+	c->cd();
+	TString histo_to_draw;
+	histo_to_draw.Form("%s>>histo(%i,%i,%i)", var, nbins, xmin, xmax);
+	tuple->Draw(histo_to_draw,cut,"COLZ");
+	TH1F *histo = (TH1F*)gDirectory->GetList()->FindObject("histo");
+	histo->GetXaxis()->SetTitle(title);
+	histo->Draw("COLZ");
+	c->SaveAs(location+output+".pdf");
+}
+
 void simple_plots(int run_N=000000){
 
 //TO DO: modify to give multiple files to add using TChain probably, using an input like 20150-20165 or a text files with a run list.
@@ -134,7 +156,7 @@ v_z_elec = -99;
 
 	//------ plots------;
 	TCanvas *c= new TCanvas("c","c",1000,600);
-	c->cd();
+	//c->cd();
 
 //TO DO: make a list of variables to plot and make a function to plot it instead of copy paste.
 
@@ -147,11 +169,13 @@ v_z_elec = -99;
 
 	//ELECTRONS
 	//z vertex
-	elec_tuple->Draw("v_z>>e_v_z(100,-15,6)",P_cut,"COLZ");
-	TH1F *e_v_z = (TH1F*)gDirectory->GetList()->FindObject("e_v_z");
-	e_v_z->GetXaxis()->SetTitle("V_z");
-	e_v_z->Draw("COLZ");
-	c->SaveAs(output_location+"e_v_z.pdf");
+	//elec_tuple->Draw("v_z>>e_v_z(100,-15,6)",P_cut,"COLZ");
+	//TH1F *e_v_z = (TH1F*)gDirectory->GetList()->FindObject("e_v_z");
+	//e_v_z->GetXaxis()->SetTitle("V_z");
+	//e_v_z->Draw("COLZ");
+	//c->SaveAs(output_location+"e_v_z.pdf");
+	TCut total_cut = P_cut;
+	draw_plot(elec_tuple, total_cut, "v_z",100,-15,6, "V_z", "e_v_z", c, output_location);
 
 	elec_tuple->Draw("phi>>e_phi(360,-180,180)",P_cut,"COLZ");
 	TH1F *e_phi = (TH1F*)gDirectory->GetList()->FindObject("e_phi");
