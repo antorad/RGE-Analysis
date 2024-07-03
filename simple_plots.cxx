@@ -12,26 +12,28 @@
 
 using namespace std;
 
-void draw_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, int xmin, int xmax,
-				 TString title, TString output, TCanvas* canvas, TString location){
+void draw_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, float xmin, float xmax,
+				 TString xtitle, TString output, TCanvas* canvas, TString location){
 	canvas->cd();
 	TString histo_to_draw;
-	histo_to_draw.Form("%s>>histo(%i,%i,%i)", var, nbins, xmin, xmax);
+	histo_to_draw.Form("%s>>histo(%i,%f,%f)", var, nbins, xmin, xmax);
 	tuple->Draw(histo_to_draw,cut,"COLZ");
 	TH1F *histo = (TH1F*)gDirectory->GetList()->FindObject("histo");
-	histo->GetXaxis()->SetTitle(title);
+	histo->GetXaxis()->SetTitle(xtitle);
 	histo->Draw("COLZ");
 	canvas->SaveAs(location+output+".pdf");
 }
 
-void draw_plot_2D(TNtuple* tuple, TCut cut, char const* var, int nbins, int xmin, int xmax,
-					 TString title, TString output, TCanvas* canvas, TString location){
+void draw_plot_2D(TNtuple* tuple, TCut cut, char const* var, int xnbins, float xmin, float xmax,
+					 TString xtitle, int ynbins, float ymin, float ymax, TString ytitle, 
+					 TString output, TCanvas* canvas, TString location){
 	canvas->cd();
 	TString histo_to_draw;
-	histo_to_draw.Form("%s>>histo(%i,%i,%i)", var, nbins, xmin, xmax);
-	tuple->Draw(histo_to_draw,cut,"COLZ");
-	TH1F *histo = (TH1F*)gDirectory->GetList()->FindObject("histo");
-	histo->GetXaxis()->SetTitle(title);
+	histo_to_draw.Form("%s>>histo(%i,%f,%f,%i,%f,%f)", var, xnbins, xmin, xmax, ynbins, ymin, ymax);
+	tuple->Draw(histo_to_draw, cut,"COLZ");
+	TH2F *histo = (TH2F*)gDirectory->GetList()->FindObject("histo");
+	histo->GetXaxis()->SetTitle(xtitle);
+	histo->GetYaxis()->SetTitle(ytitle);
 	histo->Draw("COLZ");
 	canvas->SaveAs(location+output+".pdf");
 }
@@ -51,7 +53,7 @@ void simple_plots(int run_N=000000){
 
 	TFile *output = new TFile(output_location+"out_clas12.root","RECREATE");
 
-	Float_t pid, Q2, nu, v_z, z_h, p, E_total, E_ECIN, E_ECOU, event_num, v_z_elec, phi, y_bjorken, W2, charge, beta; 
+	Float_t pid, Q2, nu, v_z, z_h, p, E_total, E_ECIN, E_ECOU, event_num, v_z_elec, phi, y_bjorken, W2, charge, beta, sector; 
 	Float_t rad2deg = 57.2958;
 
 //------Read branches with variables used and needed for cuts------
@@ -70,14 +72,15 @@ void simple_plots(int run_N=000000){
 	input_tuple->SetBranchAddress("charge",&charge);
 	input_tuple->SetBranchAddress("beta",&beta);
 	input_tuple->SetBranchAddress("phi",&phi);
+	input_tuple->SetBranchAddress("sector",&sector);
 
 //------output ntuple------
-	Float_t pion_vars[14];
-	Float_t positive_vars[14];
-	Float_t elec_vars[12];
-	const char* pion_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:y_bjorken:W2:beta:phi";
-	const char* positive_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:y_bjorken:W2:beta:phi";
-	const char* elec_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:y_bjorken:W2:beta:phi";
+	Float_t pion_vars[15];
+	Float_t positive_vars[15];
+	Float_t elec_vars[15];
+	const char* pion_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:y_bjorken:W2:beta:phi:sector";
+	const char* positive_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:y_bjorken:W2:beta:phi:sector";
+	const char* elec_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:y_bjorken:W2:beta:phi:sector";
 	TNtuple *pion_tuple = new TNtuple("pion_ntuple","pions",pion_varslist);
 	TNtuple *positive_tuple = new TNtuple("positive_ntuple","positives",positive_varslist);
 	TNtuple *elec_tuple = new TNtuple("elec_tuple","electrons",elec_varslist);
@@ -104,6 +107,7 @@ v_z_elec = -99;
 			elec_vars[9] = W2;
 			elec_vars[10] = beta;
 			elec_vars[11] = phi*rad2deg;
+			elec_vars[12] = sector;
 			elec_tuple->Fill(elec_vars);
 			v_z_elec = v_z;
 		}
@@ -126,6 +130,7 @@ v_z_elec = -99;
 			positive_vars[11] = W2;
 			positive_vars[12] = beta;
 			positive_vars[13] = phi*rad2deg;
+			positive_vars[14] = sector;
 			positive_tuple->Fill(positive_vars);
 		}
 
@@ -145,6 +150,7 @@ v_z_elec = -99;
 			pion_vars[11] = W2;
 			pion_vars[12] = beta;
 			pion_vars[13] = phi*rad2deg;
+			pion_vars[14] = sector;
 			pion_tuple->Fill(pion_vars);
 		}
 	}
@@ -160,69 +166,52 @@ v_z_elec = -99;
 	TCanvas *c= new TCanvas("c","c",1000,600);
 	//c->cd();
 
-//TO DO: make a list of variables to plot and make a function to plot it instead of copy paste.
-
-//TO DO add plots by sector
+//TO DO add function to plot by sector in same canvas
 
 	//cuts for the ṕlots
 	TCut Beta_cut="(beta>0)&&(beta<1.2)";
 	TCut P_cut="(p>0)&&(p<12)";
-	TCut Zv_d2="(v_z>-8.64)&&(v_z<-2.78)";
-	TCut Zv_solid="(v_z>-2.78)&&(v_z<1.04)";
+	TCut vz_d2="(v_z>-8.64)&&(v_z<-2.78)";
+	TCut vz_solid="(v_z>-2.78)&&(v_z<1.04)";
 	TCut DIS_cut="(Q2>1)&&(sqrt(W2)>2)&&(y_bjorken<0.85)";
 
-	//ELECTRONS
+	//----ELECTRONS----
+	//z vertex (total)
+	draw_plot(elec_tuple, P_cut, "v_z",100,-15,6, "V_z", "e_v_z", c, output_location);
+	//z vertex by sector
+	for (int i = 1; i < 7; ++i){
+		TCut sector_cut = (TString::Format("sector==%i", i)).Data();
+		string title = (TString::Format("sec%i", i)).Data();
+		draw_plot(elec_tuple, P_cut&&sector_cut, "v_z",100,-15,6, "V_z", title, c, output_location);
+	}
+
+	//phi distribution
+	draw_plot(elec_tuple, P_cut, "phi",360,-180,180, "Phi", "e_phi", c, output_location);
+
+	//----PIONS----
 	//z vertex
-	//elec_tuple->Draw("v_z>>e_v_z(100,-15,6)",P_cut,"COLZ");
-	//TH1F *e_v_z = (TH1F*)gDirectory->GetList()->FindObject("e_v_z");
-	//e_v_z->GetXaxis()->SetTitle("V_z");
-	//e_v_z->Draw("COLZ");
-	//c->SaveAs(output_location+"e_v_z.pdf");
-	TCut total_cut = P_cut;
-	draw_plot(elec_tuple, total_cut, "v_z",100,-15,6, "V_z", "e_v_z", c, output_location);
+	draw_plot(pion_tuple, P_cut, "v_z",100,-15,6, "V_z", "pi_v_z", c, output_location);
 
-	elec_tuple->Draw("phi>>e_phi(360,-180,180)",P_cut,"COLZ");
-	TH1F *e_phi = (TH1F*)gDirectory->GetList()->FindObject("e_phi");
-	e_phi->GetXaxis()->SetTitle("Phi");
-	e_phi->Draw("COLZ");
-	c->SaveAs(output_location+"e_phi.pdf");
+	//z_h (deuterium)
+	draw_plot(pion_tuple, P_cut&&vz_d2&&DIS_cut, "z_h",100,0,1, "Z_h", "pi_zh_d2", c, output_location);
 
-	//PIONS
-	pion_tuple->Draw("v_z>>pi_v_z(100,-15,6)",P_cut,"COLZ");
-	TH1F *pi_v_z = (TH1F*)gDirectory->GetList()->FindObject("pi_v_z");
-	pi_v_z->GetXaxis()->SetTitle("V_z");
-	pi_v_z->Draw("COLZ");
-	c->SaveAs(output_location+"pi_v_z.pdf");
+	//zh (solid)
+	draw_plot(pion_tuple, P_cut&&vz_d2&&DIS_cut, "z_h",100,0,1, "Z_h", "pi_zh_solid", c, output_location);
 
-	//pions
-	pion_tuple->Draw("z_h>>pi_zh_d2(100,0,1)",P_cut&&Zv_d2,"COLZ");
-	TH1F *pi_zh_d2 = (TH1F*)gDirectory->GetList()->FindObject("pi_zh_d2");
-	pi_zh_d2->GetXaxis()->SetTitle("Z_h");
-	pi_zh_d2->Draw("COLZ");
-	c->SaveAs(output_location+"pi_zh_d2.pdf");
+	//----POSITIVE PARTICLES----
+	//p vs beta
+	draw_plot_2D(positive_tuple, Beta_cut&&P_cut, "beta:p", 500,0,12,"p", 500, 0, 1.2, "beta",
+					"p_beta", c, output_location);
 
-	//pions
-	pion_tuple->Draw("z_h>>pi_zh_pb(100,0,1)",P_cut&&Zv_solid&&DIS_cut,"COLZ");
-	TH1F *pi_zh_pb = (TH1F*)gDirectory->GetList()->FindObject("pi_zh_pb");
-	pi_zh_pb->GetXaxis()->SetTitle("Z_h");
-	pi_zh_pb->Draw("COLZ");
-	c->SaveAs(output_location+"pi_zh_pb.pdf");
-
-	pion_tuple->Draw("v_z_elec>>v_z_elec(100,-15,6)",P_cut&&DIS_cut,"COLZ");
-	TH1F *pi_v_z_elec = (TH1F*)gDirectory->GetList()->FindObject("v_z_elec");
-	pi_v_z_elec->GetXaxis()->SetTitle("V_z");
-	pi_v_z_elec->Draw("COLZ");
-	c->SaveAs(output_location+"v_z_elec.pdf");
-
-	//multiplicity ratio
-	int n_e_d2 = elec_tuple->Draw("v_z>>hist",P_cut&&Zv_d2&&DIS_cut,"goff");
-	int n_e_pb = elec_tuple->Draw("v_z>>hist",P_cut&&Zv_solid&&DIS_cut,"goff");
+	//-----MULTIPLICITY RATIO-----
+	int n_e_d2 = elec_tuple->Draw("v_z>>hist",P_cut&&vz_d2&&DIS_cut,"goff");
+	int n_e_pb = elec_tuple->Draw("v_z>>hist",P_cut&&vz_solid&&DIS_cut,"goff");
 	cout<<"elec d2 = "<<n_e_d2<<endl;
 	cout<<"elec pb = "<<n_e_pb<<endl;
 
-	pion_tuple->Draw("z_h>>z_h_d2(10,0,1)",P_cut&&Zv_d2&&DIS_cut,"COLZ");
+	pion_tuple->Draw("z_h>>z_h_d2(10,0,1)",P_cut&&vz_d2&&DIS_cut,"COLZ");
 	TH1F *z_h_d2 = (TH1F*)gDirectory->GetList()->FindObject("z_h_d2");
-	pion_tuple->Draw("z_h>>z_h_pb(10,0,1)",P_cut&&Zv_solid&&DIS_cut,"COLZ");
+	pion_tuple->Draw("z_h>>z_h_pb(10,0,1)",P_cut&&vz_solid&&DIS_cut,"COLZ");
 	TH1F *z_h_pb = (TH1F*)gDirectory->GetList()->FindObject("z_h_pb");
 
 	z_h_d2->Sumw2();
@@ -233,12 +222,4 @@ v_z_elec = -99;
 	mr->Draw("COLZ");
 	mr->SetMarkerStyle(21);
 	c->SaveAs(output_location+"mr.pdf");
-
-	//positive particles, p vs beta
-	positive_tuple->Draw("beta:p>>p_beta(500,0,12,500,0,1.2)",Beta_cut&&P_cut,"COLZ");
-	TH2F *p_beta = (TH2F*)gDirectory->GetList()->FindObject("p_beta");
-	p_beta->GetXaxis()->SetTitle("p");
-	p_beta->GetYaxis()->SetTitle("beta");
-	p_beta->Draw("COLZ");
-	c->SaveAs(output_location+"p_beta.pdf");
 }
