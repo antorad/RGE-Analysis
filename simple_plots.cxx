@@ -14,7 +14,7 @@ using namespace std;
 
 //plot 1D plots
 void draw_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, float xmin, float xmax,
-				 TString xtitle, TString output, TString location){
+				TString xtitle, TString ytitle, TString output, TString location){
 	TCanvas *canvas = new TCanvas("canvas","canvas",1000,600);
 	canvas->cd();
 	TString histo_to_draw;
@@ -22,13 +22,15 @@ void draw_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, float xmin,
 	tuple->Draw(histo_to_draw,cut,"COLZ");
 	TH1F *histo = (TH1F*)gDirectory->GetList()->FindObject("histo");
 	histo->GetXaxis()->SetTitle(xtitle);
+	histo->GetYaxis()->SetTitle(ytitle);
+	histo->SetTitle(xtitle);
 	histo->Draw("COLZ");
 	canvas->SaveAs(location+output+".pdf");
 }
 
 //plot 1D plots by sector
 void draw_sector_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, float xmin, float xmax,
-				 TString xtitle, TString output, TString location){
+						TString xtitle, TString ytitle, TString output, TString location){
 	TCanvas *canvas= new TCanvas("canvas","canvas",1000,600);
 	canvas->Divide(3,2);
 	TH1F *histo[6];
@@ -41,6 +43,8 @@ void draw_sector_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, floa
 		tuple->Draw(histo_to_draw,cut&&sector_cut,"COLZ");
 		histo[i-1] = (TH1F*)gDirectory->GetList()->FindObject(Form("histo%i",i));
 		histo[i-1]->GetXaxis()->SetTitle(xtitle);
+		histo[i-1]->GetYaxis()->SetTitle(ytitle);
+		histo[i-1]->SetTitle(xtitle+Form(" Sector %i",i-1));
 		histo[i-1]->Draw("COLZ");
 	}
 	canvas->SaveAs(location+output+".pdf");
@@ -48,8 +52,8 @@ void draw_sector_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, floa
 
 //plot 2D plots
 void draw_plot_2D(TNtuple* tuple, TCut cut, char const* var, int xnbins, float xmin, float xmax,
-					 TString xtitle, int ynbins, float ymin, float ymax, TString ytitle, 
-					 TString output, TString location){
+					TString xtitle, int ynbins, float ymin, float ymax, TString ytitle, 
+					TString output, TString location){
 	TCanvas *canvas= new TCanvas("canvas","canvas",1000,600);
 	canvas->cd();
 	TString histo_to_draw;
@@ -58,6 +62,7 @@ void draw_plot_2D(TNtuple* tuple, TCut cut, char const* var, int xnbins, float x
 	TH2F *histo = (TH2F*)gDirectory->GetList()->FindObject("histo");
 	histo->GetXaxis()->SetTitle(xtitle);
 	histo->GetYaxis()->SetTitle(ytitle);
+	histo->SetTitle(xtitle + " vs " + ytitle);
 	histo->Draw("COLZ");
 	canvas->SaveAs(location+output+".pdf");
 }
@@ -65,7 +70,8 @@ void draw_plot_2D(TNtuple* tuple, TCut cut, char const* var, int xnbins, float x
 //Main function
 void simple_plots(int run_N=000000){
 
-//TO DO: modify to give multiple files to add using TChain probably, using an input like 20150-20165 or a text files with a run list.
+//TODO: modify to give multiple files to add using TChain probably, using an input like 20150-20165 or a text file with a run list.
+	//Transform input run number to Tstring with correct number of digits
 	char buffer [10];
 	sprintf(buffer,"%0*d", 6, run_N);
 	TString run_N_str=TString(buffer);
@@ -81,7 +87,7 @@ void simple_plots(int run_N=000000){
 	Float_t pid, Q2, nu, v_z, z_h, p, E_total, E_ECIN, E_ECOU, event_num, v_z_elec, phi, y_bjorken, W2, charge, beta, sector; 
 	Float_t rad2deg = 57.2958;
 
-//------Read branches with variables needed for cuts and plots------
+	//------Read branches with variables needed for cuts and plots------
 	input_tuple->SetBranchAddress("pid",&pid);
 	input_tuple->SetBranchAddress("Q2",&Q2);
 	input_tuple->SetBranchAddress("nu",&nu);
@@ -99,7 +105,7 @@ void simple_plots(int run_N=000000){
 	input_tuple->SetBranchAddress("phi",&phi);
 	input_tuple->SetBranchAddress("sector",&sector);
 
-//------output ntuples------
+	//------output ntuples------
 	Float_t pion_vars[15];
 	Float_t positive_vars[15];
 	Float_t elec_vars[15];
@@ -137,7 +143,7 @@ void simple_plots(int run_N=000000){
 			v_z_elec = v_z;
 		}
 
-//TO DO: maybe check to not process teh same particle in the 3 ifs
+//TODO: maybe check to not process teh same particle in the 3 ifs
 
 		// Check if the particle is positive.
 		if  (charge>0) {
@@ -195,28 +201,28 @@ void simple_plots(int run_N=000000){
 	TCut vz_solid="(v_z>-2.78)&&(v_z<1.04)";
 	TCut DIS_cut="(Q2>1)&&(sqrt(W2)>2)&&(y_bjorken<0.85)";
 
+//TODO: include more variables to plot: ein vs eout, W2, Q2, Nu
 	//----ELECTRONS----
 	//z vertex (total)
-	draw_plot(elec_tuple, P_cut, "v_z",100,-15,6, "V_z", "e_v_z", output_location);
+	draw_plot(elec_tuple, P_cut, "v_z",100,-15,6, "V_{z} [cm]", "dN/dV_{z}" , "e_v_z", output_location);
+
 	//z vertex by sector
-	draw_sector_plot(elec_tuple, P_cut, "v_z",100,-15,6, "V_z", "sector_vz", output_location);
+	draw_sector_plot(elec_tuple, P_cut, "v_z",100,-15,6, "V_{z} [cm]", "dN/dV_{z}",
+						"sector_e_vz", output_location);
 
 	//phi distribution
-	draw_plot(elec_tuple, P_cut, "phi",360,-180,180, "Phi", "e_phi", output_location);
+	draw_plot(elec_tuple, P_cut, "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "e_phi", output_location);
 
 	//----PIONS----
 	//z vertex
-	draw_plot(pion_tuple, P_cut, "v_z",100,-15,6, "V_z", "pi_v_z", output_location);
+	draw_plot(pion_tuple, P_cut, "v_z",100,-15,6, "V_{z} [cm]", "dN/dV_{z}", "pi_v_z", output_location);
 
-	//z_h (deuterium)
-	draw_plot(pion_tuple, P_cut&&vz_d2&&DIS_cut, "z_h",100,0,1, "Z_h", "pi_zh_d2", output_location);
-
-	//zh (solid)
-	draw_plot(pion_tuple, P_cut&&vz_d2&&DIS_cut, "z_h",100,0,1, "Z_h", "pi_zh_solid", output_location);
+	//z_h
+	draw_plot(pion_tuple, P_cut&&DIS_cut, "z_h",100,0,1, "Z_{h}", "dN/dZ_{h}", "pi_zh", output_location);
 
 	//----POSITIVE PARTICLES----
 	//p vs beta
-	draw_plot_2D(positive_tuple, Beta_cut&&P_cut, "beta:p", 500,0,12,"p", 500, 0, 1.2, "beta",
+	draw_plot_2D(positive_tuple, Beta_cut&&P_cut, "beta:p", 500,0,12,"P [GeV]", 500, 0, 1.2, "#beta",
 					"p_beta", output_location);
 
 	//-----MULTIPLICITY RATIO-----
@@ -237,7 +243,10 @@ void simple_plots(int run_N=000000){
 
 	TH1F* mr = new TH1F("mr", "mr", 10,0,1);
 	mr->Divide(z_h_pb, z_h_d2, n_e_d2, n_e_pb);
-	mr->Draw("COLZ");
+	mr->GetXaxis()->SetTitle("Z_{h}");
+	mr->GetYaxis()->SetTitle("#frac{N_{A}#pi^{+}}{N_{D2}#pi^{+}}#frac{N_{D2}e^{-}}{N_{A}e^{-}}");
+	mr->SetTitle("Multiplicity Ratio");
 	mr->SetMarkerStyle(21);
+	mr->Draw("COLZ");
 	canvas->SaveAs(output_location+"mr.pdf");
 }
