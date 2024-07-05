@@ -69,6 +69,9 @@ void draw_plot_2D(TNtuple* tuple, TCut cut, char const* var, int xnbins, float x
 
 //process the input file and crate all the plots
 void processChain(TChain* input_tuple, TString output_location) {
+	//create output file and output directory in case it doenst exist
+	std::string command = std::string("mkdir -p ") + output_location.Data();
+	gSystem->Exec(command.c_str());
 	TFile *output = new TFile(output_location+"out_clas12.root","RECREATE");
 
 	Float_t pid, Q2, nu, v_z, z_h, p, E_total, E_ECIN, E_ECOU, event_num, v_z_elec, phi, y_bjorken, W2, charge, beta, sector; 
