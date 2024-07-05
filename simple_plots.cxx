@@ -67,21 +67,8 @@ void draw_plot_2D(TNtuple* tuple, TCut cut, char const* var, int xnbins, float x
 	canvas->SaveAs(location+output+".pdf");
 }
 
-//Main function
-void simple_plots(int run_N=000000){
-
-//TODO: modify to give multiple files to add using TChain probably, using an input like 20150-20165 or a text file with a run list.
-	//Transform input run number to Tstring with correct number of digits
-	char buffer [10];
-	sprintf(buffer,"%0*d", 6, run_N);
-	TString run_N_str=TString(buffer);
-	cout<<"run number: "<<run_N_str<<endl;
-	TString output_location = "output/"+run_N_str+"/";
-	cout<<"output location: "<<output_location<<endl;
-
-	TFile *input = new TFile("data/ntuples_dc_"+run_N_str+".root","READ");
-	TNtuple* input_tuple = (TNtuple*)input->Get("data");
-
+//process the input file and crate all the plots
+void processChain(TChain* input_tuple, TString output_location) {
 	TFile *output = new TFile(output_location+"out_clas12.root","RECREATE");
 
 	Float_t pid, Q2, nu, v_z, z_h, p, E_total, E_ECIN, E_ECOU, event_num, v_z_elec, phi, y_bjorken, W2, charge, beta, sector; 
@@ -201,7 +188,6 @@ void simple_plots(int run_N=000000){
 	TCut vz_solid="(v_z>-2.78)&&(v_z<1.04)";
 	TCut DIS_cut="(Q2>1)&&(sqrt(W2)>2)&&(y_bjorken<0.85)";
 
-//TODO: include more variables to plot: ein vs eout, W2, Q2, Nu
 	//----ELECTRONS----
 	//z vertex (total)
 	draw_plot(elec_tuple, P_cut, "v_z",100,-15,6, "V_{z} [cm]", "dN/dV_{z}" , "e_v_z", output_location);
@@ -209,9 +195,21 @@ void simple_plots(int run_N=000000){
 	//z vertex by sector
 	draw_sector_plot(elec_tuple, P_cut, "v_z",100,-15,6, "V_{z} [cm]", "dN/dV_{z}",
 						"sector_e_vz", output_location);
+	//W2
+	draw_plot(elec_tuple, P_cut, "W2",100,0,20, "W^{2}", "dN/dW^{2}" , "e_w2", output_location);
+
+	//Q2
+	draw_plot(elec_tuple, P_cut, "Q2",100,0,12, "Q^{2}", "dN/dQ^{2}" , "e_q2", output_location);
+
+	//Nu
+	draw_plot(elec_tuple, P_cut, "nu",100,0,12, "#nu", "dN/d#nu" , "e_nu", output_location);
 
 	//phi distribution
 	draw_plot(elec_tuple, P_cut, "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "e_phi", output_location);
+
+	//ein vs eout
+	draw_plot_2D(elec_tuple, Beta_cut&&P_cut&&DIS_cut, "E_total/p:p", 100,0,12,"P [GeV]", 100, 0, 0.5, "E_{tot}/P",
+					"etot_p", output_location);
 
 	//----PIONS----
 	//z vertex
@@ -249,4 +247,42 @@ void simple_plots(int run_N=000000){
 	mr->SetMarkerStyle(21);
 	mr->Draw("COLZ");
 	canvas->SaveAs(output_location+"mr.pdf");
+}
+
+//Main function that recieves a txt with a list of run number asn the name of the output file
+void simple_plots(const char* inputFileName, TString output_name){
+	// Open the input text file
+    std::ifstream inputFile(inputFileName);
+
+    // Create a TChain to combine input TNuples
+    TChain* input_tuple = new TChain("data");
+
+    // Read each line from the text file and add the corresponding ROOT file to the TChain
+    std::string rootFileName;
+    while (std::getline(inputFile, rootFileName)) {
+        input_tuple->Add("data/ntuples_dc_0"+TString(rootFileName)+".root");
+    }
+
+    // Close the input file
+    inputFile.close();
+
+    //process the Tchain to make plots
+    TString output_location = "output/"+output_name+"/";
+    processChain(input_tuple, output_location);
+}
+
+//Main function that recieves a run number as the input
+void simple_plots(int run_N=000000){
+	//Transform input run number to Tstring with correct number of digits
+	char buffer [10];
+	sprintf(buffer,"%0*d", 6, run_N);
+	TString run_N_str=TString(buffer);
+	TString output_location = "output/"+run_N_str+"/";
+
+	//extract input TNuple from input file
+	TFile *input = new TFile("data/ntuples_dc_"+run_N_str+".root","READ");
+	TChain* input_tuple = (TChain*)input->Get("data");
+
+	//process the TNtuple to make plots
+	processChain(input_tuple, output_location);
 }
