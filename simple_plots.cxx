@@ -26,6 +26,8 @@ void draw_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, float xmin,
 	histo->SetTitle(xtitle);
 	histo->Draw("COLZ");
 	canvas->SaveAs(location+output+".pdf");
+	delete histo;
+	delete canvas;
 }
 
 //plot 1D plots by sector
@@ -48,6 +50,7 @@ void draw_sector_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, floa
 		histo[i-1]->Draw("COLZ");
 	}
 	canvas->SaveAs(location+output+".pdf");
+	delete canvas;
 }
 
 //plot 2D plots
@@ -65,6 +68,8 @@ void draw_plot_2D(TNtuple* tuple, TCut cut, char const* var, int xnbins, float x
 	histo->SetTitle(xtitle + " vs " + ytitle);
 	histo->Draw("COLZ");
 	canvas->SaveAs(location+output+".pdf");
+	delete histo;
+	delete canvas;
 }
 
 //process the input file and crate all the plots
@@ -250,6 +255,16 @@ void processChain(TChain* input_tuple, TString output_location) {
 	mr->SetMarkerStyle(21);
 	mr->Draw("COLZ");
 	canvas->SaveAs(output_location+"mr.pdf");
+
+	//delete all objects;
+	delete mr;
+	delete z_h_pb;
+	delete z_h_d2;
+	delete canvas;
+	delete pion_tuple;
+	delete positive_tuple;
+	delete elec_tuple;
+	delete output;
 }
 
 //Main function that recieves a txt with a list of run number asn the name of the output file
@@ -272,6 +287,9 @@ void simple_plots(const char* inputFileName, TString output_name){
     //process the Tchain to make plots
     TString output_location = "output/"+output_name+"/";
     processChain(input_tuple, output_location);
+
+    //delete all objects
+    delete input_tuple;
 }
 
 //Main function that recieves a run number as the input
@@ -281,11 +299,18 @@ void simple_plots(int run_N=000000){
 	sprintf(buffer,"%0*d", 6, run_N);
 	TString run_N_str=TString(buffer);
 	TString output_location = "output/"+run_N_str+"/";
+	cout<<output_location<<endl;
 
 	//extract input TNuple from input file
 	TFile *input = new TFile("data/ntuples_dc_"+run_N_str+".root","READ");
+	cout<<"File found "<<run_N_str<<endl;
 	TChain* input_tuple = (TChain*)input->Get("data");
 
 	//process the TNtuple to make plots
+	cout<<"tuple done"<<endl;
 	processChain(input_tuple, output_location);
+
+	//delete all objects
+	delete input_tuple;
+	delete input;
 }
