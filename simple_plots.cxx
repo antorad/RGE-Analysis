@@ -216,8 +216,8 @@ void processChain(TChain* input_tuple, TString output_location) {
 	draw_plot(elec_tuple, P_cut, "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "e_phi", output_location);
 
 	//ein vs eout
-	draw_plot_2D(elec_tuple, Beta_cut&&P_cut&&DIS_cut, "E_total/p:p", 100,0,12,"P [GeV]", 100, 0, 0.5, "E_{tot}/P",
-					"etot_p", output_location);
+	draw_plot_2D(elec_tuple, Beta_cut&&P_cut&&DIS_cut, "E_total/p:p", 100,0,12,"P [GeV]",
+					100, 0, 0.5, "E_{tot}/P", "etot_p", output_location);
 
 	//----PIONS----
 	//z vertex
@@ -225,6 +225,9 @@ void processChain(TChain* input_tuple, TString output_location) {
 
 	//z_h
 	draw_plot(pion_tuple, P_cut&&DIS_cut, "z_h",100,0,1, "Z_{h}", "dN/dZ_{h}", "pi_zh", output_location);
+
+	//phi distribution
+	draw_plot(pion_tuple, P_cut, "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "pi_phi", output_location);
 
 	//----POSITIVE PARTICLES----
 	//p vs beta
