@@ -48,20 +48,24 @@ void mr_varaible(TString var, int nbins, float xmin, float xmax,
     TH1F *m_d2_zh = new TH1F("Multiplicity D2" + var, "Multiplicity D2" + var, nbins, xmin, xmax);
     TH1F *m_solid_zh = new TH1F("Multiplicity Solid" + var, "Multiplicity solid" + var,
                                 nbins, xmin, xmax);
-    TH1F *mr_zh = new TH1F("Multiplicity ratio" + var, "Multiplicity ratio" + var, nbins, xmin, xmax);
+    TH1F *mr = new TH1F("Multiplicity ratio" + var, "Multiplicity ratio" + var, nbins, xmin, xmax);
 
     //Error propagation
     m_d2_zh->Sumw2();
     m_solid_zh->Sumw2();
-    mr_zh->Sumw2();
+    mr->Sumw2();
 
     //Calculation of multiplicity and multiplicity ratio  
-    //For some reason by using:mr_zh->Divide(m_solid_zh, m_d2_zh, n_e_d2, n_e_solid)
+    //For some reason by using: mr->Divide(m_solid_zh, m_d2_zh, n_e_d2, n_e_solid)
     //gives an incorrect calculation. Check why at some point.
     m_d2_zh->Divide(h_zh_d2_hist, elec_d2_zh_hist);
     m_solid_zh->Divide(h_zh_solid_hist, elec_solid_zh_hist);
-    mr_zh->Divide(m_solid_zh, m_d2_zh);
-    mr_zh->Draw("COLZ");
+    mr->Divide(m_solid_zh, m_d2_zh);
+    mr->GetXaxis()->SetTitle(var);
+    mr->GetYaxis()->SetTitle("#frac{N_{A}#pi^{+}}{N_{D2}#pi^{+}}#frac{N_{D2}e^{-}}{N_{A}e^{-}}");
+    mr->SetTitle("Multiplicity Ratio");
+    mr->SetMarkerStyle(21);
+    mr->Draw("COLZ");
     canvas->SaveAs(output_location+"mr_"+var+".pdf");
 
     std::cout << var <<" MR finished" << std::endl;
@@ -79,7 +83,6 @@ void calculate_mr(TString Target="C", int Hadron_pid=211){
 
     mr_varaible("z_h", 10, 0., 1., pion_tuple, elec_tuple, output_location);
 
-//TODO make plots prettier (look at old simple_pots mr)
 //TODO include electron variable mr (different factor can be applied bin by bin)
 //TODO modify code to select hadron to calculate
 //TODO modify simple_plots to include more hadrons(like p, kaon, pi-, etc)
