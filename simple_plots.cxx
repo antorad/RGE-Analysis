@@ -234,36 +234,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	draw_plot_2D(positive_tuple, Beta_cut&&P_cut, "beta:p", 500,0,12,"P [GeV]", 500, 0, 1.2, "#beta",
 					"p_beta", output_location);
 
-	//-----MULTIPLICITY RATIO-----
-	TCanvas *canvas= new TCanvas("canvas","canvas",1000,600);
-	canvas->cd();
-	int n_e_d2 = elec_tuple->Draw("v_z>>hist",P_cut&&vz_d2&&DIS_cut,"goff");
-	int n_e_pb = elec_tuple->Draw("v_z>>hist",P_cut&&vz_solid&&DIS_cut,"goff");
-	cout<<"elec d2 = "<<n_e_d2<<endl;
-	cout<<"elec pb = "<<n_e_pb<<endl;
-
-	pion_tuple->Draw("z_h>>z_h_d2(10,0,1)",P_cut&&vz_d2&&DIS_cut,"COLZ");
-	TH1F *z_h_d2 = (TH1F*)gDirectory->GetList()->FindObject("z_h_d2");
-	pion_tuple->Draw("z_h>>z_h_pb(10,0,1)",P_cut&&vz_solid&&DIS_cut,"COLZ");
-	TH1F *z_h_pb = (TH1F*)gDirectory->GetList()->FindObject("z_h_pb");
-
-	z_h_d2->Sumw2();
-	z_h_pb->Sumw2();
-
-	TH1F* mr = new TH1F("mr", "mr", 10,0,1);
-	mr->Divide(z_h_pb, z_h_d2, n_e_d2, n_e_pb);
-	mr->GetXaxis()->SetTitle("Z_{h}");
-	mr->GetYaxis()->SetTitle("#frac{N_{A}#pi^{+}}{N_{D2}#pi^{+}}#frac{N_{D2}e^{-}}{N_{A}e^{-}}");
-	mr->SetTitle("Multiplicity Ratio");
-	mr->SetMarkerStyle(21);
-	mr->Draw("COLZ");
-	canvas->SaveAs(output_location+"mr.pdf");
-
 	//delete all objects;
-	delete mr;
-	delete z_h_pb;
-	delete z_h_d2;
-	delete canvas;
 	delete pion_tuple;
 	delete positive_tuple;
 	delete elec_tuple;
