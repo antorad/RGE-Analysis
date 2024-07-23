@@ -103,12 +103,18 @@ void processChain(TChain* input_tuple, TString output_location) {
 	//------output ntuples------
 	Float_t pion_vars[15];
 	Float_t positive_vars[15];
+	Float_t pion_minus_vars[15];
+	Float_t proton_vars[15];
 	Float_t elec_vars[15];
 	const char* pion_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:y_bjorken:W2:beta:phi:sector";
+	const char* pion_minus_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:y_bjorken:W2:beta:phi:sector";
+	const char* proton_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:y_bjorken:W2:beta:phi:sector";
 	const char* positive_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:y_bjorken:W2:beta:phi:sector";
 	const char* elec_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:y_bjorken:W2:beta:phi:sector";
 	TNtuple *pion_tuple = new TNtuple("pion_ntuple","pions",pion_varslist);
 	TNtuple *positive_tuple = new TNtuple("positive_ntuple","positives",positive_varslist);
+	TNtuple *pion_minus_tuple = new TNtuple("pion_minus_ntuple","positives",positive_varslist);
+	TNtuple *proton_tuple = new TNtuple("proton_ntuple","positives",positive_varslist);
 	TNtuple *elec_tuple = new TNtuple("elec_tuple","electrons",elec_varslist);
 
 
@@ -179,11 +185,52 @@ void processChain(TChain* input_tuple, TString output_location) {
 			pion_vars[14] = sector;
 			pion_tuple->Fill(pion_vars);
 		}
+
+		// Check if the particle is a negative pion
+		if  (pid==-211) {
+			pion_minus_vars[0] = pid;
+			pion_minus_vars[1] = Q2;
+			pion_minus_vars[2] = nu;
+			pion_minus_vars[3] = v_z;
+			pion_minus_vars[4] = p;
+			pion_minus_vars[5] = E_total;
+			pion_minus_vars[6] = E_ECIN;
+			pion_minus_vars[7] = E_ECOU;
+			pion_minus_vars[8] = z_h;
+			pion_minus_vars[9] = v_z_elec;
+			pion_minus_vars[10] = y_bjorken;
+			pion_minus_vars[11] = W2;
+			pion_minus_vars[12] = beta;
+			pion_minus_vars[13] = phi*rad2deg;
+			pion_minus_vars[14] = sector;
+			pion_minus_tuple->Fill(pion_minus_vars);
+		}
+		// Check if the particle is a proton
+		if  (pid==2212) {
+			proton_vars[0] = pid;
+			proton_vars[1] = Q2;
+			proton_vars[2] = nu;
+			proton_vars[3] = v_z;
+			proton_vars[4] = p;
+			proton_vars[5] = E_total;
+			proton_vars[6] = E_ECIN;
+			proton_vars[7] = E_ECOU;
+			proton_vars[8] = z_h;
+			proton_vars[9] = v_z_elec;
+			proton_vars[10] = y_bjorken;
+			proton_vars[11] = W2;
+			proton_vars[12] = beta;
+			proton_vars[13] = phi*rad2deg;
+			proton_vars[14] = sector;
+			proton_tuple->Fill(proton_vars);
+		}
 	}
 
 	//------root file output writing------
 	output->cd();
 	pion_tuple->Write();
+	pion_minus_tuple->Write();
+	proton_tuple->Write();
 	positive_tuple->Write();
 	elec_tuple->Write();
 	//output->Close();
