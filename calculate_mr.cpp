@@ -60,7 +60,7 @@ TH1F* make_var_ehisto(TString var, int nbins, float xmin, float xmax, TNtuple* e
 }
 
 void m_ratio(TString var, int nbins, float xmin, float xmax, TString hadron,
-                    TNtuple* h_tuple, TNtuple* e_tuple, TString output_location){
+                    TNtuple* h_tuple, TNtuple* e_tuple, TString output_location, TFile* output){
     //Print message of wich vatiable is being calculated
     cout<<"Calculating Multiplicity Ratio of "<<var<<" variable"<<endl;
 
@@ -106,6 +106,15 @@ void m_ratio(TString var, int nbins, float xmin, float xmax, TString hadron,
     mr->Draw("COLZ");
     canvas->SaveAs(output_location+"mr_"+var+"_"+hadron+".pdf");
 
+    output->cd();
+    h_d2_hist->Write();
+    h_solid_hist->Write();
+    elec_d2_hist->Write();
+    elec_solid_hist->Write();
+    m_d2->Write();
+    m_solid->Write();
+    mr->Write();
+
     //debug
     //h_d2_hist->Draw();
     //canvas->SaveAs(output_location+"mr_"+var+"_"+hadron+"_hd2.pdf");
@@ -140,9 +149,14 @@ void calculate_mr(TString Target="C", int Hadron_pid=211){
 	TNtuple* hadron_tuple = (TNtuple*)input->Get(hadron+"_ntuple");
 	TNtuple* elec_tuple = (TNtuple*)input->Get("elec_tuple");
 
-    m_ratio("z_h", 10, 0., 1., hadron, hadron_tuple, elec_tuple, output_location);
-    m_ratio("nu", 10, 0., 11., hadron, hadron_tuple, elec_tuple, output_location);
+    //output root file for histograms
+    TFile *output = new TFile(output_location+"mr_clas12.root","RECREATE");
+
+    m_ratio("z_h", 10, 0., 1., hadron, hadron_tuple, elec_tuple, output_location, output);
+    m_ratio("nu", 10, 0., 11., hadron, hadron_tuple, elec_tuple, output_location, output);
     //m_ratio("pt2", 10, 0., 5., hadron, hadron_tuple, elec_tuple, output_location);
+
+    output->Close();
 
 //TODO make code to save plots into root file
 //TODO make code to plots all MR in same canvas
