@@ -17,7 +17,7 @@ do
     # Read the file line by line
     while IFS= read -r line
     do
-        # Process the line (in this example, just print it)
+        # Process the line
         root -l -q "simple_plots.cxx($line)"
     done < "$input_file"
 done

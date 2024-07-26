@@ -105,20 +105,14 @@ void processChain(TChain* input_tuple, TString output_location) {
 	input_tuple->SetBranchAddress("sector",&sector);
 
 	//------output ntuples------
-	Float_t pion_vars[18];
-	Float_t positive_vars[18];
-	Float_t pion_minus_vars[18];
-	Float_t proton_vars[18];
+	Float_t hadron_vars[18];
 	Float_t elec_vars[14];
-	const char* pion_varslist = "pid:Q2:nu:v_z:p:p_T2:p_L2:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:x_bjorken:y_bjorken:W2:beta:phi:sector";
-	const char* pion_minus_varslist = "pid:Q2:nu:v_z:p:p_T2:p_L2:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:x_bjorken:y_bjorken:W2:beta:phi:sector";
-	const char* proton_varslist = "pid:Q2:nu:v_z:p:p_T2:p_L2:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:x_bjorken:y_bjorken:W2:beta:phi:sector";
-	const char* positive_varslist = "pid:Q2:nu:v_z:p:p_T2:p_L2:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:x_bjorken:y_bjorken:W2:beta:phi:sector";
+	const char* hadron_varslist = "pid:Q2:nu:v_z:p:p_T2:p_L2:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:x_bjorken:y_bjorken:W2:beta:phi:sector";
 	const char* elec_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:x_bjorken:y_bjorken:W2:beta:phi:sector";
-	TNtuple *pion_tuple = new TNtuple("pion_ntuple","pions",pion_varslist);
-	TNtuple *positive_tuple = new TNtuple("positive_ntuple","positives",positive_varslist);
-	TNtuple *pion_minus_tuple = new TNtuple("pion_minus_ntuple","positives",pion_minus_varslist);
-	TNtuple *proton_tuple = new TNtuple("proton_ntuple","positives",proton_varslist);
+	TNtuple *pion_tuple = new TNtuple("pion_ntuple","pions",hadron_varslist);
+	TNtuple *positive_tuple = new TNtuple("positive_ntuple","positives",hadron_varslist);
+	TNtuple *pion_minus_tuple = new TNtuple("pion_minus_ntuple","positives",hadron_varslist);
+	TNtuple *proton_tuple = new TNtuple("proton_ntuple","positives",hadron_varslist);
 	TNtuple *elec_tuple = new TNtuple("elec_tuple","electrons",elec_varslist);
 
 
@@ -129,7 +123,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 		input_tuple->GetEntry(i);
 
 		//This part assumes that all hadrons after an electron coes from taht electron to save its v_z
-		// Check if the particle fullfills being the sactteried electron.
+		// Check if the particle fullfills being the scattered electron.
 		if  (pid==11) {
 			elec_vars[0] = pid;
 			elec_vars[1] = Q2;
@@ -149,97 +143,30 @@ void processChain(TChain* input_tuple, TString output_location) {
 			v_z_elec = v_z;
 		}
 
-//TODO: maybe check to not process teh same particle in the 3 ifs
-
-		// Check if the particle is positive.
-		if  (charge>0) {
-			positive_vars[0] = pid;
-			positive_vars[1] = Q2;
-			positive_vars[2] = nu;
-			positive_vars[3] = v_z;
-			positive_vars[4] = p;
-			positive_vars[5] = p_T2;
-			positive_vars[6] = p_L2;
-			positive_vars[7] = E_total;
-			positive_vars[8] = E_ECIN;
-			positive_vars[9] = E_ECOU;
-			positive_vars[10] = z_h;
-			positive_vars[11] = v_z_elec;
-			positive_vars[12] = x_bjorken;
-			positive_vars[13] = y_bjorken;
-			positive_vars[14] = W2;
-			positive_vars[15] = beta;
-			positive_vars[16] = phi*rad2deg;
-			positive_vars[17] = sector;
-			positive_tuple->Fill(positive_vars);
-		}
-
-		// Check if the particle is a positive pion
-		if  (pid==211) {
-			pion_vars[0] = pid;
-			pion_vars[1] = Q2;
-			pion_vars[2] = nu;
-			pion_vars[3] = v_z;
-			pion_vars[4] = p;
-			pion_vars[5] = p_T2;
-			pion_vars[6] = p_L2;
-			pion_vars[7] = E_total;
-			pion_vars[8] = E_ECIN;
-			pion_vars[9] = E_ECOU;
-			pion_vars[10] = z_h;
-			pion_vars[11] = v_z_elec;
-			pion_vars[12] = x_bjorken;
-			pion_vars[13] = y_bjorken;
-			pion_vars[14] = W2;
-			pion_vars[15] = beta;
-			pion_vars[16] = phi*rad2deg;
-			pion_vars[17] = sector;
-			pion_tuple->Fill(pion_vars);
-		}
-
-		// Check if the particle is a negative pion
-		if  (pid==-211) {
-			pion_minus_vars[0] = pid;
-			pion_minus_vars[1] = Q2;
-			pion_minus_vars[2] = nu;
-			pion_minus_vars[3] = v_z;
-			pion_minus_vars[4] = p;
-			pion_minus_vars[5] = p_T2;
-			pion_minus_vars[6] = p_L2;
-			pion_minus_vars[7] = E_total;
-			pion_minus_vars[8] = E_ECIN;
-			pion_minus_vars[9] = E_ECOU;
-			pion_minus_vars[10] = z_h;
-			pion_minus_vars[11] = v_z_elec;
-			pion_minus_vars[12] = x_bjorken;
-			pion_minus_vars[13] = y_bjorken;
-			pion_minus_vars[14] = W2;
-			pion_minus_vars[15] = beta;
-			pion_minus_vars[16] = phi*rad2deg;
-			pion_minus_vars[17] = sector;
-			pion_minus_tuple->Fill(pion_minus_vars);
-		}
-		// Check if the particle is a proton
-		if  (pid==2212) {
-			proton_vars[0] = pid;
-			proton_vars[1] = Q2;
-			proton_vars[2] = nu;
-			proton_vars[3] = v_z;
-			proton_vars[4] = p;
-			proton_vars[5] = p_T2;
-			proton_vars[6] = p_L2;
-			proton_vars[7] = E_total;
-			proton_vars[8] = E_ECIN;
-			proton_vars[9] = E_ECOU;
-			proton_vars[10] = z_h;
-			proton_vars[11] = v_z_elec;
-			proton_vars[12] = x_bjorken;
-			proton_vars[13] = y_bjorken;
-			proton_vars[14] = W2;
-			proton_vars[15] = beta;
-			proton_vars[16] = phi*rad2deg;
-			proton_vars[17] = sector;
-			proton_tuple->Fill(proton_vars);
+		// Check if the particle is not an electron.
+		else{
+			hadron_vars[0] = pid;
+			hadron_vars[1] = Q2;
+			hadron_vars[2] = nu;
+			hadron_vars[3] = v_z;
+			hadron_vars[4] = p;
+			hadron_vars[5] = p_T2;
+			hadron_vars[6] = p_L2;
+			hadron_vars[7] = E_total;
+			hadron_vars[8] = E_ECIN;
+			hadron_vars[9] = E_ECOU;
+			hadron_vars[10] = z_h;
+			hadron_vars[11] = v_z_elec;
+			hadron_vars[12] = x_bjorken;
+			hadron_vars[13] = y_bjorken;
+			hadron_vars[14] = W2;
+			hadron_vars[15] = beta;
+			hadron_vars[16] = phi*rad2deg;
+			hadron_vars[17] = sector;
+			if (charge>0){positive_tuple->Fill(hadron_vars);}
+			if (pid==211){pion_tuple->Fill(hadron_vars);}
+			else if (pid==-211){pion_minus_tuple->Fill(hadron_vars);}
+			else if (pid==2212){proton_tuple->Fill(hadron_vars);}
 		}
 	}
 

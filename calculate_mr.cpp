@@ -8,11 +8,6 @@ TCut vz_solid="(v_z>-1.84)&&(v_z<0.09)";
 TCut vz_d2_h="(v_z_elec>-8.01)&&(v_z_elec<-3.62)";
 TCut vz_solid_h="(v_z_elec>-1.84)&&(v_z_elec<0.09)";
 
-    //float vz_d2_min = -8.01;
-    //float vz_d2_max = -3.62;
-    //float vz_solid_min = -1.84;
-    //float vz_solid_max = 0.09;
-
 TH1F* make_var_histo(TString var, int nbins, float xmin, float xmax, TNtuple* h_tuple, TString target){
     //Assigning targtet cut for electron counting
     //because we need to check hadrons' corresponding electron vertex, we have to check different
@@ -115,18 +110,17 @@ void m_ratio(TString var, int nbins, float xmin, float xmax, TString hadron,
     m_solid->Write();
     mr->Write();
 
-    //debug
-    //h_d2_hist->Draw();
-    //canvas->SaveAs(output_location+"mr_"+var+"_"+hadron+"_hd2.pdf");
-    //h_solid_hist->Draw();
-    //canvas->SaveAs(output_location+"mr_"+var+"_"+hadron+"_hsolid.pdf");
-    //elec_d2_hist->Draw();
-    //canvas->SaveAs(output_location+"mr_"+var+"_"+hadron+"_ed2.pdf");
-    //elec_solid_hist->Draw();
-    //canvas->SaveAs(output_location+"mr_"+var+"_"+hadron+"_esolid.pdf");
+    //delete objects
+    delete mr;
+    delete m_solid;
+    delete m_d2;
+    delete elec_solid_hist;
+    delete elec_d2_hist;
+    delete h_solid_hist;
+    delete h_d2_hist;
+    delete canvas;
 
     std::cout << var <<" MR finished" << std::endl; 
-
 }
 
 void calculate_mr(TString Target="C", int Hadron_pid=211){
@@ -154,11 +148,10 @@ void calculate_mr(TString Target="C", int Hadron_pid=211){
 
     m_ratio("z_h", 10, 0., 1., hadron, hadron_tuple, elec_tuple, output_location, output);
     m_ratio("nu", 10, 0., 11., hadron, hadron_tuple, elec_tuple, output_location, output);
-    //m_ratio("pt2", 10, 0., 5., hadron, hadron_tuple, elec_tuple, output_location);
+    m_ratio("p_T2", 10, 0., 5., hadron, hadron_tuple, elec_tuple, output_location,output);
 
     output->Close();
 
-//TODO make code to save plots into root file
 //TODO make code to plots all MR in same canvas
 
 //h->Write(0, TObject::kOverwrite); to ocerwrite object in tfile in case of need it at some point
