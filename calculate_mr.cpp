@@ -144,10 +144,10 @@ void calculate_mr(TString Target="C", int Hadron_pid=211){
         cout<<"PID not valid"<<endl;
         return;}
 
-	//get TNtuple input created from simple_plots
-	TFile *input = new TFile("output/"+Target+"/out_clas12.root","READ");
-	TNtuple* hadron_tuple = (TNtuple*)input->Get(hadron+"_ntuple");
-	TNtuple* elec_tuple = (TNtuple*)input->Get("elec_tuple");
+    //get TNtuple input created from simple_plots
+    TFile *input = new TFile("output/"+Target+"/out_clas12.root","READ");
+    TNtuple* hadron_tuple = (TNtuple*)input->Get(hadron+"_ntuple");
+    TNtuple* elec_tuple = (TNtuple*)input->Get("elec_tuple");
 
     //output root file for histograms
     TFile *output = new TFile(output_location+"mr_clas12.root","RECREATE");

@@ -14,7 +14,7 @@ using namespace std;
 
 //plot 1D plots
 void draw_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, float xmin, float xmax,
-				TString xtitle, TString ytitle, TString output, TString location){
+				TString xtitle, TString ytitle, TString output, TString location, TFile* output_file){
 	TCanvas *canvas = new TCanvas("canvas","canvas",1000,600);
 	canvas->cd();
 	TString histo_to_draw;
@@ -25,6 +25,7 @@ void draw_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, float xmin,
 	histo->GetYaxis()->SetTitle(ytitle);
 	histo->SetTitle(xtitle);
 	histo->Draw("COLZ");
+	histo->Write(output);
 	canvas->SaveAs(location+output+".pdf");
 	delete histo;
 	delete canvas;
@@ -32,7 +33,7 @@ void draw_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, float xmin,
 
 //plot 1D plots by sector
 void draw_sector_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, float xmin, float xmax,
-						TString xtitle, TString ytitle, TString output, TString location){
+					TString xtitle, TString ytitle, TString output, TString location, TFile* output_file){
 	TCanvas *canvas= new TCanvas("canvas","canvas",1000,600);
 	canvas->Divide(3,2);
 	TH1F *histo[6];
@@ -48,6 +49,7 @@ void draw_sector_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, floa
 		histo[i-1]->GetYaxis()->SetTitle(ytitle);
 		histo[i-1]->SetTitle(xtitle+Form(" Sector %i",i-1));
 		histo[i-1]->Draw("COLZ");
+		histo[i-1]->Write(output+Form("_%i",i-1));
 	}
 	canvas->SaveAs(location+output+".pdf");
 	delete canvas;
@@ -56,7 +58,7 @@ void draw_sector_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, floa
 //plot 2D plots
 void draw_plot_2D(TNtuple* tuple, TCut cut, char const* var, int xnbins, float xmin, float xmax,
 					TString xtitle, int ynbins, float ymin, float ymax, TString ytitle, 
-					TString output, TString location){
+					TString output, TString location, TFile* output_file){
 	TCanvas *canvas= new TCanvas("canvas","canvas",1000,600);
 	canvas->cd();
 	TString histo_to_draw;
@@ -67,6 +69,7 @@ void draw_plot_2D(TNtuple* tuple, TCut cut, char const* var, int xnbins, float x
 	histo->GetYaxis()->SetTitle(ytitle);
 	histo->SetTitle(xtitle + " vs " + ytitle);
 	histo->Draw("COLZ");
+	histo->Write(output);
 	canvas->SaveAs(location+output+".pdf");
 	delete histo;
 	delete canvas;
@@ -79,7 +82,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	gSystem->Exec(command.c_str());
 	TFile *output = new TFile(output_location+"out_clas12.root","RECREATE");
 
-	Float_t pid, Q2, nu, v_z, z_h, p, E_total, E_ECIN, E_ECOU, event_num, v_z_elec, phi, y_bjorken, W2, charge, beta, sector; 
+	Float_t pid, Q2, nu, v_z, z_h, p, p_T2, p_L2, E_total, E_ECIN, E_ECOU, event_num, v_z_elec, phi, x_bjorken, y_bjorken, W2, charge, beta, sector; 
 	Float_t rad2deg = 57.2958;
 
 	//------Read branches with variables needed for cuts and plots------
@@ -89,6 +92,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	input_tuple->SetBranchAddress("v_z",&v_z);
 	input_tuple->SetBranchAddress("z_h",&z_h);
 	input_tuple->SetBranchAddress("p",&p);
+	input_tuple->SetBranchAddress("p_T2",&p_T2);
 	input_tuple->SetBranchAddress("E_total",&E_total);
 	input_tuple->SetBranchAddress("E_ECIN",&E_ECIN);
 	input_tuple->SetBranchAddress("E_ECOU",&E_ECOU);
@@ -101,20 +105,20 @@ void processChain(TChain* input_tuple, TString output_location) {
 	input_tuple->SetBranchAddress("sector",&sector);
 
 	//------output ntuples------
-	Float_t pion_vars[15];
-	Float_t positive_vars[15];
-	Float_t pion_minus_vars[15];
-	Float_t proton_vars[15];
-	Float_t elec_vars[15];
-	const char* pion_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:y_bjorken:W2:beta:phi:sector";
-	const char* pion_minus_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:y_bjorken:W2:beta:phi:sector";
-	const char* proton_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:y_bjorken:W2:beta:phi:sector";
-	const char* positive_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:y_bjorken:W2:beta:phi:sector";
-	const char* elec_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:y_bjorken:W2:beta:phi:sector";
+	Float_t pion_vars[18];
+	Float_t positive_vars[18];
+	Float_t pion_minus_vars[18];
+	Float_t proton_vars[18];
+	Float_t elec_vars[14];
+	const char* pion_varslist = "pid:Q2:nu:v_z:p:p_T2:p_L2:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:x_bjorken:y_bjorken:W2:beta:phi:sector";
+	const char* pion_minus_varslist = "pid:Q2:nu:v_z:p:p_T2:p_L2:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:x_bjorken:y_bjorken:W2:beta:phi:sector";
+	const char* proton_varslist = "pid:Q2:nu:v_z:p:p_T2:p_L2:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:x_bjorken:y_bjorken:W2:beta:phi:sector";
+	const char* positive_varslist = "pid:Q2:nu:v_z:p:p_T2:p_L2:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:x_bjorken:y_bjorken:W2:beta:phi:sector";
+	const char* elec_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:x_bjorken:y_bjorken:W2:beta:phi:sector";
 	TNtuple *pion_tuple = new TNtuple("pion_ntuple","pions",pion_varslist);
 	TNtuple *positive_tuple = new TNtuple("positive_ntuple","positives",positive_varslist);
-	TNtuple *pion_minus_tuple = new TNtuple("pion_minus_ntuple","positives",positive_varslist);
-	TNtuple *proton_tuple = new TNtuple("proton_ntuple","positives",positive_varslist);
+	TNtuple *pion_minus_tuple = new TNtuple("pion_minus_ntuple","positives",pion_minus_varslist);
+	TNtuple *proton_tuple = new TNtuple("proton_ntuple","positives",proton_varslist);
 	TNtuple *elec_tuple = new TNtuple("elec_tuple","electrons",elec_varslist);
 
 
@@ -135,11 +139,12 @@ void processChain(TChain* input_tuple, TString output_location) {
 			elec_vars[5] = E_total;
 			elec_vars[6] = E_ECIN;
 			elec_vars[7] = E_ECOU;
-			elec_vars[8] = y_bjorken;
-			elec_vars[9] = W2;
-			elec_vars[10] = beta;
-			elec_vars[11] = phi*rad2deg;
-			elec_vars[12] = sector;
+			elec_vars[8] = x_bjorken;
+			elec_vars[9] = y_bjorken;
+			elec_vars[10] = W2;
+			elec_vars[11] = beta;
+			elec_vars[12] = phi*rad2deg;
+			elec_vars[13] = sector;
 			elec_tuple->Fill(elec_vars);
 			v_z_elec = v_z;
 		}
@@ -153,16 +158,19 @@ void processChain(TChain* input_tuple, TString output_location) {
 			positive_vars[2] = nu;
 			positive_vars[3] = v_z;
 			positive_vars[4] = p;
-			positive_vars[5] = E_total;
-			positive_vars[6] = E_ECIN;
-			positive_vars[7] = E_ECOU;
-			positive_vars[8] = z_h;
-			positive_vars[9] = v_z_elec;
-			positive_vars[10] = y_bjorken;
-			positive_vars[11] = W2;
-			positive_vars[12] = beta;
-			positive_vars[13] = phi*rad2deg;
-			positive_vars[14] = sector;
+			positive_vars[5] = p_T2;
+			positive_vars[6] = p_L2;
+			positive_vars[7] = E_total;
+			positive_vars[8] = E_ECIN;
+			positive_vars[9] = E_ECOU;
+			positive_vars[10] = z_h;
+			positive_vars[11] = v_z_elec;
+			positive_vars[12] = x_bjorken;
+			positive_vars[13] = y_bjorken;
+			positive_vars[14] = W2;
+			positive_vars[15] = beta;
+			positive_vars[16] = phi*rad2deg;
+			positive_vars[17] = sector;
 			positive_tuple->Fill(positive_vars);
 		}
 
@@ -173,16 +181,19 @@ void processChain(TChain* input_tuple, TString output_location) {
 			pion_vars[2] = nu;
 			pion_vars[3] = v_z;
 			pion_vars[4] = p;
-			pion_vars[5] = E_total;
-			pion_vars[6] = E_ECIN;
-			pion_vars[7] = E_ECOU;
-			pion_vars[8] = z_h;
-			pion_vars[9] = v_z_elec;
-			pion_vars[10] = y_bjorken;
-			pion_vars[11] = W2;
-			pion_vars[12] = beta;
-			pion_vars[13] = phi*rad2deg;
-			pion_vars[14] = sector;
+			pion_vars[5] = p_T2;
+			pion_vars[6] = p_L2;
+			pion_vars[7] = E_total;
+			pion_vars[8] = E_ECIN;
+			pion_vars[9] = E_ECOU;
+			pion_vars[10] = z_h;
+			pion_vars[11] = v_z_elec;
+			pion_vars[12] = x_bjorken;
+			pion_vars[13] = y_bjorken;
+			pion_vars[14] = W2;
+			pion_vars[15] = beta;
+			pion_vars[16] = phi*rad2deg;
+			pion_vars[17] = sector;
 			pion_tuple->Fill(pion_vars);
 		}
 
@@ -193,16 +204,19 @@ void processChain(TChain* input_tuple, TString output_location) {
 			pion_minus_vars[2] = nu;
 			pion_minus_vars[3] = v_z;
 			pion_minus_vars[4] = p;
-			pion_minus_vars[5] = E_total;
-			pion_minus_vars[6] = E_ECIN;
-			pion_minus_vars[7] = E_ECOU;
-			pion_minus_vars[8] = z_h;
-			pion_minus_vars[9] = v_z_elec;
-			pion_minus_vars[10] = y_bjorken;
-			pion_minus_vars[11] = W2;
-			pion_minus_vars[12] = beta;
-			pion_minus_vars[13] = phi*rad2deg;
-			pion_minus_vars[14] = sector;
+			pion_minus_vars[5] = p_T2;
+			pion_minus_vars[6] = p_L2;
+			pion_minus_vars[7] = E_total;
+			pion_minus_vars[8] = E_ECIN;
+			pion_minus_vars[9] = E_ECOU;
+			pion_minus_vars[10] = z_h;
+			pion_minus_vars[11] = v_z_elec;
+			pion_minus_vars[12] = x_bjorken;
+			pion_minus_vars[13] = y_bjorken;
+			pion_minus_vars[14] = W2;
+			pion_minus_vars[15] = beta;
+			pion_minus_vars[16] = phi*rad2deg;
+			pion_minus_vars[17] = sector;
 			pion_minus_tuple->Fill(pion_minus_vars);
 		}
 		// Check if the particle is a proton
@@ -212,16 +226,19 @@ void processChain(TChain* input_tuple, TString output_location) {
 			proton_vars[2] = nu;
 			proton_vars[3] = v_z;
 			proton_vars[4] = p;
-			proton_vars[5] = E_total;
-			proton_vars[6] = E_ECIN;
-			proton_vars[7] = E_ECOU;
-			proton_vars[8] = z_h;
-			proton_vars[9] = v_z_elec;
-			proton_vars[10] = y_bjorken;
-			proton_vars[11] = W2;
-			proton_vars[12] = beta;
-			proton_vars[13] = phi*rad2deg;
-			proton_vars[14] = sector;
+			proton_vars[5] = p_T2;
+			proton_vars[6] = p_L2;
+			proton_vars[7] = E_total;
+			proton_vars[8] = E_ECIN;
+			proton_vars[9] = E_ECOU;
+			proton_vars[10] = z_h;
+			proton_vars[11] = v_z_elec;
+			proton_vars[12] = x_bjorken;
+			proton_vars[13] = y_bjorken;
+			proton_vars[14] = W2;
+			proton_vars[15] = beta;
+			proton_vars[16] = phi*rad2deg;
+			proton_vars[17] = sector;
 			proton_tuple->Fill(proton_vars);
 		}
 	}
@@ -233,55 +250,58 @@ void processChain(TChain* input_tuple, TString output_location) {
 	proton_tuple->Write();
 	positive_tuple->Write();
 	elec_tuple->Write();
-	//output->Close();
 
 	//------ PLOTS------
 	//cuts for the ṕlots
 	TCut Beta_cut="(beta>0)&&(beta<1.2)";
 	TCut P_cut="(p>0)&&(p<12)";
-	TCut vz_d2="(v_z>-8.64)&&(v_z<-2.78)";
-	TCut vz_solid="(v_z>-2.78)&&(v_z<1.04)";
 	TCut DIS_cut="(Q2>1)&&(sqrt(W2)>2)&&(y_bjorken<0.85)";
 
 	//----ELECTRONS----
 	//z vertex (total)
-	draw_plot(elec_tuple, P_cut, "v_z",100,-15,6, "V_{z} [cm]", "dN/dV_{z}" , "e_v_z", output_location);
+	draw_plot(elec_tuple, P_cut, "v_z",100,-15,6, "V_{z} [cm]", "dN/dV_{z}" , "e_v_z",
+				output_location, output);
 
 	//z vertex by sector
 	draw_sector_plot(elec_tuple, P_cut, "v_z",100,-15,6, "V_{z} [cm]", "dN/dV_{z}",
-						"sector_e_vz", output_location);
+						"sector_e_vz", output_location, output);
 	//W2
-	draw_plot(elec_tuple, P_cut, "W2",100,0,20, "W^{2}", "dN/dW^{2}" , "e_w2", output_location);
+	draw_plot(elec_tuple, P_cut, "W2",100,0,20, "W^{2}", "dN/dW^{2}" , "e_w2", output_location, output);
 
 	//Q2
-	draw_plot(elec_tuple, P_cut, "Q2",100,0,12, "Q^{2}", "dN/dQ^{2}" , "e_q2", output_location);
+	draw_plot(elec_tuple, P_cut, "Q2",100,0,12, "Q^{2}", "dN/dQ^{2}" , "e_q2", output_location, output);
 
 	//Nu
-	draw_plot(elec_tuple, P_cut, "nu",100,0,12, "#nu", "dN/d#nu" , "e_nu", output_location);
+	draw_plot(elec_tuple, P_cut, "nu",100,0,12, "#nu", "dN/d#nu" , "e_nu", output_location, output);
 
 	//phi distribution
-	draw_plot(elec_tuple, P_cut, "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "e_phi", output_location);
+	draw_plot(elec_tuple, P_cut, "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "e_phi",
+				output_location, output);
 
 	//ein vs eout
 	draw_plot_2D(elec_tuple, Beta_cut&&P_cut&&DIS_cut, "E_total/p:p", 100,0,12,"P [GeV]",
-					100, 0, 0.5, "E_{tot}/P", "etot_p", output_location);
+					100, 0, 0.5, "E_{tot}/P", "etot_p", output_location, output);
 
 	//----PIONS----
 	//z vertex
-	draw_plot(pion_tuple, P_cut, "v_z",100,-15,6, "V_{z} [cm]", "dN/dV_{z}", "pi_v_z", output_location);
+	draw_plot(pion_tuple, P_cut, "v_z",100,-15,6, "V_{z} [cm]", "dN/dV_{z}", "pi_v_z",
+				output_location, output);
 
 	//z_h
-	draw_plot(pion_tuple, P_cut&&DIS_cut, "z_h",100,0,1, "Z_{h}", "dN/dZ_{h}", "pi_zh", output_location);
+	draw_plot(pion_tuple, P_cut&&DIS_cut, "z_h",100,0,1, "Z_{h}", "dN/dZ_{h}", "pi_zh",
+				output_location, output);
 
 	//phi distribution
-	draw_plot(pion_tuple, P_cut, "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "pi_phi", output_location);
+	draw_plot(pion_tuple, P_cut, "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "pi_phi",
+				output_location, output);
 
 	//----POSITIVE PARTICLES----
 	//p vs beta
 	draw_plot_2D(positive_tuple, Beta_cut&&P_cut, "beta:p", 500,0,12,"P [GeV]", 500, 0, 1.2, "#beta",
-					"p_beta", output_location);
+					"p_beta", output_location, output);
 
 	//delete all objects;
+	//output->Close();
 	delete pion_tuple;
 	delete positive_tuple;
 	delete elec_tuple;
