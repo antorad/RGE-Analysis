@@ -1,3 +1,4 @@
+gStyle->SetOptStat(0);
 //Cuts for the ṕlots
 TCut Beta_cut="(beta>0)&&(beta<1.2)";
 TCut P_cut="(p>0)&&(p<12)";
@@ -102,13 +103,13 @@ void m_ratio(TString var, int nbins, float xmin, float xmax, TString hadron,
     canvas->SaveAs(output_location+"mr_"+var+"_"+hadron+".pdf");
 
     output->cd();
-    h_d2_hist->Write();
-    h_solid_hist->Write();
-    elec_d2_hist->Write();
-    elec_solid_hist->Write();
-    m_d2->Write();
-    m_solid->Write();
-    mr->Write();
+    h_d2_hist->Write(hadron+"_"+var+"_d2");
+    h_solid_hist->Write(hadron+"_"+var+"_solid");
+    elec_d2_hist->Write(hadron+"_"+var+"_elec_d2");
+    elec_solid_hist->Write(hadron+"_"+var+"_elec_solid");
+    m_d2->Write(hadron+"_"+var+"_multiplicity_d2");
+    m_solid->Write(hadron+"_"+var+"_multiplicity_solid");
+    mr->Write(hadron+"_"+var+"_mratio");
 
     //delete objects
     delete mr;
@@ -154,5 +155,7 @@ void calculate_mr(TString Target="C", int Hadron_pid=211){
 
 //TODO make code to plots all MR in same canvas
 
-//h->Write(0, TObject::kOverwrite); to ocerwrite object in tfile in case of need it at some point
+//TODO inlcude hadron name in th1fs saved in root output
+//TODO decide if put all mr thifs from all hadrons in same file or different file for each hadron
+//h->Write(0, TObject::kOverwrite); to overwrite object in tfile in case of need it at some point
 }
