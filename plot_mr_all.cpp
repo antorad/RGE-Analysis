@@ -33,8 +33,11 @@ void plot_mr_all(int Hadron_pid=211, TString var="z_h"){
     canvas->cd();
     canvas->SetGrid();
 
-    //mr_hist_C->GetXaxis()->SetRangeUser(0,1);
-    mr_hist_C->GetYaxis()->SetRangeUser(0,2);
+    //set range on y axis for each case
+    if (var=="z_h") {mr_hist_C->GetYaxis()->SetRangeUser(0,1.6);}
+    if (var=="z_h" && hadron=="proton") {mr_hist_C->GetYaxis()->SetRangeUser(0,6);}
+    if (var=="nu") {mr_hist_C->GetYaxis()->SetRangeUser(0.6,1.2);}
+    if (var=="nu" && hadron=="proton") {mr_hist_C->GetYaxis()->SetRangeUser(1,4);}
 
     mr_hist_C->SetMarkerColor(1);
     mr_hist_Al->SetMarkerColor(2);
@@ -55,4 +58,6 @@ void plot_mr_all(int Hadron_pid=211, TString var="z_h"){
     legend->AddEntry(mr_hist_Sn, "Tin", "p");
     legend->AddEntry(mr_hist_Pb, "Lead", "p");
     legend->Draw("same");
+
+    canvas->SaveAs("output/mr_"+hadron+"_"+var+".pdf");
 }

@@ -103,13 +103,13 @@ void m_ratio(TString var, int nbins, float xmin, float xmax, TString hadron,
     canvas->SaveAs(output_location+"mr_"+var+"_"+hadron+".pdf");
 
     output->cd();
-    h_d2_hist->Write(hadron+"_"+var+"_d2");
-    h_solid_hist->Write(hadron+"_"+var+"_solid");
-    elec_d2_hist->Write(hadron+"_"+var+"_elec_d2");
-    elec_solid_hist->Write(hadron+"_"+var+"_elec_solid");
-    m_d2->Write(hadron+"_"+var+"_multiplicity_d2");
-    m_solid->Write(hadron+"_"+var+"_multiplicity_solid");
-    mr->Write(hadron+"_"+var+"_mratio");
+    h_d2_hist->Write(hadron+"_"+var+"_d2", TObject::kOverwrite);
+    h_solid_hist->Write(hadron+"_"+var+"_solid", TObject::kOverwrite);
+    elec_d2_hist->Write(hadron+"_"+var+"_elec_d2", TObject::kOverwrite);
+    elec_solid_hist->Write(hadron+"_"+var+"_elec_solid", TObject::kOverwrite);
+    m_d2->Write(hadron+"_"+var+"_multiplicity_d2", TObject::kOverwrite);
+    m_solid->Write(hadron+"_"+var+"_multiplicity_solid", TObject::kOverwrite);
+    mr->Write(hadron+"_"+var+"_mratio", TObject::kOverwrite);
 
     //delete objects
     delete mr;
@@ -145,7 +145,7 @@ void calculate_mr(TString Target="C", int Hadron_pid=211){
     TNtuple* elec_tuple = (TNtuple*)input->Get("elec_tuple");
 
     //output root file for histograms
-    TFile *output = new TFile(output_location+"mr_clas12.root","RECREATE");
+    TFile *output = new TFile(output_location+"mr_clas12.root","UPDATE");
 
     m_ratio("z_h", 10, 0., 1., hadron, hadron_tuple, elec_tuple, output_location, output);
     m_ratio("nu", 10, 0., 11., hadron, hadron_tuple, elec_tuple, output_location, output);
