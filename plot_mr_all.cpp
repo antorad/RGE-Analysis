@@ -39,18 +39,26 @@ void plot_mr_all(int Hadron_pid=211, TString var="z_h"){
     if (var=="nu") {mr_hist_C->GetYaxis()->SetRangeUser(0.6,1.2);}
     if (var=="nu" && hadron=="proton") {mr_hist_C->GetYaxis()->SetRangeUser(1,4);}
 
+    //set colors
     mr_hist_C->SetMarkerColor(1);
+    mr_hist_C->SetLineColor(1);
     mr_hist_Al->SetMarkerColor(2);
-    mr_hist_Cu->SetMarkerColor(3);
-    mr_hist_Sn->SetMarkerColor(4);
-    mr_hist_Pb->SetMarkerColor(5);
+    mr_hist_Al->SetLineColor(2);
+    mr_hist_Cu->SetMarkerColor(4);
+    mr_hist_Cu->SetLineColor(4);
+    mr_hist_Sn->SetMarkerColor(209);
+    mr_hist_Sn->SetLineColor(209);
+    mr_hist_Pb->SetMarkerColor(205);
+    mr_hist_Pb->SetLineColor(205);
 
-    mr_hist_C->Draw("EX0same");
-    mr_hist_Al->Draw("EX0same");
-    mr_hist_Cu->Draw("EX0same");
-    mr_hist_Sn->Draw("EX0same");
-    mr_hist_Pb->Draw("EX0same");
+    //draw plots without horizontal error bars
+    mr_hist_C->Draw("E1X0same");
+    mr_hist_Al->Draw("E1X0same");
+    mr_hist_Cu->Draw("E1X0same");
+    mr_hist_Sn->Draw("E1X0same");
+    mr_hist_Pb->Draw("E1X0same");
 
+    //Draw legens in the top right corner
     TLegend* legend = new TLegend(0.75, 0.75, 0.9, 0.9);
     legend->AddEntry(mr_hist_C, "Carbon", "p");
     legend->AddEntry(mr_hist_Al, "Aluminum", "p");
@@ -59,5 +67,6 @@ void plot_mr_all(int Hadron_pid=211, TString var="z_h"){
     legend->AddEntry(mr_hist_Pb, "Lead", "p");
     legend->Draw("same");
 
+    //Save final plot as pdf
     canvas->SaveAs("output/mr_"+hadron+"_"+var+".pdf");
 }
