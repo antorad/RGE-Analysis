@@ -152,10 +152,4 @@ void calculate_mr(TString Target="C", int Hadron_pid=211){
     m_ratio("p_T2", 10, 0., 5., hadron, hadron_tuple, elec_tuple, output_location,output);
 
     output->Close();
-
-//TODO make code to plots all MR in same canvas
-
-//TODO inlcude hadron name in th1fs saved in root output
-//TODO decide if put all mr thifs from all hadrons in same file or different file for each hadron
-//h->Write(0, TObject::kOverwrite); to overwrite object in tfile in case of need it at some point
 }

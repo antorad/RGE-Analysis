@@ -51,7 +51,7 @@ void plot_mr_all(int Hadron_pid=211, TString var="z_h"){
     mr_hist_Sn->Draw("EX0same");
     mr_hist_Pb->Draw("EX0same");
 
-    TLegend* legend = new TLegend(0.7, 0.7, 0.9, 0.9);
+    TLegend* legend = new TLegend(0.75, 0.75, 0.9, 0.9);
     legend->AddEntry(mr_hist_C, "Carbon", "p");
     legend->AddEntry(mr_hist_Al, "Aluminum", "p");
     legend->AddEntry(mr_hist_Cu, "Copper", "p");
