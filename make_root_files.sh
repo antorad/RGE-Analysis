@@ -1,18 +1,18 @@
 #!/bin/bash
 
-#programs directories
-#HIPO2ROOT="/home/antorad/hipo_tools/bin/hipo2root" #hipo2root ooriginal
-HIPO2ROOT="/work/clas12/rg-e/antorad/clas12-rge-analysis/bin/hipo2root" #hipo2root bruno
-#DST2ROOT="/home/antorad/hipo_tools/bin/dst2root" #dst2root
-MAKENTUPLES="/work/clas12/rg-e/antorad/clas12-rge-analysis/bin/make_ntuples" #makentuples
+# Programs directories
+# HIPO2ROOT="/home/antorad/hipo_tools/bin/hipo2root" #hipo2root original
+HIPO2ROOT="./bin/hipo2root" #hipo2root bruno
+# DST2ROOT="/home/antorad/hipo_tools/bin/dst2root" #dst2root
+MAKENTUPLES="./bin/make_ntuples" #makentuples
 
-#Directories neccesaries
+# Directories necessary
 HIPO_DIR="/volatile/clas12/rg-e/production/pass0.3/mon/recon/"
 WORK_DIR="root_io"
-OUT_DIR="/work/clas12/rg-e/antorad/clas12-rge-analysis/ntuple_files/"
+OUT_DIR="ntuple_files/"
 
 # Define the file that contains the list of runs to process
-RUN_LIST_FILE="../run_list.txt"
+RUN_LIST_FILE="run_list.txt"
 
 # Define the number of files to process in each subdirectory
 NUM_FILES_TO_PROCESS=3
@@ -24,7 +24,7 @@ PROCESS_ALL_FILES=false
 FILE_EXTENSION=".hipo"
 
 mkdir -p $WORK_DIR
-cd $WORK_DIR
+#cd $WORK_DIR
 
 # Parse command-line options
 while getopts ":a" opt; do
@@ -47,7 +47,9 @@ done < "$RUN_LIST_FILE"
 
 # Iterate over each subdirectory in the run list
 for RUN_NUMBER in "${RUNS_TO_PROCESS[@]}"; do
-    SUBDIR=$(printf "$HIPO_DIR/%06d" $RUN_NUMBER)
+    echo "Processing RUN_NUMBER: $RUN_NUMBER"
+    SUBDIR=$(printf "%s/%06d" "$HIPO_DIR" "$RUN_NUMBER")
+    echo "Generated SUBDIR: $SUBDIR"
     if [ -d "$SUBDIR" ]; then
         echo "Checking directory: $SUBDIR"
         # Find all files with the specified extension in the current subdirectory
@@ -59,36 +61,24 @@ for RUN_NUMBER in "${RUNS_TO_PROCESS[@]}"; do
                 break
             fi
             echo "Processing file: $FILE"
-    	    # Extract the file number between 'evio' and 'hipo' using sed
-    	    FILE_NUMBER=$(echo "$FILE" | sed -n 's/.*evio\.\([0-9]*\)\.hipo/\1/p')
-	    #run hipo2root and rename the output
-            BANKS_OUT=$(printf "banks_%06d_%05d.root" $RUN_NUMBER $FILE_NUMBER) 
-	    $HIPO2ROOT $FILE
-	    mv banks_000000.root $BANKS_OUT
+            # Extract the file number between 'evio' and 'hipo' using sed and remove leading zeros
+            FILE_NUMBER=$(echo "$FILE" | sed -n 's/.*evio\.\([0-9]*\)\.hipo/\1/p' | sed 's/^0*//')
+            echo "Extracted FILE_NUMBER: $FILE_NUMBER"
+            # Run hipo2root and rename the output
+            BANKS_OUT=$(printf "banks_%06d_%05d.root" "$RUN_NUMBER" "$FILE_NUMBER")
+            echo "Generated BANKS_OUT: $BANKS_OUT"
+            $HIPO2ROOT "$FILE"
+            mv "$WORK_DIR/banks_000000.root" "$WORK_DIR/$BANKS_OUT"
             FILE_COUNT=$((FILE_COUNT + 1))
         done
-	echo "merging root banks"
-	BANKS_RUN_OUT=$(printf "banks_%06d.root" $RUN_NUMBER)
-	hadd $BANKS_RUN_OUT $(printf "banks_%06d_*.root" $RUN_NUMBER)
-	echo "making ntuples"
-	$MAKENTUPLES $BANKS_RUN_OUT
-	mv $(printf "ntuples_dc_%06d.root" $RUN_NUMBER) $(printf "../ntuple_files/ntuples_dc_%06d.root" $RUN_NUMBER) 
+        echo "Merging root banks"
+        BANKS_RUN_OUT=$(printf "banks_%06d.root" "$RUN_NUMBER")
+        echo "Generated BANKS_RUN_OUT: $BANKS_RUN_OUT"
+        hadd "$WORK_DIR/$BANKS_RUN_OUT" $(printf "%s/banks_%06d_*.root" "$WORK_DIR" "$RUN_NUMBER")
+        echo "Making ntuples"
+        $MAKENTUPLES "$WORK_DIR/$BANKS_RUN_OUT"
+        mv $(printf "%s/ntuples_dc_%06d.root" "$WORK_DIR" "$RUN_NUMBER") $(printf "ntuple_files/ntuples_dc_%06d.root" "$RUN_NUMBER")
     else
         echo "Directory $SUBDIR does not exist."
     fi
 done
-
-#for FILE in "${data_directory[@]::${num_files}}"
-#do
-#    echo "Processing file ${FILE}"
-#    shortened_file_name=$(echo $FILE| rev | cut -d'/' -f -1 | rev) # Removing directory from file name
-#    shortened_file_name=$(echo $shortened_file_name| rev | cut -d'.' -f -2 | rev) # String is now file_num.hipo
-#    file_num=$(echo $shortened_file_name | cut -d'.' -f 1) # Extracting file_num
-#    ${working_directory}/bin/hipo2root ${FILE}
-#    root_file="${working_directory}/root_io/banks_000000.root"
-#    ${working_directory}/bin/make_ntuples ${root_file}
-#    mv ${working_directory}/root_io/banks_000000.root ${working_directory}/root_io/banks_${run_num}_${file_num}.root
-#   mv ${working_directory}/root_io/ntuples_dc_000000.root ${working_directory}/root_io/ntuples_dc_${run_num}_${file_num}.root
-#    mv ${working_directory}/root_io/sf_study_000000.root ${working_directory}/root_io/sf_study_${run_num}_${file_num}.root
-#    mv ${working_directory}/data/sf_params_000000.txt ${working_directory}/data/sf_params_${run_num}_${file_num}.txt
-#done

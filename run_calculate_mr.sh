@@ -2,9 +2,10 @@
 
 # Array particle pid to calculate multiplicity ratio
 particles=(211 -211 2212)
+# Array of variable to compare between targets
 vars=(z_h nu p_T2)
 
-# Loop through all the particles in the array
+# Calculate mr for individual targets
 for particle in "${particles[@]}"
 do
     echo "Processing particle pid: $particle"
@@ -17,7 +18,7 @@ do
     root -l -q 'calculate_mr.cpp("Pb"'", $particle"')'
 done
 
-
+# Comparison between targets
 echo "Plotiting MR"
 for particle in "${particles[@]}"
 do

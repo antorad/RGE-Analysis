@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Array of files to read
+# Array of files to read wich contain run numbers for each target
 files=("C_runs.txt" "Al_runs.txt" "Cu_runs.txt" "Sn_runs.txt" "Pb_runs.txt")
 
-# Loop through all the files in the array
+# Run simple_plots for each individual run
 for input_file in "${files[@]}"
 do
     # Check if the file exists
@@ -22,6 +22,7 @@ do
     done < "$input_file"
 done
 
+# Run simple_plots for each target
 root -l -q 'simple_plots.cxx("C_runs.txt", "C")'
 root -l -q 'simple_plots.cxx("Al_runs.txt", "Al")'
 root -l -q 'simple_plots.cxx("Cu_runs.txt", "Cu")'

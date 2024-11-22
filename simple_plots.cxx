@@ -237,6 +237,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 
 //Main function that recieves a txt with a list of run number asn the name of the output file
 void simple_plots(const char* inputFileName, TString output_name){
+	ROOT::EnableImplicitMT();
 	// Open the input text file
     std::ifstream inputFile(inputFileName);
 
@@ -262,6 +263,7 @@ void simple_plots(const char* inputFileName, TString output_name){
 
 //Main function that recieves a run number as the input
 void simple_plots(int run_N=000000){
+	ROOT::EnableImplicitMT();
 	//Transform input run number to Tstring with correct number of digits
 	char buffer [10];
 	sprintf(buffer,"%0*d", 6, run_N);

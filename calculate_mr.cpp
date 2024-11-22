@@ -125,6 +125,7 @@ void m_ratio(TString var, int nbins, float xmin, float xmax, TString hadron,
 }
 
 void calculate_mr(TString Target="C", int Hadron_pid=211){
+    ROOT::EnableImplicitMT();
     //output directory
     TString output_location = "output/"+Target+"/";
 
@@ -147,6 +148,7 @@ void calculate_mr(TString Target="C", int Hadron_pid=211){
     //output root file for histograms
     TFile *output = new TFile(output_location+"mr_clas12.root","UPDATE");
 
+    //Run the calculation for each variable
     m_ratio("z_h", 10, 0., 1., hadron, hadron_tuple, elec_tuple, output_location, output);
     m_ratio("nu", 10, 0., 11., hadron, hadron_tuple, elec_tuple, output_location, output);
     m_ratio("p_T2", 10, 0., 5., hadron, hadron_tuple, elec_tuple, output_location,output);
