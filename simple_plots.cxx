@@ -82,7 +82,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	gSystem->Exec(command.c_str());
 	TFile *output = new TFile(output_location+"out_clas12.root","RECREATE");
 
-	Float_t pid, Q2, nu, v_z, z_h, p, p_T2, p_L2, E_total, E_ECIN, E_ECOU, event_num, v_z_elec, phi, x_bjorken, y_bjorken, W2, charge, beta, sector; 
+	Float_t pid, Q2, nu, v_z, z_h, p, p_T2, p_L2, E_total, E_ECIN, E_ECOU, event_num, v_z_elec, phi, x_bjorken, y_bjorken, W2, charge, beta, sector, phi_PQ; 
 	Float_t rad2deg = 57.2958;
 
 	//------Read branches with variables needed for cuts and plots------
@@ -103,11 +103,12 @@ void processChain(TChain* input_tuple, TString output_location) {
 	input_tuple->SetBranchAddress("beta",&beta);
 	input_tuple->SetBranchAddress("phi",&phi);
 	input_tuple->SetBranchAddress("sector",&sector);
+	input_tuple->SetBranchAddress("phi_PQ",&phi_PQ);
 
 	//------output ntuples------
-	Float_t hadron_vars[18];
+	Float_t hadron_vars[19];
 	Float_t elec_vars[14];
-	const char* hadron_varslist = "pid:Q2:nu:v_z:p:p_T2:p_L2:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:x_bjorken:y_bjorken:W2:beta:phi:sector";
+	const char* hadron_varslist = "pid:Q2:nu:v_z:p:p_T2:p_L2:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:x_bjorken:y_bjorken:W2:beta:phi:sector:phi_PQ";
 	const char* elec_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:x_bjorken:y_bjorken:W2:beta:phi:sector";
 	TNtuple *pion_tuple = new TNtuple("pion_ntuple","pions",hadron_varslist);
 	TNtuple *positive_tuple = new TNtuple("positive_ntuple","positives",hadron_varslist);
@@ -163,6 +164,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 			hadron_vars[15] = beta;
 			hadron_vars[16] = phi*rad2deg;
 			hadron_vars[17] = sector;
+			hadron_vars[18] = phi_PQ; 
 			if (charge>0){positive_tuple->Fill(hadron_vars);}
 			if (pid==211){pion_tuple->Fill(hadron_vars);}
 			else if (pid==-211){pion_minus_tuple->Fill(hadron_vars);}

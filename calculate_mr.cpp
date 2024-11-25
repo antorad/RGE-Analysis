@@ -1,5 +1,6 @@
 gStyle->SetOptStat(0);
-//Cuts for the ṕlots
+
+//Cuts for the plots
 TCut Beta_cut="(beta>0)&&(beta<1.2)";
 TCut P_cut="(p>0)&&(p<12)";
 // Vertex cuts
