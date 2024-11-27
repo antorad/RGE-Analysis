@@ -129,15 +129,40 @@ void make_multibinning(TString Target="C", int Hadron_pid=211){
             }
         }
     }
+    //Zh histograms
+    TH1F* Zh_liquid = new TH1F("Zh histo liq","Zh histo liq", 10, 0, 1);
+    TH1F* Zh_solid = new TH1F("Zh histo sol","Zh histo sol", 10, 0, 1);
+    TH1F* mr = new TH1F("Zh MR","Zh MR", 10, 0, 1);
+
+    //Error propagation
+    Zh_liquid->Sumw2();
+    Zh_solid->Sumw2();
+    mr->Sumw2();
+    Double_t error_liq, error_sol;
+
+    //Check each histogram for each Zh bin
     for (int ZhCounter = 0; ZhCounter < N_Zh; ZhCounter++) {
+        Zh_liquid->SetBinContent(ZhCounter+1, Integ_Zh_liq[ZhCounter]->IntegralAndError(1,10, error_liq));
+        Zh_solid->SetBinContent(ZhCounter+1, Integ_Zh_sol[ZhCounter]->IntegralAndError(1,10, error_sol));
+        Zh_liquid->SetBinError(ZhCounter+1, error_liq);
+        Zh_solid->SetBinError(ZhCounter+1, error_sol);
         Integ_Zh_liq[ZhCounter]->Write(Form("phiPQ_histo_liq_%i", ZhCounter), TObject::kOverwrite);
         Integ_Zh_sol[ZhCounter]->Write(Form("phiPQ_histo_sol_%i", ZhCounter), TObject::kOverwrite);
     }
+
+    mr->Divide(Zh_solid, Zh_liquid);
+    mr->SetMarkerStyle(21);
+    mr->Draw("COLZ");
+    Zh_liquid->Write("ZH_liquid", TObject::kOverwrite);
+    Zh_solid->Write("ZH_solid", TObject::kOverwrite);
+    mr->Write("ZH_mr", TObject::kOverwrite);
     //TODO
     //Once everything is integrated I'll have 10 phiPQ histos for each Zh bin --> DONE
-    //I need to integrate each of those 10 histos and each integration number correspond to Zh bin value
-    //Add these values as estries for Zh histogram for solid and liquiud
-    //calculated MR
+    //I need to integrate each of those 10 histos and each integration number correspond to Zh bin value --> DONE
+    //Add these values as estries for Zh histogram for solid and liquiud --> DONE
+    //calculated MR --> DONE
+    //Include electron info 
+    //Include error --> DONE
     //compare with previus result
 	output->Close();
 }
