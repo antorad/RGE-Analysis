@@ -1,9 +1,10 @@
 //Cuts for the plots
 TCut Beta_cut="(beta>0)&&(beta<1.2)";
 TCut P_cut="(p>0)&&(p<12)";
-
 // DIS cuts
 TCut DIS_cut="(Q2>1)&&(sqrt(W2)>2)&&(y_bjorken<0.85)";
+//Total cut
+TCut Main_cut=Beta_cut&&P_cut&&DIS_cut;
 
 //Vertex_cuts
 TCut vz_d2="(v_z>-8.01)&&(v_z<-3.62)";
@@ -64,47 +65,47 @@ void make_multibinning(TString Target="C", int Hadron_pid=211){
     // Cycle for each bin in Q2, Nu, Zh, and Pt2
     cout <<"Starting loop "<<endl;
     output->cd();
-//	for (int Q2Counter = 0; Q2Counter < N_Q2; Q2Counter++) {
-//		for (int NuCounter = 0; NuCounter < N_Nu; NuCounter++) {
-//			for (int ZhCounter = 0; ZhCounter < N_Zh; ZhCounter++) {
-//				for (int Pt2Counter = 0; Pt2Counter < N_Pt2; Pt2Counter++) {
-//
-//					cout << "Working on bin: " << Q2Counter << NuCounter << ZhCounter <<Pt2Counter <<endl;
-//
-//					// Select the cuts for each bin
-//					Q2_Cut = Form("Q2>%f&&Q2<%f", Q2_bins[Q2Counter], Q2_bins[Q2Counter + 1]);
-//					Nu_Cut = Form("nu>%f&&nu<%f", Nu_bins[NuCounter], Nu_bins[NuCounter + 1]);
-//					Zh_Cut = Form("z_h>%f&&z_h<%f", Zh_bins[ZhCounter], Zh_bins[ZhCounter + 1]);
-//					Pt2_Cut = Form("p_T2>%f&&p_T2<%f", Pt2_bins[Pt2Counter], Pt2_bins[Pt2Counter + 1]);
-//
-//					//Combine cuts
-//					total_cut = Q2_Cut&&Nu_Cut&&Zh_Cut&&Pt2_Cut;
-//
-//					//get TNtuple input created from simple_plots and apply cuts
-//					h_tuple->Draw("phi_PQ>>hist_liq(12,-3.1416,3.1416)", total_cut&&vz_d2_h);
-//                    h_tuple->Draw("phi_PQ>>hist_sol(12,-3.1416,3.1416)", total_cut&&vz_solid_h);
-//
-//                    hist_liq = (TH1F*) gDirectory->GetList()->FindObject("hist_liq");
-//                    hist_sol = (TH1F*) gDirectory->GetList()->FindObject("hist_sol");
-//
-//					//Write histogram to output file;
-//                    if (hist_sol->GetEntries() != 0){
-//                        hist_sol->Write(Form("Data_sol_%i_%i_%i_%i", Q2Counter, NuCounter, ZhCounter, Pt2Counter));
-//                    }
-//                    if (hist_liq->GetEntries() != 0){
-//                        hist_liq->Write(Form("Data_liq_%i_%i_%i_%i", Q2Counter, NuCounter, ZhCounter, Pt2Counter));
-//                    }
-//                    cout<<"-----------------------------------------------------------------------"<<endl;
-//                    // Set the histograms values to 0
-//                    hist_liq->Reset();
-//                    hist_sol->Reset();
-//
-//				}
-//			}
-//		}
-//	}
+	for (int Q2Counter = 0; Q2Counter < N_Q2; Q2Counter++) {
+		for (int NuCounter = 0; NuCounter < N_Nu; NuCounter++) {
+			for (int ZhCounter = 0; ZhCounter < N_Zh; ZhCounter++) {
+				for (int Pt2Counter = 0; Pt2Counter < N_Pt2; Pt2Counter++) {
 
-  //CHECKING
+					cout << "Working on bin: " << Q2Counter << NuCounter << ZhCounter <<Pt2Counter <<endl;
+
+					// Select the cuts for each bin
+					Q2_Cut = Form("Q2>%f&&Q2<%f", Q2_bins[Q2Counter], Q2_bins[Q2Counter + 1]);
+					Nu_Cut = Form("nu>%f&&nu<%f", Nu_bins[NuCounter], Nu_bins[NuCounter + 1]);
+					Zh_Cut = Form("z_h>%f&&z_h<%f", Zh_bins[ZhCounter], Zh_bins[ZhCounter + 1]);
+					Pt2_Cut = Form("p_T2>%f&&p_T2<%f", Pt2_bins[Pt2Counter], Pt2_bins[Pt2Counter + 1]);
+
+					//Combine cuts
+					total_cut = Main_cut&&Q2_Cut&&Nu_Cut&&Zh_Cut&&Pt2_Cut;
+
+					//get TNtuple input created from simple_plots and apply cuts
+					h_tuple->Draw("phi_PQ>>hist_liq(12,-3.1416,3.1416)", total_cut&&vz_d2_h);
+                    h_tuple->Draw("phi_PQ>>hist_sol(12,-3.1416,3.1416)", total_cut&&vz_solid_h);
+
+                    hist_liq = (TH1F*) gDirectory->GetList()->FindObject("hist_liq");
+                    hist_sol = (TH1F*) gDirectory->GetList()->FindObject("hist_sol");
+
+					//Write histogram to output file;
+                    if (hist_sol->GetEntries() != 0){
+                        hist_sol->Write(Form("Data_sol_%i_%i_%i_%i", Q2Counter, NuCounter, ZhCounter, Pt2Counter));
+                    }
+                    if (hist_liq->GetEntries() != 0){
+                        hist_liq->Write(Form("Data_liq_%i_%i_%i_%i", Q2Counter, NuCounter, ZhCounter, Pt2Counter));
+                    }
+                    cout<<"-----------------------------------------------------------------------"<<endl;
+                    // Set the histograms values to 0
+                    hist_liq->Reset();
+                    hist_sol->Reset();
+
+				}
+			}
+		}
+	}
+
+    //CHECKING
     //Creating histograms to integrated entries
     TH1F* Integ_Zh_liq[10];
     TH1F* Integ_Zh_sol[10];
@@ -150,12 +151,30 @@ void make_multibinning(TString Target="C", int Hadron_pid=211){
         Integ_Zh_sol[ZhCounter]->Write(Form("phiPQ_histo_sol_%i", ZhCounter), TObject::kOverwrite);
     }
 
+    //Counting of the number of electron in each target by making an hist and counting entries
+    int n_e_liq = elec_tuple->Draw("v_z>>h_e_liq", Main_cut&&vz_d2, "goff");
+    int n_e_sol = elec_tuple->Draw("v_z>>h_e_sol", Main_cut&&vz_solid, "goff");
+
+    //Convert number of electron into flat histogram.
+    TH1F* elec_hist_liq = new TH1F("elec_hist_liq", "", 10, 0, 1);
+    TH1F* elec_hist_sol = new TH1F("elec_hist_sol", "", 10, 0, 1);
+    for (int i = 1; i <= 10; i++) {
+        elec_hist_liq->SetBinContent(i, n_e_liq);
+        elec_hist_sol->SetBinContent(i, n_e_sol);
+    }
+
+    //Calculate MR
+    Zh_liquid->Divide(Zh_liquid, elec_hist_liq);
+    Zh_solid->Divide(Zh_solid, elec_hist_sol);
     mr->Divide(Zh_solid, Zh_liquid);
     mr->SetMarkerStyle(21);
     mr->Draw("COLZ");
+
+    //Save plots
     Zh_liquid->Write("ZH_liquid", TObject::kOverwrite);
     Zh_solid->Write("ZH_solid", TObject::kOverwrite);
     mr->Write("ZH_mr", TObject::kOverwrite);
+
     //TODO
     //Once everything is integrated I'll have 10 phiPQ histos for each Zh bin --> DONE
     //I need to integrate each of those 10 histos and each integration number correspond to Zh bin value --> DONE
