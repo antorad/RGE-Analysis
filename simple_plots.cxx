@@ -185,6 +185,8 @@ void processChain(TChain* input_tuple, TString output_location) {
 	TCut Beta_cut="(beta>0)&&(beta<1.2)";
 	TCut P_cut="(p>0)&&(p<12)";
 	TCut DIS_cut="(Q2>1)&&(sqrt(W2)>2)&&(y_bjorken<0.85)";
+	TCut vz_d2_h="(v_z_elec>-8.01)&&(v_z_elec<-3.62)";
+	TCut vz_solid_h="(v_z_elec>-1.84)&&(v_z_elec<0.09)";
 
 	//----ELECTRONS----
 	//z vertex (total)
@@ -218,6 +220,14 @@ void processChain(TChain* input_tuple, TString output_location) {
 
 	//z_h
 	draw_plot(pion_tuple, P_cut&&DIS_cut, "z_h",100,0,1, "Z_{h}", "dN/dZ_{h}", "pi_zh",
+				output_location, output);
+
+	//pt2_d2
+	draw_plot(pion_tuple, P_cut&&DIS_cut&&vz_solid_h, "p_T2",100,0,8, "P_{T}^{2}", "dN/dP_{T}^{2}", "pi_pt2_d2",
+				output_location, output);
+
+	//pt2_d2
+	draw_plot(pion_tuple, P_cut&&DIS_cut&&vz_d2_h, "p_T2",100,0,8, "P_{T}^{2}", "dN/dP_{T}^{2}", "pi_pt2_sol",
 				output_location, output);
 
 	//phi distribution

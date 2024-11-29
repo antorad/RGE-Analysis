@@ -64,6 +64,7 @@ void make_multibinning(TString Target="C", int Hadron_pid=211){
 
     // Cycle for each bin in Q2, Nu, Zh, and Pt2
     cout <<"Starting loop "<<endl;
+    //NOTE: I could change which varibale is final plots made with instead of always pt2
     output->cd();
 	for (int Q2Counter = 0; Q2Counter < N_Q2; Q2Counter++) {
 		for (int NuCounter = 0; NuCounter < N_Nu; NuCounter++) {
