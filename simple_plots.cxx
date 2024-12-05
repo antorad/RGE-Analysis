@@ -223,11 +223,11 @@ void processChain(TChain* input_tuple, TString output_location) {
 				output_location, output);
 
 	//pt2_d2
-	draw_plot(pion_tuple, P_cut&&DIS_cut&&vz_solid_h, "p_T2",100,0,8, "P_{T}^{2}", "dN/dP_{T}^{2}", "pi_pt2_d2",
+	draw_plot(pion_tuple, P_cut&&DIS_cut&&vz_solid_h, "p_T2",100,0,8, "P_{T}^{2}", "dN/dP_{T}^{2}", "pi_pt2_sol",
 				output_location, output);
 
 	//pt2_d2
-	draw_plot(pion_tuple, P_cut&&DIS_cut&&vz_d2_h, "p_T2",100,0,8, "P_{T}^{2}", "dN/dP_{T}^{2}", "pi_pt2_sol",
+	draw_plot(pion_tuple, P_cut&&DIS_cut&&vz_d2_h, "p_T2",100,0,8, "P_{T}^{2}", "dN/dP_{T}^{2}", "pi_pt2_d2",
 				output_location, output);
 
 	//phi distribution
