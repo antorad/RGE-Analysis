@@ -48,19 +48,38 @@ void integrate_multibinning(TString Target="C", int Hadron_pid=211){
         cout<<"PID not valid"<<endl;
         return;}
 
+    //DATA
     //Get histgrams from output root file
     TFile *output = new TFile("output/"+Target+"/data_binned.root","UPDATE");
-
     //Get electron TNtuple input created from simple_plots
     TFile *input = new TFile("output/"+Target+"/out_clas12.root","READ");
     TNtuple* elec_tuple = (TNtuple*)input->Get("elec_tuple");
+
+    //ACC (Data from other target for now)
+    TFile *output_acc = new TFile("output/Cu/data_binned.root","UPDATE");
+    //Get electron TNtuple input created from simple_plots
+    TFile *input_acc = new TFile("output/Cu/out_clas12.root","READ");
+    TNtuple* elec_tuple_acc = (TNtuple*)input->Get("elec_tuple");
+
+    //THROWN (Data from another target for now)
+    TFile *output_thr = new TFile("output/Pb/data_binned.root","UPDATE");
+    //Get electron TNtuple input created from simple_plots
+    TFile *input_thr = new TFile("output/Pb/out_clas12.root","READ");
+    TNtuple* elec_tuple_thr = (TNtuple*)input->Get("elec_tuple");
 
     //Create var cuts
     TCut Q2_Cut, Nu_Cut, Zh_Cut, Pt2_Cut, total_cut;
 
     //Creating histograms to integrate entries
+    //Uncorrected
     TH1F* Integ_liq[10];
     TH1F* Integ_sol[10];
+    //Corrected
+    TH1F* Integ_liq_corr[10];
+    TH1F* Integ_sol_corr[10];
+    //TH1F used
+    TH1F *h_liq, *h_sol, *h_liq_acc, *h_sol_acc, *h_liq_thr, *h_sol_thr, *h_liq_corr, *liq_correction;
+
     //Loop every bien for every variable (Zh first)
     for (int mainVarCounter = 0; mainVarCounter < N_main; mainVarCounter++) {
         //Create integration for each main bin
@@ -71,9 +90,35 @@ void integrate_multibinning(TString Target="C", int Hadron_pid=211){
             for (int NuCounter = 0; NuCounter < N_Nu; NuCounter++) {
                 for (int Pt2Counter = 0; Pt2Counter < N_Pt2; Pt2Counter++) {
                     //Obtain histos from file
+                    //Data histos
                     cout<<"Getting histo: "<< Form("Data_liq_%i_%i_%i_%i", Q2Counter, NuCounter, mainVarCounter, Pt2Counter)<<endl;
-                    TH1F* h_liq = (TH1F*)output->Get(Form("Data_liq_%i_%i_%i_%i", Q2Counter, NuCounter, mainVarCounter, Pt2Counter));
-                    TH1F* h_sol = (TH1F*)output->Get(Form("Data_sol_%i_%i_%i_%i", Q2Counter, NuCounter, mainVarCounter, Pt2Counter));
+                    h_liq = (TH1F*)output->Get(Form("Data_liq_%i_%i_%i_%i", Q2Counter, NuCounter, mainVarCounter, Pt2Counter));
+                    h_sol = (TH1F*)output->Get(Form("Data_sol_%i_%i_%i_%i", Q2Counter, NuCounter, mainVarCounter, Pt2Counter));
+
+                    //Acceptance correction
+                    //Accepted histos
+                    h_liq_acc = (TH1F*)output_acc->Get(Form("Data_liq_%i_%i_%i_%i", Q2Counter, NuCounter, mainVarCounter, Pt2Counter));
+                    h_sol_acc = (TH1F*)output_acc->Get(Form("Data_sol_%i_%i_%i_%i", Q2Counter, NuCounter, mainVarCounter, Pt2Counter));
+                    //Thrown histos
+                    h_liq_thr = (TH1F*)output_thr->Get(Form("Data_liq_%i_%i_%i_%i", Q2Counter, NuCounter, mainVarCounter, Pt2Counter));
+                    h_sol_thr = (TH1F*)output_thr->Get(Form("Data_sol_%i_%i_%i_%i", Q2Counter, NuCounter, mainVarCounter, Pt2Counter));
+                    //calculation
+                    if (h_liq!=NULL && h_liq_acc!=NULL && h_liq_thr!=NULL){
+                        h_liq_corr = (TH1F*)h_liq->Clone();
+                        liq_correction = (TH1F*)h_liq_thr->Clone();
+                        liq_correction->Divide(h_liq_acc);
+                        h_liq_corr->Multiply(liq_correction);
+
+                        ////save corrected histogram if it is not empty
+                        //if (h_liq_corr!=NULL){
+                        //    Integ_liq_corr[mainVarCounter]->Add(h_liq_corr);
+                        //    //Integ_sol_corr[mainVarCounter]->Add(h_sol_corr); 
+                        //}
+                       //if it is empty save the original in the corrected one anyways
+                    //    else{
+                    //        Integ_liq_corr[mainVarCounter]->Add(h_liq);
+                    //    }
+                    }
 
                     //Add histos to integrated histograms
                     Integ_liq[mainVarCounter]->Add(h_liq);
