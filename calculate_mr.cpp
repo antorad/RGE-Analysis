@@ -22,9 +22,10 @@ TH1F* make_var_histo(TString var, int nbins, float xmin, float xmax, TNtuple* h_
     else if (target=="solid" && h_tuple_name=="elec_tuple"){target_cut=vz_solid;}
 
     //Histogram for the var distibution
-    h_tuple->Draw(var+">>"+var+"_"+target+Form("(%i, %f, %f)", nbins, xmin, xmax),
+    int n_h = h_tuple->Draw(var+">>"+var+"_"+target+Form("(%i, %f, %f)", nbins, xmin, xmax),
                         Beta_cut&&P_cut&&DIS_cut&&target_cut, "COLZ");
     TH1F *h_d2_hist = (TH1F *)gDirectory->GetList()->FindObject(var+"_"+target);
+    cout<<" Number of hadrons in "<< target <<": "<<n_h<<endl;
     return h_d2_hist;
 }
 
