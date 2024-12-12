@@ -215,7 +215,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 
 	//----PIONS----
 	//z vertex
-	draw_plot(pion_tuple, P_cut, "v_z",100,-15,6, "V_{z} [cm]", "dN/dV_{z}", "pi_v_z",
+	draw_plot(pion_tuple, P_cut&&DIS_cut, "v_z",100,-15,6, "V_{z} [cm]", "dN/dV_{z}", "pi_v_z",
 				output_location, output);
 
 	//z_h
@@ -231,7 +231,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 				output_location, output);
 
 	//phi distribution
-	draw_plot(pion_tuple, P_cut, "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "pi_phi",
+	draw_plot(pion_tuple, P_cut&&DIS_cut, "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "pi_phi",
 				output_location, output);
 
 	//----POSITIVE PARTICLES----
