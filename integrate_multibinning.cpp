@@ -80,16 +80,44 @@ void integrate_multibinning(TString Target="C", int Hadron_pid=211){
     //TH1F used
     TH1F *h_liq, *h_sol, *h_liq_acc, *h_sol_acc, *h_liq_thr, *h_sol_thr, *h_liq_corr, *h_sol_corr, *liq_correction, *sol_correction;
 
-    //Loop every bien for every variable (Zh first)
+    //TH2F for electrons
+    //Draw the 2D electron plots
+    elec_tuple->Draw(Form("Q2:nu>>h_elec_sol(%i,%f,%f,%i,%f,%f)",N_Q2,Q2_bins[0],Q2_bins[N_Q2],N_Nu,Nu_bins[0],Nu_bins[N_Nu]), Main_cut&&vz_solid, "goff");
+    elec_tuple->Draw(Form("Q2:nu>>h_elec_liq(%i,%f,%f,%i,%f,%f)",N_Q2,Q2_bins[0],Q2_bins[N_Q2],N_Nu,Nu_bins[0],Nu_bins[N_Nu]), Main_cut&&vz_d2, "goff");
+    elec_tuple_acc->Draw(Form("Q2:nu>>h_elec_sol_acc(%i,%f,%f,%i,%f,%f)",N_Q2,Q2_bins[0],Q2_bins[N_Q2],N_Nu,Nu_bins[0],Nu_bins[N_Nu]), Main_cut&&vz_solid, "goff");
+    elec_tuple_acc->Draw(Form("Q2:nu>>h_elec_liq_acc(%i,%f,%f,%i,%f,%f)",N_Q2,Q2_bins[0],Q2_bins[N_Q2],N_Nu,Nu_bins[0],Nu_bins[N_Nu]), Main_cut&&vz_d2, "goff");
+    elec_tuple_thr->Draw(Form("Q2:nu>>h_elec_sol_thr(%i,%f,%f,%i,%f,%f)",N_Q2,Q2_bins[0],Q2_bins[N_Q2],N_Nu,Nu_bins[0],Nu_bins[N_Nu]), Main_cut&&vz_solid, "goff");
+    elec_tuple_thr->Draw(Form("Q2:nu>>h_elec_liq_thr(%i,%f,%f,%i,%f,%f)",N_Q2,Q2_bins[0],Q2_bins[N_Q2],N_Nu,Nu_bins[0],Nu_bins[N_Nu]), Main_cut&&vz_d2, "goff");
+    //Save the plots to access them later
+    TH2F *h_elec_sol = (TH2F*)gDirectory->Get("h_elec_sol");
+    TH2F *h_elec_liq = (TH2F*)gDirectory->Get("h_elec_liq");
+    TH2F *h_elec_sol_acc = (TH2F*)gDirectory->Get("h_elec_sol_acc");
+    TH2F *h_elec_liq_acc = (TH2F*)gDirectory->Get("h_elec_liq_acc");
+    TH2F *h_elec_sol_thr = (TH2F*)gDirectory->Get("h_elec_sol_thr");
+    TH2F *h_elec_liq_thr = (TH2F*)gDirectory->Get("h_elec_liq_thr");
+
+    //Initialize variable to store number of electrons per bin.
+    int N_elec_sol, N_elec_liq, N_elec_sol_acc, N_elec_liq_acc, N_elec_sol_thr, N_elec_liq_thr;
+
+    //Loop every bin for every variable (main var first)
     for (int mainVarCounter = 0; mainVarCounter < N_main; mainVarCounter++) {
         //Create integration for each main bin
         Integ_liq[mainVarCounter] = new TH1F(Form("Integrated_histo_liq_%i", mainVarCounter), "Integrated histo liq", 12, -3.1416, 3.1416);
         Integ_sol[mainVarCounter] = new TH1F(Form("Integrated_histo_sol_%i", mainVarCounter), "Integrated histo sol", 12, -3.1416, 3.1416);
-        Integ_liq_corr[mainVarCounter] = new TH1F(Form("Integrated_histo_liq_%i", mainVarCounter), "Integrated histo liq", 12, -3.1416, 3.1416);
-        Integ_sol_corr[mainVarCounter] = new TH1F(Form("Integrated_histo_sol_%i", mainVarCounter), "Integrated histo sol", 12, -3.1416, 3.1416);
+        Integ_liq_corr[mainVarCounter] = new TH1F(Form("Integrated_histo_liq_corr_%i", mainVarCounter), "Integrated histo liq", 12, -3.1416, 3.1416);
+        Integ_sol_corr[mainVarCounter] = new TH1F(Form("Integrated_histo_sol_corr_%i", mainVarCounter), "Integrated histo sol", 12, -3.1416, 3.1416);
         //Loop over remaining variables
         for (int Q2Counter = 0; Q2Counter < N_Q2; Q2Counter++) {
             for (int NuCounter = 0; NuCounter < N_Nu; NuCounter++) {
+                N_elec_sol = h_elec_sol->GetBinContent(Q2Counter, NuCounter);
+                N_elec_liq = h_elec_liq->GetBinContent(Q2Counter, NuCounter);
+                N_elec_sol_acc = h_elec_sol->GetBinContent(Q2Counter, NuCounter);
+                N_elec_liq_acc = h_elec_sol->GetBinContent(Q2Counter, NuCounter);
+                N_elec_sol_thr = h_elec_sol->GetBinContent(Q2Counter, NuCounter);
+                N_elec_liq_thr = h_elec_sol->GetBinContent(Q2Counter, NuCounter);
+
+                cout<<"number of electrons: "<<N_elec_sol<<" in bin "<<Q2Counter<<"_"<<NuCounter<<endl;
+
                 for (int Pt2Counter = 0; Pt2Counter < N_Pt2; Pt2Counter++) {
                     //Obtain histos from file
                     cout<<"Getting histos: "<< Form("%i_%i_%i_%i", Q2Counter, NuCounter, mainVarCounter, Pt2Counter)<<endl;
@@ -252,7 +280,7 @@ void integrate_multibinning(TString Target="C", int Hadron_pid=211){
 /*
 TODO
 -->Apply the aceptance correction for the 5 binned data usinf acc and thr --> DONE 
--->In make_multibinning, do something similar for electrons but only TH2Fs
+-->In make_multibinning, do something similar for electrons but only TH2Fs  --> DONE
 -->After the first correction, make the integration in PHIPQ first, then the varaible not wanted to claculate for the final result,
 leaving the main var, nu, and q2.
 -->Then apply the acceptance correction using electron biined data in Q2 and nu.
