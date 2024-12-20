@@ -90,12 +90,12 @@ void make_multibinning(TString Target="C", int Hadron_pid=211){
                     hist_sol = (TH1F*) gDirectory->GetList()->FindObject("hist_sol");
 
 					//Write histogram to output file;
-                    if (hist_sol->GetEntries() != 0){
+                    //if (hist_sol->GetEntries() != 0){
                         hist_sol->Write(Form("Data_sol_%i_%i_%i_%i", Q2Counter, NuCounter, ZhCounter, Pt2Counter));
-                    }
-                    if (hist_liq->GetEntries() != 0){
+                    //}
+                    //if (hist_liq->GetEntries() != 0){
                         hist_liq->Write(Form("Data_liq_%i_%i_%i_%i", Q2Counter, NuCounter, ZhCounter, Pt2Counter));
-                    }
+                    //}
                     cout<<"-----------------------------------------------------------------------"<<endl;
                     // Set the histograms values to 0
                     hist_liq->Reset();
