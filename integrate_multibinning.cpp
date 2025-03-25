@@ -172,16 +172,16 @@ void integrate_multibinning(TString Target="C", int Hadron_pid=211){
     //Set bin values and error using integrated histogram for each main var bin
     for (int mainVarCounter = 0; mainVarCounter < N_main; mainVarCounter++) {
         //Uncorrected
-        histo_liquid_uncorr->SetBinContent(mainVarCounter+1, Integ_liq_uncorr[mainVarCounter]->IntegralAndError(1,N_main, error_liq_uncorr));
-        histo_solid_uncorr->SetBinContent(mainVarCounter+1, Integ_sol_uncorr[mainVarCounter]->IntegralAndError(1,N_main, error_sol_uncorr));
+        histo_liquid_uncorr->SetBinContent(mainVarCounter+1, Integ_liq_uncorr[mainVarCounter]->IntegralAndError(1,N_Phi, error_liq_uncorr));
+        histo_solid_uncorr->SetBinContent(mainVarCounter+1, Integ_sol_uncorr[mainVarCounter]->IntegralAndError(1,N_Phi, error_sol_uncorr));
         histo_liquid_uncorr->SetBinError(mainVarCounter+1, error_liq_uncorr);
         histo_solid_uncorr->SetBinError(mainVarCounter+1, error_sol_uncorr);
         Integ_liq_uncorr[mainVarCounter]->Write(Form("phiPQ_histo_liq_%i", mainVarCounter));
         Integ_sol_uncorr[mainVarCounter]->Write(Form("phiPQ_histo_sol_%i", mainVarCounter));
 
         //Corrected
-        histo_liquid_corr->SetBinContent(mainVarCounter+1, Integ_liq_corr[mainVarCounter]->IntegralAndError(1,N_main, error_liq_corr));
-        histo_solid_corr->SetBinContent(mainVarCounter+1, Integ_sol_corr[mainVarCounter]->IntegralAndError(1,N_main, error_sol_corr));
+        histo_liquid_corr->SetBinContent(mainVarCounter+1, Integ_liq_corr[mainVarCounter]->IntegralAndError(1,N_Phi, error_liq_corr));
+        histo_solid_corr->SetBinContent(mainVarCounter+1, Integ_sol_corr[mainVarCounter]->IntegralAndError(1,N_Phi, error_sol_corr));
         histo_liquid_corr->SetBinError(mainVarCounter+1, error_liq_corr);
         histo_solid_corr->SetBinError(mainVarCounter+1, error_sol_corr);
         Integ_liq_corr[mainVarCounter]->Write(Form("phiPQ_histo_liq_%i_corr", mainVarCounter));
