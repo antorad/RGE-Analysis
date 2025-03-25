@@ -1,33 +1,4 @@
-//Cuts for the plots
-TCut Beta_cut="(beta>0)&&(beta<1.2)";
-TCut P_cut="(p>0)&&(p<12)";
-// DIS cuts
-TCut DIS_cut="(Q2>1)&&(sqrt(W2)>2)&&(y_bjorken<0.85)";
-//Total cut
-TCut Main_cut=Beta_cut&&P_cut&&DIS_cut;
-
-//Vertex_cuts
-TCut vz_d2="(v_z>-8.01)&&(v_z<-3.62)";
-TCut vz_solid="(v_z>-1.84)&&(v_z<0.09)";
-TCut vz_d2_h="(v_z_elec>-8.01)&&(v_z_elec<-3.62)";
-TCut vz_solid_h="(v_z_elec>-1.84)&&(v_z_elec<0.09)";
-
-//Variables to use
-double Q2, Nu, Zh, Pt2, phi_PQ;
-
-//Binning (Check values later, these are testing for now)
-const int N_Q2=5;
-const int N_Nu=4;
-const int N_Zh=10;
-const int N_Pt2=5;
-const int N_Phi=12;
-
-const float Q2_bins[N_Q2+1]={1.,3., 5., 7., 9., 11.};
-const float Nu_bins[N_Nu+1]={2., 3.5, 5., 7.5, 9.};
-const float Zh_bins[N_Zh+1]={0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.};
-const float Pt2_bins[N_Pt2+1]={0., 2., 4., 6., 8., 10.};
-const float Phi_bins[N_Phi+1]={-3.1416, -2.218, -2.0944, -1.5708, -1.0472, -0.5236,
-                                0, 0.5236, 1.0472, 1.5708, 2.0944, 2.218, 3.1416};
+#include "include.h"
 
 void make_multibinning_v2(TString Target="C", int Hadron_pid=211){
     ROOT::EnableImplicitMT();
@@ -68,43 +39,43 @@ void make_multibinning_v2(TString Target="C", int Hadron_pid=211){
     cout <<"Starting loop "<<endl;
     //NOTE: I could change which varibale is final plots made with instead of always pt2
     output->cd();
-		for (int ZhCounter = 0; ZhCounter < N_Zh; ZhCounter++) {
-			for (int Pt2Counter = 0; Pt2Counter < N_Pt2; Pt2Counter++) {
-				for (int PhiCounter = 0; PhiCounter < N_Phi; PhiCounter++) {
+	for (int ZhCounter = 0; ZhCounter < N_Zh; ZhCounter++) {
+		for (int Pt2Counter = 0; Pt2Counter < N_Pt2; Pt2Counter++) {
+			for (int PhiCounter = 0; PhiCounter < N_Phi; PhiCounter++) {
 
-					cout << "Working on bin: " << ZhCounter << Pt2Counter << PhiCounter << endl;
+				cout << "Working on bin: " << ZhCounter << Pt2Counter << PhiCounter << endl;
 
-					// Select the cuts for each bin
-					Zh_Cut = Form("z_h>%f&&z_h<%f", Zh_bins[ZhCounter], Zh_bins[ZhCounter + 1]);
-					Pt2_Cut = Form("p_T2>%f&&p_T2<%f", Pt2_bins[Pt2Counter], Pt2_bins[Pt2Counter + 1]);
-                    Phi_Cut = Form("phi_PQ>%f&&phi_PQ<%f", Phi_bins[PhiCounter], Phi_bins[PhiCounter + 1]);
+				// Select the cuts for each bin
+				Zh_Cut = Form("z_h>%f&&z_h<%f", Zh_bins[ZhCounter], Zh_bins[ZhCounter + 1]);
+				Pt2_Cut = Form("p_T2>%f&&p_T2<%f", Pt2_bins[Pt2Counter], Pt2_bins[Pt2Counter + 1]);
+                Phi_Cut = Form("phi_PQ>%f&&phi_PQ<%f", Phi_bins[PhiCounter], Phi_bins[PhiCounter + 1]);
 
-					//Combine cuts
-					total_cut = Main_cut&&Zh_Cut&&Pt2_Cut&&Phi_Cut;
+				//Combine cuts
+				total_cut = Main_cut&&Zh_Cut&&Pt2_Cut&&Phi_Cut;
 
-					//get TNtuple input created from simple_plots and apply cuts
-					h_tuple->Draw(Form("Q2:nu>>hist_liq(%i,%f,%f,%i,%f,%f)",N_Q2,Q2_bins[0],Q2_bins[N_Q2],
-                                        N_Nu,Nu_bins[0],Nu_bins[N_Nu]), total_cut&&vz_d2_h, "goff");
-                    h_tuple->Draw(Form("Q2:nu>>hist_sol(%i,%f,%f,%i,%f,%f)",N_Q2,Q2_bins[0],Q2_bins[N_Q2],
-                                        N_Nu,Nu_bins[0],Nu_bins[N_Nu]), total_cut&&vz_solid_h,"goff");
+				//get TNtuple input created from simple_plots and apply cuts
+				h_tuple->Draw(Form("Q2:nu>>hist_liq(%i,%f,%f,%i,%f,%f)", N_Nu,Nu_bins[0],Nu_bins[N_Nu],
+                                    N_Q2,Q2_bins[0],Q2_bins[N_Q2]), total_cut&&vz_d2_h, "goff");
+                h_tuple->Draw(Form("Q2:nu>>hist_sol(%i,%f,%f,%i,%f,%f)", N_Nu,Nu_bins[0],Nu_bins[N_Nu],
+                                    N_Q2,Q2_bins[0],Q2_bins[N_Q2]), total_cut&&vz_solid_h,"goff");
 
-                    hist_liq = (TH2F*) gDirectory->GetList()->FindObject("hist_liq");
-                    hist_sol = (TH2F*) gDirectory->GetList()->FindObject("hist_sol");
+                hist_liq = (TH2F*) gDirectory->GetList()->FindObject("hist_liq");
+                hist_sol = (TH2F*) gDirectory->GetList()->FindObject("hist_sol");
 
-					//Write histogram to output file;
-                    //if (hist_sol->GetEntries() != 0){
-                        hist_sol->Write(Form("Data_sol_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
-                    //}
-                    //if (hist_liq->GetEntries() != 0){
-                        hist_liq->Write(Form("Data_liq_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
-                    //}
-                    cout<<"-----------------------------------------------------------------------"<<endl;
-                    // Set the histograms values to 0
-                    hist_liq->Reset();
-                    hist_sol->Reset();
+				//Write histogram to output file;
+                //if (hist_sol->GetEntries() != 0){
+                    hist_sol->Write(Form("Data_sol_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
+                //}
+                //if (hist_liq->GetEntries() != 0){
+                    hist_liq->Write(Form("Data_liq_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
+                //}
+                cout<<"-----------------------------------------------------------------------"<<endl;
+                // Set the histograms values to 0
+                hist_liq->Reset();
+                hist_sol->Reset();
 
-				}
 			}
 		}
+	}
 	output->Close();
 }
