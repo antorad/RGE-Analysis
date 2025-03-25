@@ -9,6 +9,7 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+#include "include.h"
 
 using namespace std;
 
@@ -181,12 +182,6 @@ void processChain(TChain* input_tuple, TString output_location) {
 	elec_tuple->Write();
 
 	//------ PLOTS------
-	//cuts for the ṕlots
-	TCut Beta_cut="(beta>0)&&(beta<1.2)";
-	TCut P_cut="(p>0)&&(p<12)";
-	TCut DIS_cut="(Q2>1)&&(sqrt(W2)>2)&&(y_bjorken<0.85)";
-	TCut vz_d2_h="(v_z_elec>-8.01)&&(v_z_elec<-3.62)";
-	TCut vz_solid_h="(v_z_elec>-1.84)&&(v_z_elec<0.09)";
 
 	//----ELECTRONS----
 	//z vertex (total)
@@ -233,6 +228,10 @@ void processChain(TChain* input_tuple, TString output_location) {
 	//phi distribution
 	draw_plot(pion_tuple, P_cut&&DIS_cut, "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "pi_phi",
 				output_location, output);
+
+	//q2 vs nu
+	draw_plot_2D(pion_tuple, Main_cut&&Var_cut&&vz_d2_h, "Q2:nu",4, 2, 9, "Nu",
+					 5,1,11,"Q2", "NuxQ2_liq", output_location, output);
 
 	//----POSITIVE PARTICLES----
 	//p vs beta
