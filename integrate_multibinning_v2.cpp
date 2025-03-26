@@ -1,18 +1,42 @@
 #include "include.h"
 
-//Variables to use
-TString vars[5] = {"Q2", "nu", "Zh", "Pt2", "phi_PQ"};
-TString mainVar;
-
-int N_main=N_Zh;
-float (*main_bins) = Zh_bins;
-
 void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211){
     ROOT::EnableImplicitMT(); //To run with multithreads (idk if it works)
 
-    //main variable. CHANGE IT LATER TO A LOOP FOR EACH VARIABLE
-    mainVar = "Zh";
-    N_main = N_Zh;
+////////////////////////////////////////////////////////////////////////
+//////////                  SETTING VARIABLES                 //////////
+////////////////////////////////////////////////////////////////////////
+
+    //Variables to use. The calculation is for the first variable in the list, called MainVar
+    TString vars[5][5]={{"Zh", "Pt2", "phi_PQ", "nu", "Q2"},
+                        {"Pt2", "Zh", "phi_PQ", "nu", "Q2"},
+                        {"phi_PQ", "Zh", "Pt2", "nu", "Q2"},
+                        {"nu", "Zh", "Pt2", "phi_PQ", "Q2"},
+                        {"Q2", "Zh", "Pt2", "phi_PQ", "nu"}};
+
+    TString mainVar, var2, var3, var4, var5;
+    mainVar = "Zh"; //MOVE THIS AS ARGUMENT LATER
+    int N_main, N_Var2, N_Var3;
+    float *main_bins = nullptr;
+
+    if (mainVar == "Zh"){
+        N_main = N_Zh;
+        main_bins = Zh_bins;
+        N_Var2 = N_Pt2;
+        N_Var3 = N_Phi;
+    }
+    if (mainVar == "Pt2"){
+        N_main = N_Pt2;
+        main_bins = Pt2_bins;
+        N_Var2 = N_Zh;
+        N_Var3 = N_Phi;
+    }
+    if (mainVar == "Phi_PQ"){
+        N_main = N_Phi;
+        main_bins = Phi_bins;
+        N_Var2 = N_Zh;
+        N_Var3 = N_Pt2;
+    }
 
     //hadron selection
     TString hadron;
@@ -51,7 +75,7 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211){
     TNtuple* elec_tuple_thr = (TNtuple*)input_elec_thr->Get("elec_tuple");
 
     //OUTPUT file
-    TFile *output = new TFile("output/"+Target+"/mr_v2.root","RECREATE");
+    TFile *output = new TFile("output/"+Target+"/mr_"+mainVar+"_v2.root","RECREATE");
 
 ////////////////////////////////////////////////////////////////////////
 //////////            HADRON ACEPTANCE CORRECTION             //////////
@@ -91,22 +115,39 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211){
                                 N_Nu, Nu_bins[0], Nu_bins[N_Nu],N_Q2, Q2_bins[0], Q2_bins[N_Q2]);
 
         //Loop over remaining variables
-        for (int Pt2Counter = 0; Pt2Counter < N_Pt2; Pt2Counter++) {
-            for (int PhiCounter = 0; PhiCounter < N_Phi; PhiCounter++) {
+        for (int Var2Counter = 0; Var2Counter < N_Var2; Var2Counter++) {
+            for (int Var3Counter = 0; Var3Counter < N_Var3; Var3Counter++) {
+                //Assign names for each var for getting the histo names
+                int ZhCounter, Pt2Counter, PhiCounter;
+                if (mainVar == "Zh"){
+                    ZhCounter = mainVarCounter;
+                    Pt2Counter = Var2Counter;
+                    PhiCounter = Var3Counter;
+                }
+                if (mainVar == "Pt2"){
+                    Pt2Counter = mainVarCounter;
+                    ZhCounter = Var2Counter;
+                    PhiCounter = Var3Counter;
+                }
+                if (mainVar == "Phi_PQ"){
+                    PhiCounter = mainVarCounter;
+                    ZhCounter = Var2Counter;
+                    Pt2Counter = Var3Counter;
+                }
                 //Obtain histos from file
                 cout<<"********************* New hadron BIN *******************"<<endl;
-                cout<<"Getting histos: "<<Form("%i_%i_%i", mainVarCounter, Pt2Counter, PhiCounter)<<endl;
+                cout<<"Getting histos: "<<Form("%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter)<<endl;
                 //Data histos
-                h_liq_data = (TH2F*)input_hadron_data->Get(Form("Data_liq_%i_%i_%i", mainVarCounter, Pt2Counter, PhiCounter));
-                h_sol_data = (TH2F*)input_hadron_data->Get(Form("Data_sol_%i_%i_%i", mainVarCounter, Pt2Counter, PhiCounter));
+                h_liq_data = (TH2F*)input_hadron_data->Get(Form("Data_liq_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
+                h_sol_data = (TH2F*)input_hadron_data->Get(Form("Data_sol_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
                 //Accepted histos
-                h_liq_acc = (TH2F*)input_hadron_acc->Get(Form("Data_liq_%i_%i_%i", mainVarCounter, Pt2Counter, PhiCounter));
-                h_sol_acc = (TH2F*)input_hadron_acc->Get(Form("Data_sol_%i_%i_%i", mainVarCounter, Pt2Counter, PhiCounter));
+                h_liq_acc = (TH2F*)input_hadron_acc->Get(Form("Data_liq_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
+                h_sol_acc = (TH2F*)input_hadron_acc->Get(Form("Data_sol_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
                 //Thrown histos
-                h_liq_thr = (TH2F*)input_hadron_thr->Get(Form("Data_liq_%i_%i_%i", mainVarCounter, Pt2Counter, PhiCounter));
-                h_sol_thr = (TH2F*)input_hadron_thr->Get(Form("Data_sol_%i_%i_%i", mainVarCounter, Pt2Counter, PhiCounter));
+                h_liq_thr = (TH2F*)input_hadron_thr->Get(Form("Data_liq_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
+                h_sol_thr = (TH2F*)input_hadron_thr->Get(Form("Data_sol_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
 
-                //MUST CHANGE THE mainVarCougter FROM PREVIOUS BLOCK TO ZhCounter
+                //MUST CHANGE THE mainVarCounter FROM PREVIOUS BLOCK TO ZhCounter
 
                 //acceptance correction factors calculation
                 //LIQUID TARGET
