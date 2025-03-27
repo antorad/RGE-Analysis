@@ -265,7 +265,7 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211){
     n_elec_sol_corr = h_elec_sol_corr->IntegralAndError(1, N_Nu,1, N_Q2, n_elec_error_sol);
     n_elec_liq_corr = h_elec_liq_corr->IntegralAndError(1, N_Nu,1, N_Q2, n_elec_error_liq);
 
-    //Convert number of electron into flat histogram with errors.
+    //For hadron MainVar. Convert number of electron into flat histogram with errors.
     TH1F* elec_hist_liq_corr = new TH1F("elec_hist_liq_corr", "", N_main, main_bins[0], main_bins[N_main]);
     TH1F* elec_hist_sol_corr = new TH1F("elec_hist_sol_corr", "", N_main, main_bins[0], main_bins[N_main]);
     for (int i = 1; i <= N_main; i++) {
@@ -274,6 +274,15 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211){
         elec_hist_sol_corr->SetBinError(i, n_elec_error_sol);
         elec_hist_liq_corr->SetBinError(i, n_elec_error_liq);
     }
+
+    //For electron MainVar. Project TH2 into TH1.
+    //Nu histo
+    TH1F *h_elec_nu_sol_corr = (TH1F*)h_elec_sol_corr->ProjectionX("elec_nu_sol_corr", 1 , N_Q2, "e");
+    TH1F *h_elec_nu_liq_corr = (TH1F*)h_elec_liq_corr->ProjectionX("elec_nu_liq_corr", 1 , N_Q2, "e");
+    //Q2 histo
+    TH1F *h_elec_q2_sol_corr = (TH1F*)h_elec_sol_corr->ProjectionY("elec_q2_sol_corr", 1 , N_Nu, "e");
+    TH1F *h_elec_q2_liq_corr = (TH1F*)h_elec_liq_corr->ProjectionY("elec_q2_liq_corr", 1 , N_Nu, "e");
+
     //Save TH2 electron plots into file
     h_elec_sol_data->Write("elec_sol_data");
     h_elec_sol_acc->Write("elec_sol_acc");
@@ -283,6 +292,10 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211){
     h_elec_liq_acc->Write("elec_liq_acc");
     h_elec_liq_thr->Write("elec_liq_thr");
     h_elec_liq_corr->Write("elec_liq_corr");
+    h_elec_nu_sol_corr->Write("elec_nu_sol_corr");
+    h_elec_nu_liq_corr->Write("elec_nu_liq_corr");
+    h_elec_q2_sol_corr->Write("elec_q2_sol_corr");
+    h_elec_q2_liq_corr->Write("elec_q2_liq_corr");
 
     //Uncorrected number of electrons
     //Counting of the number of electron in each target by making an hist and counting entries
@@ -302,6 +315,20 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211){
     cout<<"*******************************************************************************"<<endl;
     cout<<"UNCORRECTED-> ne_sol:"<<n_e_sol<<", ne_liq:"<<n_e_liq<<", ratio:"<<n_e_sol/n_e_liq<<endl;
     cout<<"CORRECTED-> ne_sol_corr:"<<n_elec_sol_corr<<", ne_liq_corr:"<<n_elec_liq_corr<<", ratio:"<<n_elec_sol_corr/n_elec_liq_corr<<endl;
+
+    //DEBUG
+    elec_tuple_data->Draw(Form("nu>>h_elec_nu_sol_data(%i,%f,%f)",N_Nu,Nu_bins[0],Nu_bins[N_Nu]), Main_cut&&vz_solid, "goff");
+    elec_tuple_data->Draw(Form("nu>>h_elec_nu_liq_data(%i,%f,%f)",N_Nu,Nu_bins[0],Nu_bins[N_Nu]), Main_cut&&vz_d2, "goff");
+    elec_tuple_data->Draw(Form("Q2>>h_elec_q2_sol_data(%i,%f,%f)",N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut&&vz_solid, "goff");
+    elec_tuple_data->Draw(Form("Q2>>h_elec_q2_liq_data(%i,%f,%f)",N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut&&vz_d2, "goff");
+    TH1F* h_elec_nu_sol_data = (TH1F*)gDirectory->Get("h_elec_nu_sol_data");
+    TH1F* h_elec_nu_liq_data = (TH1F*)gDirectory->Get("h_elec_nu_liq_data");
+    TH1F* h_elec_q2_sol_data = (TH1F*)gDirectory->Get("h_elec_q2_sol_data");
+    TH1F* h_elec_q2_liq_data = (TH1F*)gDirectory->Get("h_elec_q2_liq_data");
+    h_elec_nu_sol_corr->Write("elec_nu_sol_data");
+    h_elec_nu_liq_corr->Write("elec_nu_liq_data");
+    h_elec_q2_sol_corr->Write("elec_q2_sol_data");
+    h_elec_q2_liq_corr->Write("elec_q2_liq_data");
 
 ////////////////////////////////////////////////////////////////////////
 //////////          MULTIPLICITY RATIO CALCULATION            //////////
