@@ -8,43 +8,29 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
 ////////////////////////////////////////////////////////////////////////
 
     //Variables to use. The calculation is for the first variable in the list, called MainVar
-    int N_main, N_Var1, N_Var2, N_Var3;
+    int N_main;
     float *main_bins = nullptr;
 
+    //N_main and main_bins correspond to the number of bins and their limits respectively
     if (mainVar == "Zh"){
         N_main = N_Zh;
         main_bins = Zh_bins;
-        N_Var1 = N_Zh;
-        N_Var2 = N_Pt2;
-        N_Var3 = N_Phi;
     }
     if (mainVar == "Pt2"){
         N_main = N_Pt2;
         main_bins = Pt2_bins;
-        N_Var1 = N_Pt2;
-        N_Var2 = N_Zh;
-        N_Var3 = N_Phi;
     }
     if (mainVar == "Phi_PQ"){
         N_main = N_Phi;
         main_bins = Phi_bins;
-        N_Var1 = N_Phi;
-        N_Var2 = N_Zh;
-        N_Var3 = N_Pt2;
     }
     if (mainVar == "Nu"){
         N_main = N_Nu;
         main_bins = Nu_bins;
-        N_Var1 = N_Zh;
-        N_Var2 = N_Pt2;
-        N_Var3 = N_Phi;
     }
     if (mainVar == "Q2"){
         N_main = N_Q2;
         main_bins = Q2_bins;
-        N_Var1 = N_Zh;
-        N_Var2 = N_Pt2;
-        N_Var3 = N_Phi;
     }
 
     //hadron selection
@@ -107,45 +93,41 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     TH2D* Integ_sol_corr_total = new TH2D("Integrated_histo_sol_corr","", N_Nu, Nu_bins[0], Nu_bins[N_Nu], N_Q2, Q2_bins[0], Q2_bins[N_Q2]);
 
     //Loop every bin for every variable
-    for (int Var1Counter = 0; Var1Counter < N_Var1; Var1Counter++) {
-        //Create integration histogram for each main bin to save in the array
-        Integ_liq_uncorr[Var1Counter] = new TH2D(Form("Integrated_histo_liq_uncorr_%i",
-                                Var1Counter), "Integrated histo liq uncorr",
-                                N_Nu, Nu_bins[0], Nu_bins[N_Nu],N_Q2, Q2_bins[0], Q2_bins[N_Q2]);
+    if (mainVar =="Zh" || mainVar == "Pt2" || mainVar == "Phi_PQ"){
+        for (int mainVarCounter = 0; mainVarCounter < N_main; mainVarCounter++) {
+            //Create integration histogram for each main bin to save in the array
+            Integ_liq_uncorr[mainVarCounter] = new TH2D(Form("Integrated_histo_liq_uncorr_%i",
+                                    mainVarCounter), "Integrated histo liq uncorr",
+                                    N_Nu, Nu_bins[0], Nu_bins[N_Nu],N_Q2, Q2_bins[0], Q2_bins[N_Q2]);
 
-        Integ_sol_uncorr[Var1Counter] = new TH2D(Form("Integrated_histo_sol_uncorr_%i",
-                                Var1Counter), "Integrated histo sol uncorr",
-                                N_Nu, Nu_bins[0], Nu_bins[N_Nu],N_Q2, Q2_bins[0], Q2_bins[N_Q2]);
+            Integ_sol_uncorr[mainVarCounter] = new TH2D(Form("Integrated_histo_sol_uncorr_%i",
+                                    mainVarCounter), "Integrated histo sol uncorr",
+                                    N_Nu, Nu_bins[0], Nu_bins[N_Nu],N_Q2, Q2_bins[0], Q2_bins[N_Q2]);
 
-        Integ_liq_corr[Var1Counter] = new TH2D(Form("Integrated_histo_liq_corr_%i",
-                                Var1Counter), "Integrated histo liq corr",
-                                N_Nu, Nu_bins[0], Nu_bins[N_Nu],N_Q2, Q2_bins[0], Q2_bins[N_Q2]);
+            Integ_liq_corr[mainVarCounter] = new TH2D(Form("Integrated_histo_liq_corr_%i",
+                                    mainVarCounter), "Integrated histo liq corr",
+                                    N_Nu, Nu_bins[0], Nu_bins[N_Nu],N_Q2, Q2_bins[0], Q2_bins[N_Q2]);
 
-        Integ_sol_corr[Var1Counter] = new TH2D(Form("Integrated_histo_sol_corr_%i",
-                                Var1Counter), "Integrated histo sol corr",
-                                N_Nu, Nu_bins[0], Nu_bins[N_Nu],N_Q2, Q2_bins[0], Q2_bins[N_Q2]);
+            Integ_sol_corr[mainVarCounter] = new TH2D(Form("Integrated_histo_sol_corr_%i",
+                                    mainVarCounter), "Integrated histo sol corr",
+                                    N_Nu, Nu_bins[0], Nu_bins[N_Nu],N_Q2, Q2_bins[0], Q2_bins[N_Q2]);
+        }
     }
 
-        //Loop over remaining variables
-    for (int Var1Counter = 0; Var1Counter < N_Var1; Var1Counter++) {
-        for (int Var2Counter = 0; Var2Counter < N_Var2; Var2Counter++) {
-            for (int Var3Counter = 0; Var3Counter < N_Var3; Var3Counter++) {
+    //Loop over hadronic variables
+    int mainVarCounter;
+    for (int ZhCounter = 0; ZhCounter < N_Zh; ZhCounter++) {
+        for (int Pt2Counter = 0; Pt2Counter < N_Pt2; Pt2Counter++) {
+            for (int PhiCounter = 0; PhiCounter < N_Phi; PhiCounter++) {
                 //Assign names for each var for getting the histo names
-                int ZhCounter, Pt2Counter, PhiCounter;
                 if (mainVar == "Zh" || mainVar == "Nu" || mainVar == "Q2"){
-                    ZhCounter = Var1Counter;
-                    Pt2Counter = Var2Counter;
-                    PhiCounter = Var3Counter;
+                    mainVarCounter = ZhCounter;
                 }
                 if (mainVar == "Pt2"){
-                    Pt2Counter = Var1Counter;
-                    ZhCounter = Var2Counter;
-                    PhiCounter = Var3Counter;
+                    mainVarCounter = Pt2Counter;
                 }
                 if (mainVar == "Phi_PQ"){
-                    PhiCounter = Var1Counter;
-                    ZhCounter = Var2Counter;
-                    Pt2Counter = Var3Counter;
+                    mainVarCounter = PhiCounter;
                 }
 
                 //Obtain histos from file
@@ -169,7 +151,9 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
                 h_liq_corr->Multiply(liq_correction);
 
                 cout<<"adding corrected liq histo with integral:"<<h_liq_corr->Integral()<<endl;
-                Integ_liq_corr[Var1Counter]->Add(h_liq_corr);
+                if (mainVar =="Zh" || mainVar == "Pt2" || mainVar == "Phi_PQ"){
+                    Integ_liq_corr[mainVarCounter]->Add(h_liq_corr);
+                }
                 Integ_liq_corr_total->Add(h_liq_corr);
 
                 //SOLID TARGET
@@ -179,15 +163,19 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
                 h_sol_corr->Multiply(sol_correction);
 
                 cout<<"adding corrected sol histo with integral:"<<h_sol_corr->Integral()<<endl;
-                Integ_sol_corr[Var1Counter]->Add(h_sol_corr);
+                if (mainVar =="Zh" || mainVar == "Pt2" || mainVar == "Phi_PQ"){
+                    Integ_sol_corr[mainVarCounter]->Add(h_sol_corr);
+                }
                 Integ_sol_corr_total->Add(h_sol_corr);
 
                 //*** check what to do if the histogram is empty ***
                 // maybe just add the uncorrected into the corrected 
 
                 //Add uncorrected histos to integrated histograms
-                Integ_liq_uncorr[Var1Counter]->Add(h_liq_data);
-                Integ_sol_uncorr[Var1Counter]->Add(h_sol_data);
+                if (mainVar =="Zh" || mainVar == "Pt2" || mainVar == "Phi_PQ"){
+                    Integ_liq_uncorr[mainVarCounter]->Add(h_liq_data);
+                    Integ_sol_uncorr[mainVarCounter]->Add(h_sol_data);
+                }
                 Integ_liq_uncorr_total->Add(h_liq_data);
                 Integ_sol_uncorr_total->Add(h_sol_data);
 
@@ -214,12 +202,6 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     //Variables to save number of corrected hadrons and statistic errors
     Double_t error_liq_uncorr, error_sol_uncorr, error_sol_corr, error_liq_corr;
 
-    ////DEBUG
-    //TH2D* Integ_liq_uncorr_total = new TH2D("Integrated_histo_liq_uncorr","", N_Nu, Nu_bins[0], Nu_bins[N_Nu], N_Q2, Q2_bins[0], Q2_bins[N_Q2]);
-    //TH2D* Integ_sol_uncorr_total = new TH2D("Integrated_histo_sol_uncorr","", N_Nu, Nu_bins[0], Nu_bins[N_Nu], N_Q2, Q2_bins[0], Q2_bins[N_Q2]);
-    //TH2D* Integ_liq_corr_total = new TH2D("Integrated_histo_liq_corr","", N_Nu, Nu_bins[0], Nu_bins[N_Nu], N_Q2, Q2_bins[0], Q2_bins[N_Q2]);
-    //TH2D* Integ_sol_corr_total = new TH2D("Integrated_histo_sol_corr","", N_Nu, Nu_bins[0], Nu_bins[N_Nu], N_Q2, Q2_bins[0], Q2_bins[N_Q2]);
-
     //If main var is hadronic variable, set bin values and error using integrated histogram for each main var bin
     if (mainVar =="Zh" || mainVar == "Pt2" || mainVar == "Phi_PQ"){
         for (int mainVarCounter = 0; mainVarCounter < N_main; mainVarCounter++) {
@@ -242,12 +224,6 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
             //IF I NEED TO LOOK AT THE MR RATIO FOR SPECIFIC BIN OF NU AND Q2 JUST INSTEAD OF INTEGRATE, JUST TAKE THE VALUE AND ERROR OF THE SPECIFIC BIN
             //THE REST SHOULD BE THE SAME
             //COULD ADD A NEW CYCLE THAT CALCULATE THE MR FOR EACH Q2 AND NU BIN HERE AND IN THE FIANL CALCULATION
-
-            ////DEBUG
-            //Integ_liq_uncorr_total->Add(Integ_liq_uncorr[mainVarCounter]);
-            //Integ_liq_corr_total->Add(Integ_liq_corr[mainVarCounter]);
-            //Integ_sol_uncorr_total->Add(Integ_sol_uncorr[mainVarCounter]);
-            //Integ_sol_corr_total->Add(Integ_sol_corr[mainVarCounter]);
         }
     }
     //If main var is electron variable, project the total TH2 into TH1
@@ -338,10 +314,6 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     h_elec_liq_acc->Write("elec_liq_acc");
     h_elec_liq_thr->Write("elec_liq_thr");
     h_elec_liq_corr->Write("elec_liq_corr");
-    //h_elec_nu_sol_corr->Write("elec_nu_sol_corr");
-    //h_elec_nu_liq_corr->Write("elec_nu_liq_corr");
-    //h_elec_q2_sol_corr->Write("elec_q2_sol_corr");
-    //h_elec_q2_liq_corr->Write("elec_q2_liq_corr");
 
     //Uncorrected number of electrons
     //Counting of the number of electron in each target by making an hist and counting entries
@@ -371,10 +343,7 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     TH1D* h_elec_nu_liq_data = (TH1D*)gDirectory->Get("h_elec_nu_liq_data");
     TH1D* h_elec_q2_sol_data = (TH1D*)gDirectory->Get("h_elec_q2_sol_data");
     TH1D* h_elec_q2_liq_data = (TH1D*)gDirectory->Get("h_elec_q2_liq_data");
-    //h_elec_nu_sol_corr->Write("elec_nu_sol_data");
-    //h_elec_nu_liq_corr->Write("elec_nu_liq_data");
-    //h_elec_q2_sol_corr->Write("elec_q2_sol_data");
-    //h_elec_q2_liq_corr->Write("elec_q2_liq_data");
+
     //Nu histo
     if (mainVar == "Nu"){
         elec_hist_sol_uncorr = h_elec_nu_sol_data;
