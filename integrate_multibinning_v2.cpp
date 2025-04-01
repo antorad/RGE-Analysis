@@ -251,7 +251,7 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
 //////////           ELECTRON ACEPTANCE CORRECTION            //////////
 ////////////////////////////////////////////////////////////////////////
 
-    //Draw the 2D electron plots
+    //Draw 2D electron plots
     elec_tuple_data->Draw(Form("Q2:nu>>h_elec_sol_data(%i,%f,%f,%i,%f,%f)",N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut&&vz_solid, "goff");
     elec_tuple_data->Draw(Form("Q2:nu>>h_elec_liq_data(%i,%f,%f,%i,%f,%f)",N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut&&vz_d2, "goff");
     elec_tuple_acc ->Draw(Form("Q2:nu>>h_elec_sol_acc(%i,%f,%f,%i,%f,%f)", N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut&&vz_solid, "goff");
@@ -267,7 +267,8 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     TH2D *h_elec_sol_thr = (TH2D*)gDirectory->Get("h_elec_sol_thr");
     TH2D *h_elec_liq_thr = (TH2D*)gDirectory->Get("h_elec_liq_thr");
 
-    //TH2 with corrected number of electrons
+    //CORRECTED
+    //Calculate TH2 with corrected number of electrons
     TH2D *h_elec_sol_corr = (TH2D*)h_elec_sol_data->Clone();
     TH2D *h_elec_liq_corr = (TH2D*)h_elec_liq_data->Clone();
     h_elec_sol_corr->Multiply(h_elec_sol_thr);
@@ -275,14 +276,15 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     h_elec_liq_corr->Multiply(h_elec_liq_thr);
     h_elec_liq_corr->Divide(h_elec_liq_acc);
 
-    //Count number of corrected electrons and statistic errors
+    //For hadronic variable, count number of corrected electrons and statistic errors
     Double_t n_elec_sol_corr, n_elec_liq_corr, n_elec_error_liq, n_elec_error_sol;
     n_elec_sol_corr = h_elec_sol_corr->IntegralAndError(1, N_Nu,1, N_Q2, n_elec_error_sol);
     n_elec_liq_corr = h_elec_liq_corr->IntegralAndError(1, N_Nu,1, N_Q2, n_elec_error_liq);
 
-    //1D electron histograms for the MR niormalization
+    //1D electron histograms for the MR normalization
     TH1D* elec_hist_liq_corr = new TH1D("elec_hist_liq_corr", "", N_main, main_bins[0], main_bins[N_main]);
     TH1D* elec_hist_sol_corr = new TH1D("elec_hist_sol_corr", "", N_main, main_bins[0], main_bins[N_main]);
+
     //For hadron MainVar. Convert number of electron into flat histogram with errors.
     if (mainVar =="Zh" || mainVar == "Pt2" || mainVar == "Phi_PQ"){
         for (int i = 1; i <= N_main; i++) {
@@ -293,7 +295,7 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
         }
     }
 
-    //For electron MainVar. Project TH2 into TH1.
+    //For electron varaible, project TH2 into TH1.
     //Nu histo
     else if (mainVar == "Nu"){
         elec_hist_sol_corr = (TH1D*)h_elec_sol_corr->ProjectionX("elec_nu_sol_corr", 1 , N_Q2, "e");
@@ -315,44 +317,38 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     h_elec_liq_thr->Write("elec_liq_thr");
     h_elec_liq_corr->Write("elec_liq_corr");
 
-    //Uncorrected number of electrons
-    //Counting of the number of electron in each target by making an hist and counting entries
-    float n_e_liq = elec_tuple_data->Draw("Q2>>h_e_liq", elec_cut&&Main_cut&&vz_d2, "goff");
-    float n_e_sol = elec_tuple_data->Draw("Q2>>h_e_sol", elec_cut&&Main_cut&&vz_solid, "goff");
+    //elec_hist_sol_data->Write("elec_1d_sol_data");
+    //elec_hist_liq_data->Write("elec_1d_liq_data");
 
-    float ratio= n_e_liq/n_e_sol;
-    //Convert number of electron into flat histogram.
-    TH1D* elec_hist_liq_uncorr = new TH1D("elec_hist_liq_uncorr", "", N_main, main_bins[0], main_bins[N_main]);
-    TH1D* elec_hist_sol_uncorr = new TH1D("elec_hist_sol_uncorr", "", N_main, main_bins[0], main_bins[N_main]);
+    //UNCORRECTED
+    //Count number of corrected electrons and statistic errors
+    Double_t n_elec_sol_data, n_elec_liq_data, n_elec_error_liq_data, n_elec_error_sol_data;
+    n_elec_sol_data = h_elec_sol_data->IntegralAndError(1, N_Nu,1, N_Q2, n_elec_error_sol_data);
+    n_elec_liq_data = h_elec_liq_data->IntegralAndError(1, N_Nu,1, N_Q2, n_elec_error_liq_data);
+
+    //1D electron histograms for the MR normalization
+    TH1D* elec_hist_liq_uncorr = new TH1D("elec_hist_liq_data", "", N_main, main_bins[0], main_bins[N_main]);
+    TH1D* elec_hist_sol_uncorr = new TH1D("elec_hist_sol_data", "", N_main, main_bins[0], main_bins[N_main]);
+
+    if (mainVar =="Zh" || mainVar == "Pt2" || mainVar == "Phi_PQ"){
         for (int i = 1; i <= N_main; i++) {
-        elec_hist_liq_uncorr->SetBinContent(i, n_e_liq);
-        elec_hist_sol_uncorr->SetBinContent(i, n_e_sol);
+            elec_hist_sol_uncorr->SetBinContent(i, n_elec_sol_data);
+            elec_hist_liq_uncorr->SetBinContent(i, n_elec_liq_data);
+            elec_hist_sol_uncorr->SetBinError(i, n_elec_error_sol_data);
+            elec_hist_liq_uncorr->SetBinError(i, n_elec_error_liq_data);
+        }
     }
 
-    //print electron info
-    cout<<"*******************************************************************************"<<endl;
-    cout<<"UNCORRECTED-> ne_sol:"<<n_e_sol<<", ne_liq:"<<n_e_liq<<", ratio:"<<n_e_sol/n_e_liq<<endl;
-    cout<<"CORRECTED-> ne_sol_corr:"<<n_elec_sol_corr<<", ne_liq_corr:"<<n_elec_liq_corr<<", ratio:"<<n_elec_sol_corr/n_elec_liq_corr<<endl;
-
-    //DEBUG
-    elec_tuple_data->Draw(Form("nu>>h_elec_nu_sol_data(%i,%f,%f)",N_Nu,Nu_bins[0],Nu_bins[N_Nu]), Main_cut&&vz_solid, "goff");
-    elec_tuple_data->Draw(Form("nu>>h_elec_nu_liq_data(%i,%f,%f)",N_Nu,Nu_bins[0],Nu_bins[N_Nu]), Main_cut&&vz_d2, "goff");
-    elec_tuple_data->Draw(Form("Q2>>h_elec_q2_sol_data(%i,%f,%f)",N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut&&vz_solid, "goff");
-    elec_tuple_data->Draw(Form("Q2>>h_elec_q2_liq_data(%i,%f,%f)",N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut&&vz_d2, "goff");
-    TH1D* h_elec_nu_sol_data = (TH1D*)gDirectory->Get("h_elec_nu_sol_data");
-    TH1D* h_elec_nu_liq_data = (TH1D*)gDirectory->Get("h_elec_nu_liq_data");
-    TH1D* h_elec_q2_sol_data = (TH1D*)gDirectory->Get("h_elec_q2_sol_data");
-    TH1D* h_elec_q2_liq_data = (TH1D*)gDirectory->Get("h_elec_q2_liq_data");
-
+    //For electron varaible, project TH2 into TH1.
     //Nu histo
-    if (mainVar == "Nu"){
-        elec_hist_sol_uncorr = h_elec_nu_sol_data;
-        elec_hist_liq_uncorr = h_elec_nu_liq_data;
+    else if (mainVar == "Nu"){
+        elec_hist_sol_uncorr = (TH1D*)h_elec_sol_data->ProjectionX("elec_nu_sol_data", 1 , N_Q2, "e");
+        elec_hist_liq_uncorr = (TH1D*)h_elec_liq_data->ProjectionX("elec_nu_liq_data", 1 , N_Q2, "e");
     }
     //Q2 histo
     else if (mainVar == "Q2"){
-        elec_hist_sol_uncorr = h_elec_q2_sol_data;
-        elec_hist_liq_uncorr = h_elec_q2_liq_data;
+        elec_hist_sol_uncorr = (TH1D*)h_elec_sol_data->ProjectionY("elec_q2_sol_data", 1 , N_Nu, "e");
+        elec_hist_liq_uncorr = (TH1D*)h_elec_liq_data->ProjectionY("elec_q2_liq_data", 1 , N_Nu, "e");
     }
 
 ////////////////////////////////////////////////////////////////////////
@@ -394,7 +390,11 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
 
 /*
 TODO
--->Make that the macro calculate all possible MR in one go
+-->Check for variable name consistency
+-->Check error propagation
+-->Check for unused variables
+-->Check what to write and whatnot
+-->Cout more info
 -->Make MR for each Nu and Q2 bin
 -->Use real simulations
 -->Determine what to do with empty bins
