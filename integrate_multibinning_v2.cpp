@@ -1,6 +1,6 @@
 #include "include.h"
 
-void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211){
+void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString mainVar="Zh"){
     ROOT::EnableImplicitMT(); //To run with multithreads (idk if it works)
 
 ////////////////////////////////////////////////////////////////////////
@@ -8,14 +8,6 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211){
 ////////////////////////////////////////////////////////////////////////
 
     //Variables to use. The calculation is for the first variable in the list, called MainVar
-    TString vars[5][5]={{"Zh", "Pt2", "phi_PQ", "nu", "Q2"},
-                        {"Pt2", "Zh", "phi_PQ", "nu", "Q2"},
-                        {"phi_PQ", "Zh", "Pt2", "nu", "Q2"},
-                        {"nu", "Zh", "Pt2", "phi_PQ", "Q2"},
-                        {"Q2", "Zh", "Pt2", "phi_PQ", "nu"}};
-
-    TString mainVar, var1, var2, var3, var4, var5;
-    mainVar = "Q2"; //MOVE THIS AS ARGUMENT LATER
     int N_main, N_Var1, N_Var2, N_Var3;
     float *main_bins = nullptr;
 
@@ -98,9 +90,6 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211){
 //////////            HADRON ACEPTANCE CORRECTION             //////////
 ////////////////////////////////////////////////////////////////////////
 
-    //Create var cuts
-    TCut Q2_Cut, Nu_Cut, Zh_Cut, Pt2_Cut, total_cut, Phi_Cut;
-
     //Array of histograms to integrate entries from input root file
     //Uncorrected
     TH2D* Integ_liq_uncorr[N_main];
@@ -135,8 +124,10 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211){
         Integ_sol_corr[Var1Counter] = new TH2D(Form("Integrated_histo_sol_corr_%i",
                                 Var1Counter), "Integrated histo sol corr",
                                 N_Nu, Nu_bins[0], Nu_bins[N_Nu],N_Q2, Q2_bins[0], Q2_bins[N_Q2]);
+    }
 
         //Loop over remaining variables
+    for (int Var1Counter = 0; Var1Counter < N_Var1; Var1Counter++) {
         for (int Var2Counter = 0; Var2Counter < N_Var2; Var2Counter++) {
             for (int Var3Counter = 0; Var3Counter < N_Var3; Var3Counter++) {
                 //Assign names for each var for getting the histo names
