@@ -6,6 +6,7 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
 ////////////////////////////////////////////////////////////////////////
 //////////                  SETTING VARIABLES                 //////////
 ////////////////////////////////////////////////////////////////////////
+    cout<<"Setting variables"<<endl;
 
     //Variables to use. The calculation is for the first variable in the list, called MainVar
     int N_main;
@@ -16,21 +17,25 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
         N_main = N_Zh;
         main_bins = Zh_bins;
     }
-    if (mainVar == "Pt2"){
+    else if (mainVar == "Pt2"){
         N_main = N_Pt2;
         main_bins = Pt2_bins;
     }
-    if (mainVar == "Phi_PQ"){
+    else if (mainVar == "Phi_PQ"){
         N_main = N_Phi;
         main_bins = Phi_bins;
     }
-    if (mainVar == "Nu"){
+    else if (mainVar == "Nu"){
         N_main = N_Nu;
         main_bins = Nu_bins;
     }
-    if (mainVar == "Q2"){
+    else if (mainVar == "Q2"){
         N_main = N_Q2;
         main_bins = Q2_bins;
+    }
+    else{
+        cout<<"Variable not valid"<<endl;
+        return;
     }
 
     //hadron selection
@@ -42,11 +47,14 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     //in case a pid not valid in given, give a message and end macro
     else {
         cout<<"PID not valid"<<endl;
-        return;}
+        return;
+    }
+    cout<<"Running MR scritpt for "<<hadron<<" variable "<<mainVar<<endl;
 
 ////////////////////////////////////////////////////////////////////////
 //////////               INPUT AND OUTPUT FILES               //////////
 ////////////////////////////////////////////////////////////////////////
+    cout<<"------------------------------------------------------------"<<endl;
 
     //DATA
     //Get hadron histograms from root file created with create_multibinning
@@ -75,6 +83,8 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
 ////////////////////////////////////////////////////////////////////////
 //////////            HADRON ACEPTANCE CORRECTION             //////////
 ////////////////////////////////////////////////////////////////////////
+    cout<<"------------------------------------------------------------"<<endl;
+    cout<<"Calculating hadron acceptance correction"<<endl;
 
     //Array of histograms to integrate entries from input root file
     //Uncorrected
@@ -198,9 +208,10 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
             }
         }
     }
+    cout<<"------------------------------------------------------------"<<endl;
+    cout<<"Ended looping over hadron bins"<<endl;
     //Open uptput file to save root stuff in it
     output->cd();
-
     //Final histograms for main var histograms NON corrected
     TH1D* h_liquid_data = new TH1D("histo_liq","histo liq", N_main, main_bins[0], main_bins[N_main]);
     TH1D* h_solid_data  = new TH1D("histo_sol","histo sol", N_main, main_bins[0], main_bins[N_main]);
@@ -382,6 +393,12 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
         h_elec_liq_data = (TH1D*)h2_elec_liq_data->ProjectionY("elec_q2_liq_data", 1 , N_Nu, "e");
     }
 
+    //Write both data and corrected electrons into output file
+    h_elec_sol_data->Write("h1_elec_sol_data");
+    h_elec_liq_data->Write("h1_elec_liq_data");
+    h_elec_sol_corr->Write("h1_elec_sol_corr");
+    h_elec_liq_corr->Write("h1_elec_liq_corr");
+
 ////////////////////////////////////////////////////////////////////////
 //////////          MULTIPLICITY RATIO CALCULATION            //////////
 ////////////////////////////////////////////////////////////////////////
@@ -423,9 +440,7 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
 
 /*
 TODO
--->Check what to write and whatnot
--->Cout more info
--->Make MR for each Nu and Q2 bin
--->Use real simulations
+-->Make MR for each Nu and Q2 bin when mainvar is hadronic
 -->Determine what to do with empty bins
+-->Use real simulations
 */
