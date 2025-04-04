@@ -25,8 +25,8 @@ void make_multibinning_v2(TString Target="C", int Hadron_pid=211){
     TNtuple* elec_tuple = (TNtuple*)input->Get("elec_tuple");
 
     //Create histogram to save the binning
-    TH2F *hist_liq = new TH2F("data_liq", " ", N_Nu, Nu_bins[0], Nu_bins[N_Nu], N_Q2, Q2_bins[0], Q2_bins[N_Q2]);
-    TH2F *hist_sol = new TH2F("data_sol", " ", N_Nu, Nu_bins[0], Nu_bins[N_Nu], N_Q2, Q2_bins[0], Q2_bins[N_Q2]);
+    TH2D *hist_liq = new TH2D("data_liq", " ", N_Nu, Nu_bins[0], Nu_bins[N_Nu], N_Q2, Q2_bins[0], Q2_bins[N_Q2]);
+    TH2D *hist_sol = new TH2D("data_sol", " ", N_Nu, Nu_bins[0], Nu_bins[N_Nu], N_Q2, Q2_bins[0], Q2_bins[N_Q2]);
 
     //Error propagation
     hist_liq->Sumw2();
@@ -59,8 +59,8 @@ void make_multibinning_v2(TString Target="C", int Hadron_pid=211){
                 h_tuple->Draw(Form("Q2:nu>>hist_sol(%i,%f,%f,%i,%f,%f)", N_Nu,Nu_bins[0],Nu_bins[N_Nu],
                                     N_Q2,Q2_bins[0],Q2_bins[N_Q2]), total_cut&&vz_solid_h,"goff");
 
-                hist_liq = (TH2F*) gDirectory->GetList()->FindObject("hist_liq");
-                hist_sol = (TH2F*) gDirectory->GetList()->FindObject("hist_sol");
+                hist_liq = (TH2D*) gDirectory->GetList()->FindObject("hist_liq");
+                hist_sol = (TH2D*) gDirectory->GetList()->FindObject("hist_sol");
 
 				//Write histogram to output file;
                 //if (hist_sol->GetEntries() != 0){
