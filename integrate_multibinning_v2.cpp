@@ -210,8 +210,10 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     }
     cout<<"------------------------------------------------------------"<<endl;
     cout<<"Ended looping over hadron bins"<<endl;
+
     //Open uptput file to save root stuff in it
     output->cd();
+
     //Final histograms for main var histograms NON corrected
     TH1D* h_liquid_data = new TH1D("histo_liq","histo liq", N_main, main_bins[0], main_bins[N_main]);
     TH1D* h_solid_data  = new TH1D("histo_sol","histo sol", N_main, main_bins[0], main_bins[N_main]);
@@ -225,6 +227,30 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     h_solid_data->Sumw2();
     h_liquid_corr->Sumw2();
     h_solid_corr->Sumw2();
+
+    //For bins in Nu and Q2
+    TH1D* h_ebin_liquid_data[N_Nu][N_Q2];
+    TH1D* h_ebin_solid_data [N_Nu][N_Q2];
+    TH1D* h_ebin_liquid_corr[N_Nu][N_Q2];
+    TH1D* h_ebin_solid_corr [N_Nu][N_Q2];
+
+    if (mainVar =="Zh" || mainVar == "Pt2" || mainVar == "Phi_PQ"){
+        for (int NuCounter = 0; NuCounter < N_Nu; ++NuCounter){
+            for (int Q2Counter = 0; Q2Counter < N_Q2; ++Q2Counter){
+                //Create integration histogram for each Nu and Q2 bin to save in the array
+                h_ebin_liquid_data[NuCounter][Q2Counter] = new TH1D(Form("histo_liq_data_%i_%i", NuCounter,Q2Counter),"histo liq data", N_main, main_bins[0], main_bins[N_main]);
+                h_ebin_solid_data[NuCounter][Q2Counter]  = new TH1D(Form("histo_sol_data_%i_%i", NuCounter,Q2Counter),"histo sol data", N_main, main_bins[0], main_bins[N_main]);
+                h_ebin_liquid_corr[NuCounter][Q2Counter] = new TH1D(Form("histo_liq_corr_%i_%i", NuCounter,Q2Counter),"histo liq corr", N_main, main_bins[0], main_bins[N_main]);
+                h_ebin_solid_corr[NuCounter][Q2Counter]  = new TH1D(Form("histo_sol_corr_%i_%i", NuCounter,Q2Counter),"histo sol corr", N_main, main_bins[0], main_bins[N_main]);
+
+                //Error propagation
+                h_ebin_liquid_data[NuCounter][Q2Counter]->Sumw2();
+                h_ebin_solid_data[NuCounter][Q2Counter] ->Sumw2();
+                h_ebin_liquid_corr[NuCounter][Q2Counter]->Sumw2();
+                h_ebin_solid_corr[NuCounter][Q2Counter] ->Sumw2();
+            }
+        }
+    }
 
     //Variables to save number of corrected hadrons and statistic errors
     Double_t error_liq_data, error_sol_data, error_sol_corr, error_liq_corr;
@@ -248,11 +274,35 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
             h2_integ_liq_corr[mainVarCounter]->Write(Form("NuxQ2_histo_liq_%i_corr", mainVarCounter));
             h2_integ_sol_corr[mainVarCounter]->Write(Form("NuxQ2_histo_sol_%i_corr", mainVarCounter));
 
-            //IF I NEED TO LOOK AT THE MR RATIO FOR SPECIFIC BIN OF NU AND Q2 JUST INSTEAD OF INTEGRATE, JUST TAKE THE VALUE AND ERROR OF THE SPECIFIC BIN
-            //THE REST SHOULD BE THE SAME
-            //COULD ADD A NEW CYCLE THAT CALCULATE THE MR FOR EACH Q2 AND NU BIN HERE AND IN THE FIANL CALCULATION
+            //Save content in specific Nu and Q2 bin value
+            for (int NuCounter = 0; NuCounter < N_Nu; ++NuCounter){
+                for (int Q2Counter = 0; Q2Counter < N_Q2; ++Q2Counter){
+                    //Uncorrected
+                    h_ebin_liquid_data[NuCounter][Q2Counter]->SetBinContent(mainVarCounter+1, h2_integ_liq_data[mainVarCounter]->IntegralAndError(NuCounter+1,NuCounter+1,Q2Counter+1, Q2Counter+1, error_liq_data));
+                    h_ebin_solid_data[NuCounter][Q2Counter] ->SetBinContent(mainVarCounter+1, h2_integ_sol_data[mainVarCounter]->IntegralAndError(NuCounter+1,NuCounter+1,Q2Counter+1, Q2Counter+1, error_sol_data));
+                    h_ebin_liquid_data[NuCounter][Q2Counter]->SetBinError(mainVarCounter+1, error_liq_data);
+                    h_ebin_solid_data[NuCounter][Q2Counter] ->SetBinError(mainVarCounter+1, error_sol_data);
+
+                    //Corrected
+                    h_ebin_liquid_corr[NuCounter][Q2Counter]->SetBinContent(mainVarCounter+1, h2_integ_liq_corr[mainVarCounter]->IntegralAndError(NuCounter+1,NuCounter+1,Q2Counter+1, Q2Counter+1, error_liq_corr));
+                    h_ebin_solid_corr[NuCounter][Q2Counter] ->SetBinContent(mainVarCounter+1, h2_integ_sol_corr[mainVarCounter]->IntegralAndError(NuCounter+1,NuCounter+1,Q2Counter+1, Q2Counter+1, error_sol_corr));
+                    h_ebin_liquid_corr[NuCounter][Q2Counter]->SetBinError(mainVarCounter+1, error_liq_corr);
+                    h_ebin_solid_corr[NuCounter][Q2Counter] ->SetBinError(mainVarCounter+1, error_sol_corr);
+                }
+            }
         }
+        //DEBUG
+        for (int NuCounter = 0; NuCounter < N_Nu; ++NuCounter){
+            for (int Q2Counter = 0; Q2Counter < N_Q2; ++Q2Counter){
+                h_ebin_liquid_data[NuCounter][Q2Counter]->Write();
+                h_ebin_solid_data[NuCounter][Q2Counter] ->Write();
+                h_ebin_liquid_corr[NuCounter][Q2Counter]->Write();
+                h_ebin_solid_corr[NuCounter][Q2Counter] ->Write();
+            }
+        }
+        //END OF DEBUG
     }
+
     //If main var is electron variable, project the total TH2 into TH1
     else if (mainVar == "Nu"){
         //Nu histo
@@ -278,7 +328,7 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
 //////////           ELECTRON ACEPTANCE CORRECTION            //////////
 ////////////////////////////////////////////////////////////////////////
     cout<<"------------------------------------------------------------"<<endl;
-    cout<<"Calculating electron acceptanace correction"<<endl;
+    cout<<"Calculating electron acceptance correction"<<endl;
 
     //Draw 2D electron plots
     elec_tuple_data->Draw(Form("Q2:nu>>h2_elec_sol_data(%i,%f,%f,%i,%f,%f)",N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut&&vz_solid, "goff");
@@ -307,6 +357,8 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     //Calculate TH2 with corrected number of electrons
     TH2D *h2_elec_sol_corr = (TH2D*)h2_elec_sol_data->Clone();
     TH2D *h2_elec_liq_corr = (TH2D*)h2_elec_liq_data->Clone();
+    h2_elec_sol_corr->Sumw2();
+    h2_elec_liq_corr->Sumw2();
 
     //Calculation
     h2_elec_sol_corr->Multiply(h2_elec_sol_thr);
@@ -399,6 +451,54 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     h_elec_sol_corr->Write("h1_elec_sol_corr");
     h_elec_liq_corr->Write("h1_elec_liq_corr");
 
+    TH1D* h_ebin_elec_liq_data[N_Nu][N_Q2];
+    TH1D* h_ebin_elec_sol_data[N_Nu][N_Q2];
+    TH1D* h_ebin_elec_liq_corr[N_Nu][N_Q2];
+    TH1D* h_ebin_elec_sol_corr[N_Nu][N_Q2];   
+    //For specific bin in Nu and Q2
+    if (mainVar =="Zh" || mainVar == "Pt2" || mainVar == "Phi_PQ"){
+        for (int NuCounter = 0; NuCounter < N_Nu; ++NuCounter){
+            for (int Q2Counter = 0; Q2Counter < N_Q2; ++Q2Counter){
+                //For hadronic variable, count number of corrected electrons and statistic errors
+                n_elec_sol_data = h2_elec_sol_data->IntegralAndError(NuCounter+1,NuCounter+1,Q2Counter+1, Q2Counter+1, n_elec_error_sol_data);
+                n_elec_liq_data = h2_elec_liq_data->IntegralAndError(NuCounter+1,NuCounter+1,Q2Counter+1, Q2Counter+1, n_elec_error_liq_data);
+                n_elec_sol_corr = h2_elec_sol_data->IntegralAndError(NuCounter+1,NuCounter+1,Q2Counter+1, Q2Counter+1, n_elec_error_sol_corr);
+                n_elec_liq_corr = h2_elec_liq_data->IntegralAndError(NuCounter+1,NuCounter+1,Q2Counter+1, Q2Counter+1, n_elec_error_liq_corr);
+
+                //1D electron histograms for the MR normalization
+                h_ebin_elec_liq_data[NuCounter][Q2Counter] = new TH1D(Form("h_elec_liq_data_%i_%i",NuCounter,Q2Counter), "", N_main, main_bins[0], main_bins[N_main]);
+                h_ebin_elec_sol_data[NuCounter][Q2Counter] = new TH1D(Form("h_elec_sol_data_%i_%i",NuCounter,Q2Counter), "", N_main, main_bins[0], main_bins[N_main]);
+                h_ebin_elec_liq_corr[NuCounter][Q2Counter] = new TH1D(Form("h_elec_liq_corr_%i_%i",NuCounter,Q2Counter), "", N_main, main_bins[0], main_bins[N_main]);
+                h_ebin_elec_sol_corr[NuCounter][Q2Counter] = new TH1D(Form("h_elec_sol_corr_%i_%i",NuCounter,Q2Counter), "", N_main, main_bins[0], main_bins[N_main]);
+                h_ebin_elec_liq_data[NuCounter][Q2Counter]->Sumw2();
+                h_ebin_elec_sol_data[NuCounter][Q2Counter]->Sumw2();
+                h_ebin_elec_liq_corr[NuCounter][Q2Counter]->Sumw2();
+                h_ebin_elec_sol_corr[NuCounter][Q2Counter]->Sumw2();
+
+                for (int i = 1; i <= N_main; i++) {
+                    h_ebin_elec_sol_data[NuCounter][Q2Counter]->SetBinContent(i, n_elec_sol_data);
+                    h_ebin_elec_liq_data[NuCounter][Q2Counter]->SetBinContent(i, n_elec_liq_data);
+                    h_ebin_elec_sol_data[NuCounter][Q2Counter]->SetBinError(i, n_elec_error_sol_data);
+                    h_ebin_elec_liq_data[NuCounter][Q2Counter]->SetBinError(i, n_elec_error_liq_data);
+                    h_ebin_elec_sol_corr[NuCounter][Q2Counter]->SetBinContent(i, n_elec_sol_corr);
+                    h_ebin_elec_liq_corr[NuCounter][Q2Counter]->SetBinContent(i, n_elec_liq_corr);
+                    h_ebin_elec_sol_corr[NuCounter][Q2Counter]->SetBinError(i, n_elec_error_sol_corr);
+                    h_ebin_elec_liq_corr[NuCounter][Q2Counter]->SetBinError(i, n_elec_error_liq_corr);
+                }
+            }
+        }
+        //DEBUG
+        for (int NuCounter = 0; NuCounter < N_Nu; ++NuCounter){
+            for (int Q2Counter = 0; Q2Counter < N_Q2; ++Q2Counter){
+                h_ebin_elec_liq_data[NuCounter][Q2Counter]->Write();
+                h_ebin_elec_sol_data[NuCounter][Q2Counter]->Write();
+                h_ebin_elec_liq_corr[NuCounter][Q2Counter]->Write();
+                h_ebin_elec_sol_corr[NuCounter][Q2Counter]->Write();
+            }
+        }
+        //END OF DEBUG
+    }
+
 ////////////////////////////////////////////////////////////////////////
 //////////          MULTIPLICITY RATIO CALCULATION            //////////
 ////////////////////////////////////////////////////////////////////////
@@ -435,12 +535,55 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     h_solid_corr->Write("ratio_solid_corr");
     h_mr_corr->Write("MR_corr");
 
+    //For specific bin in Nu and Q2
+    TH1D* h_ebin_mr_data[N_Nu][N_Q2];
+    TH1D* h_ebin_mr_corr[N_Nu][N_Q2];
+
+    if (mainVar =="Zh" || mainVar == "Pt2" || mainVar == "Phi_PQ"){
+        for (int NuCounter = 0; NuCounter < N_Nu; ++NuCounter){
+            for (int Q2Counter = 0; Q2Counter < N_Q2; ++Q2Counter){
+                cout<<"Working on bin Nu:"<<NuCounter<<", Q2:"<<Q2Counter<<endl;
+
+                h_ebin_mr_data[NuCounter][Q2Counter] = new TH1D(Form("MR_data_%i_%i",NuCounter,Q2Counter),"MR_data", N_main, main_bins[0], main_bins[N_main]);
+                h_ebin_mr_corr[NuCounter][Q2Counter] = new TH1D(Form("MR_corr_%i_%i",NuCounter,Q2Counter),"MR_corr", N_main, main_bins[0], main_bins[N_main]);
+                h_ebin_mr_data[NuCounter][Q2Counter]->Sumw2();
+                h_ebin_mr_corr[NuCounter][Q2Counter]->Sumw2();
+
+                //Uncorrected MR
+                h_ebin_liquid_data[NuCounter][Q2Counter]->Divide(h_ebin_liquid_data[NuCounter][Q2Counter], h_ebin_elec_liq_data[NuCounter][Q2Counter]);
+                h_ebin_solid_data[NuCounter][Q2Counter]->Divide(h_ebin_solid_data[NuCounter][Q2Counter], h_ebin_elec_sol_data[NuCounter][Q2Counter]);
+                h_ebin_mr_data[NuCounter][Q2Counter]->Divide(h_ebin_solid_data[NuCounter][Q2Counter], h_ebin_liquid_data[NuCounter][Q2Counter]);
+                h_ebin_mr_data[NuCounter][Q2Counter]->SetMarkerStyle(21);
+                h_ebin_mr_data[NuCounter][Q2Counter]->Draw("COLZ");
+//
+                //Corrected MR
+                h_ebin_liquid_corr[NuCounter][Q2Counter]->Divide(h_ebin_liquid_corr[NuCounter][Q2Counter], h_ebin_elec_liq_corr[NuCounter][Q2Counter]);
+                h_ebin_solid_corr[NuCounter][Q2Counter]->Divide(h_ebin_solid_corr[NuCounter][Q2Counter], h_ebin_elec_sol_corr[NuCounter][Q2Counter]);
+                h_ebin_mr_corr[NuCounter][Q2Counter]->Divide(h_ebin_solid_corr[NuCounter][Q2Counter], h_ebin_liquid_corr[NuCounter][Q2Counter]);
+                h_ebin_mr_corr[NuCounter][Q2Counter]->SetMarkerStyle(21);
+                h_ebin_mr_corr[NuCounter][Q2Counter]->Draw("COLZ");
+//
+                //Save plots
+                //data
+                h_ebin_liquid_data[NuCounter][Q2Counter]->Write(Form("ratio_liquid_data_%i_%i",NuCounter,Q2Counter));
+                h_ebin_solid_data[NuCounter][Q2Counter]->Write(Form("ratio_solid_data_%i_%i",NuCounter,Q2Counter));
+                h_ebin_mr_data[NuCounter][Q2Counter]->Write(Form("MR_data_%i_%i",NuCounter,Q2Counter));
+                //corrected
+                h_ebin_liquid_corr[NuCounter][Q2Counter]->Write(Form("ratio_liquid_corr_%i_%i",NuCounter,Q2Counter));
+                h_ebin_solid_corr[NuCounter][Q2Counter]->Write(Form("ratio_solid_corr_%i_%i",NuCounter,Q2Counter));
+                h_ebin_mr_corr[NuCounter][Q2Counter]->Write(Form("MR_corr_%i_%i",NuCounter,Q2Counter));
+            }
+        }
+    }
+
 	output->Close();
 }
 
 /*
 TODO
 -->Make MR for each Nu and Q2 bin when mainvar is hadronic
+-->Probably the program is crashing because some histogram are empty when trying to divide at the calculation of the MR for specific Nu and Q2 bin
+-->Try to remove those or not calculate in those cases.
 -->Determine what to do with empty bins
 -->Use real simulations
 */
