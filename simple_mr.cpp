@@ -1,29 +1,28 @@
-gStyle->SetOptStat(0);
+#include "include.h"
 
-//Cuts for the plots
-TCut Beta_cut="(beta>0)&&(beta<1.2)";
-TCut P_cut="(p>0)&&(p<12)";
-// Vertex cuts
-TCut DIS_cut="(Q2>1)&&(sqrt(W2)>2)&&(y_bjorken<0.85)";
-TCut vz_d2="(v_z>-8.01)&&(v_z<-3.62)";
-TCut vz_solid="(v_z>-1.84)&&(v_z<0.09)";
-TCut vz_d2_h="(v_z_elec>-8.01)&&(v_z_elec<-3.62)";
-TCut vz_solid_h="(v_z_elec>-1.84)&&(v_z_elec<0.09)";
+gStyle->SetOptStat(0);
 
 TH1F* make_var_histo(TString var, int nbins, float xmin, float xmax, TNtuple* h_tuple, TString target){
     //Assigning targtet cut for electron counting
     //because we need to check hadrons' corresponding electron vertex, we have to check different
     //variables depending on the tuple type, so the variables in the cut have different names 
-    TCut target_cut;
+    TCut total_cut, target_cut;
     TString h_tuple_name = h_tuple->GetName();
     if (target=="d2" && h_tuple_name!="elec_tuple"){target_cut=vz_d2_h;}
     else if (target=="d2" && h_tuple_name=="elec_tuple"){target_cut=vz_d2;}
     else if (target=="solid" && h_tuple_name!="elec_tuple"){target_cut=vz_solid_h;}
     else if (target=="solid" && h_tuple_name=="elec_tuple"){target_cut=vz_solid;}
 
+    if (h_tuple_name=="elec_tuple"){
+        total_cut= Main_cut&&elec_cut&&target_cut;
+    }
+    else{
+        total_cut= Main_cut&&Var_cut&&target_cut;
+    }
+
     //Histogram for the var distibution
     int n_h = h_tuple->Draw(var+">>"+var+"_"+target+Form("(%i, %f, %f)", nbins, xmin, xmax),
-                        Beta_cut&&P_cut&&DIS_cut&&target_cut, "COLZ");
+                            total_cut, "COLZ");
     TH1F *h_d2_hist = (TH1F *)gDirectory->GetList()->FindObject(var+"_"+target);
     cout<<" Number of hadrons in "<< target <<": "<<n_h<<endl;
     return h_d2_hist;
@@ -45,7 +44,7 @@ TH1F* make_var_ehisto(TString var, int nbins, float xmin, float xmax, TNtuple* e
         else if (target=="solid"){target_cut=vz_solid;}
 
         //Counting of the number of electron in each target by making an hist and counting entries
-        int n_e = e_tuple->Draw("v_z>>h_e", Beta_cut&&P_cut&&DIS_cut&&target_cut, "goff");
+        int n_e = e_tuple->Draw("v_z>>h_e", Main_cut&&elec_cut&&target_cut, "goff");
         std::cout << "number of elec in " <<target<<" = " << n_e << std::endl;
 
         //Convert number of electron into flat histogram.
@@ -126,7 +125,7 @@ void m_ratio(TString var, int nbins, float xmin, float xmax, TString hadron,
     std::cout << var <<" MR finished" << std::endl; 
 }
 
-void calculate_mr(TString Target="C", int Hadron_pid=211){
+void simple_mr(TString Target="C", int Hadron_pid=211){
     ROOT::EnableImplicitMT();
     //output directory
     TString output_location = "output/"+Target+"/";
