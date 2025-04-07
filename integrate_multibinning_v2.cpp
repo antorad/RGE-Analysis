@@ -581,9 +581,6 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
 
 /*
 TODO
--->Make MR for each Nu and Q2 bin when mainvar is hadronic
--->Probably the program is crashing because some histogram are empty when trying to divide at the calculation of the MR for specific Nu and Q2 bin
--->Try to remove those or not calculate in those cases.
 -->Determine what to do with empty bins
 -->Use real simulations
 */
