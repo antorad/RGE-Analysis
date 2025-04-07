@@ -36,12 +36,5 @@ done
 
 # Iterate over each set of arguments and open a new terminal
 for ARGS in "${ARGS_LIST[@]}"; do
-    if command -v gnome-terminal &> /dev/null; then
-        gnome-terminal -- bash -c "root -l -q '$ROOT_MACRO($ARGS)'; exec bash"
-    elif command -v xterm &> /dev/null; then
-        xterm -hold -e "root -l -q '$ROOT_MACRO($ARGS)'"
-    else
-        echo "No supported terminal emulator found!"
-        exit 1
-    fi
+        gnome-terminal -- bash -c "root -l -q '$ROOT_MACRO($ARGS)'"
 done
