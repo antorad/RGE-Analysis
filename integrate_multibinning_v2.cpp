@@ -58,27 +58,27 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
 
     //DATA
     //Get hadron histograms from root file created with create_multibinning
-    TFile *input_hadron_data = new TFile("output/"+Target+"/data_binned_v2.root","READ");
+    TFile *input_hadron_data = new TFile("output/"+Target+"/data_binned_"+hadron+".root","READ");
     //Get electron TNtuple input created from simple_plots
     TFile *input_elec_data = new TFile("output/"+Target+"/out_clas12.root","READ");
     TNtuple* elec_tuple_data = (TNtuple*)input_elec_data->Get("elec_tuple");
 
     //ACCEPTED (Data from other target for now)
     //hadrons
-    TFile *input_hadron_acc = new TFile("output/C/data_binned_v2.root","READ");
+    TFile *input_hadron_acc = new TFile("output/C/data_binned_"+hadron+".root","READ");
     //electrons
     TFile *input_elec_acc = new TFile("output/C/out_clas12.root","READ");
     TNtuple* elec_tuple_acc = (TNtuple*)input_elec_acc->Get("elec_tuple");
 
     //THROWN (Data from another target for now)
     //hadrons
-    TFile *input_hadron_thr = new TFile("output/C/data_binned_v2.root","READ");
+    TFile *input_hadron_thr = new TFile("output/C/data_binned_"+hadron+".root","READ");
     //electrons
     TFile *input_elec_thr = new TFile("output/C/out_clas12.root","READ");
     TNtuple* elec_tuple_thr = (TNtuple*)input_elec_thr->Get("elec_tuple");
 
     //OUTPUT file
-    TFile *output = new TFile("output/"+Target+"/mr_"+mainVar+"_v2.root","RECREATE");
+    TFile *output = new TFile("output/"+Target+"/mr_"+mainVar+"_"+hadron+".root","RECREATE");
 
 ////////////////////////////////////////////////////////////////////////
 //////////            HADRON ACEPTANCE CORRECTION             //////////

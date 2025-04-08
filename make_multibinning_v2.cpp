@@ -17,7 +17,7 @@ void make_multibinning_v2(TString Target="C", int Hadron_pid=211){
         return;}
 
     //Output root file for histograms
-    TFile *output = new TFile("output/"+Target+"/data_binned_v2.root","RECREATE");
+    TFile *output = new TFile("output/"+Target+"/data_binned_"+hadron+".root","RECREATE");
 
     //Get TNtuple input created from simple_plots
     TFile *input = new TFile("output/"+Target+"/out_clas12.root","READ");
