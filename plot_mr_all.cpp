@@ -5,6 +5,7 @@ void plot_mr_all(int Hadron_pid=211, TString mainVar="Zh"){
 ////////////////////////////////////////////////////////////////////////
 //////////          	   Total MR comparison	              //////////
 ////////////////////////////////////////////////////////////////////////
+
     //output directory
     TString output_location = "output/";
 
@@ -19,20 +20,15 @@ void plot_mr_all(int Hadron_pid=211, TString mainVar="Zh"){
         cout<<"PID not valid"<<endl;
         return;}
 
-    //get TH1Ds from root files created with calculate_mr
-    //input files
-    TFile *input_C  = new TFile(output_location+"/C/mr_"+mainVar+"_v2.root","READ");
-    TFile *input_Al = new TFile(output_location+"/Al/mr_"+mainVar+"_v2.root","READ");
-    TFile *input_Cu = new TFile(output_location+"/Cu/mr_"+mainVar+"_v2.root","READ");
-    TFile *input_Sn = new TFile(output_location+"/Sn/mr_"+mainVar+"_v2.root","READ");
-    TFile *input_Pb = new TFile(output_location+"/Pb/mr_"+mainVar+"_v2.root","READ");
+    //array for files and inputs
+    TString targets[5] = {"C", "Al", "Cu", "Sn", "Pb"};
+    TFile* input_files[5];
+    TH1D* h_mr_corr[5];
 
-    //mr histograms
-    TH1D* mr_hist_C  = (TH1D*)input_C->Get ("MR_corr");
-    TH1D* mr_hist_Al = (TH1D*)input_Al->Get("MR_corr");
-    TH1D* mr_hist_Cu = (TH1D*)input_Cu->Get("MR_corr");
-    TH1D* mr_hist_Sn = (TH1D*)input_Sn->Get("MR_corr");
-    TH1D* mr_hist_Pb = (TH1D*)input_Pb->Get("MR_corr");
+    for (int i = 0; i < 5; ++i){
+        input_files[i] = new TFile(output_location+"/"+targets[i]+"/mr_"+mainVar+"_"+hadron+".root","READ");
+        h_mr_corr[i] = (TH1D*)input_files[i]->Get("MR_corr");
+    }
 
     //canvas
     TCanvas *canvas= new TCanvas("canvas","canvas",1000,600);
@@ -40,41 +36,39 @@ void plot_mr_all(int Hadron_pid=211, TString mainVar="Zh"){
     canvas->SetGrid();
 
     //set range on y axis for each case
-    if (mainVar=="Zh") {mr_hist_C->GetYaxis()->SetRangeUser(0,1.6);}
-    if (mainVar=="Zh" && hadron=="proton") {mr_hist_C->GetYaxis()->SetRangeUser(0,6);}
-    if (mainVar=="Nu") {mr_hist_C->GetYaxis()->SetRangeUser(0.6,1.2);}
-    if (mainVar=="Nu" && hadron=="proton") {mr_hist_C->GetYaxis()->SetRangeUser(1,4);}
+    if (mainVar=="Zh") {h_mr_corr[0]->GetYaxis()->SetRangeUser(0,1.6);}
+    if (mainVar=="Zh" && hadron=="proton") {h_mr_corr[0]->GetYaxis()->SetRangeUser(0,6);}
+    if (mainVar=="Nu") {h_mr_corr[0]->GetYaxis()->SetRangeUser(0.6,1.2);}
+    if (mainVar=="Nu" && hadron=="proton") {h_mr_corr[0]->GetYaxis()->SetRangeUser(1,4);}
 
     //Set axis names
-    mr_hist_C->GetYaxis()->SetTitle("#frac{N_{A}#pi^{+}}{N_{D2}#pi^{+}}#frac{N_{D2}e^{-}}{N_{A}e^{-}}");
-    mr_hist_C->GetXaxis()->SetTitle(mainVar);
+    h_mr_corr[0]->GetYaxis()->SetTitle("#frac{N_{A}#pi^{+}}{N_{D2}#pi^{+}}#frac{N_{D2}e^{-}}{N_{A}e^{-}}");
+    h_mr_corr[0]->GetXaxis()->SetTitle(mainVar);
 
     //set colors
-    mr_hist_C->SetMarkerColor(1);
-    mr_hist_C->SetLineColor(1);
-    mr_hist_Al->SetMarkerColor(2);
-    mr_hist_Al->SetLineColor(2);
-    mr_hist_Cu->SetMarkerColor(4);
-    mr_hist_Cu->SetLineColor(4);
-    mr_hist_Sn->SetMarkerColor(209);
-    mr_hist_Sn->SetLineColor(209);
-    mr_hist_Pb->SetMarkerColor(205);
-    mr_hist_Pb->SetLineColor(205);
+    h_mr_corr[0]->SetMarkerColor(1);
+    h_mr_corr[0]->SetLineColor(1);
+    h_mr_corr[1]->SetMarkerColor(2);
+    h_mr_corr[1]->SetLineColor(2);
+    h_mr_corr[2]->SetMarkerColor(4);
+    h_mr_corr[2]->SetLineColor(4);
+    h_mr_corr[3]->SetMarkerColor(209);
+    h_mr_corr[3]->SetLineColor(209);
+    h_mr_corr[4]->SetMarkerColor(205);
+    h_mr_corr[4]->SetLineColor(205);
 
     //draw plots without horizontal error bars
-    mr_hist_C->Draw("E1X0same");
-    mr_hist_Al->Draw("E1X0same");
-    mr_hist_Cu->Draw("E1X0same");
-    mr_hist_Sn->Draw("E1X0same");
-    mr_hist_Pb->Draw("E1X0same");
+    for (int i = 0; i < 5; ++i){
+        h_mr_corr[i]->Draw("E1X0same");
+    }
 
     //Draw legens in the top right corner
     TLegend* legend = new TLegend(0.75, 0.75, 0.9, 0.9);
-    legend->AddEntry(mr_hist_C, "Carbon", "p");
-    legend->AddEntry(mr_hist_Al, "Aluminum", "p");
-    legend->AddEntry(mr_hist_Cu, "Copper", "p");
-    legend->AddEntry(mr_hist_Sn, "Tin", "p");
-    legend->AddEntry(mr_hist_Pb, "Lead", "p");
+    legend->AddEntry(h_mr_corr[0], "Carbon", "p");
+    legend->AddEntry(h_mr_corr[1], "Aluminum", "p");
+    legend->AddEntry(h_mr_corr[2], "Copper", "p");
+    legend->AddEntry(h_mr_corr[3], "Tin", "p");
+    legend->AddEntry(h_mr_corr[4], "Lead", "p");
     legend->Draw("same");
 
     //Save final plot as pdf
@@ -85,3 +79,4 @@ void plot_mr_all(int Hadron_pid=211, TString mainVar="Zh"){
 ////////////////////////////////////////////////////////////////////////
 
 }
+//Create a n array with the 5 target plots ans  then create functions with the array and output file as argument 
