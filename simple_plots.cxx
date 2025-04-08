@@ -204,7 +204,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	draw_plot(elec_tuple, P_cut, "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "e_phi",
 				output_location, output);
 
-	//ein vs eout
+	//P vs Etot/P
 	draw_plot_2D(elec_tuple, Beta_cut&&P_cut&&DIS_cut, "E_total/p:p", 100,0,12,"P [GeV]",
 					100, 0, 0.5, "E_{tot}/P", "etot_p", output_location, output);
 
@@ -217,7 +217,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	draw_plot(pion_tuple, P_cut&&DIS_cut, "z_h",100,0,1, "Z_{h}", "dN/dZ_{h}", "pi_zh",
 				output_location, output);
 
-	//pt2_d2
+	//pt2_sol
 	draw_plot(pion_tuple, P_cut&&DIS_cut&&vz_solid_h, "p_T2",100,0,8, "P_{T}^{2}", "dN/dP_{T}^{2}", "pi_pt2_sol",
 				output_location, output);
 
@@ -232,6 +232,14 @@ void processChain(TChain* input_tuple, TString output_location) {
 	//q2 vs nu
 	draw_plot_2D(pion_tuple, Main_cut&&Var_cut&&vz_d2_h, "Q2:nu",4, 2, 9, "Nu",
 					 5,1,11,"Q2", "NuxQ2_liq", output_location, output);
+
+	////P vs Etot/P
+	//draw_plot_2D(pion_tuple, "E_total>0"&&P_cut&&DIS_cut, "E_total/p:p", 100,0,12,"P [GeV]",
+	//				100, 0, 0.5, "E_{tot}/P", "etot_p_pion", output_location, output);
+//
+	////p vs beta
+	//draw_plot_2D(pion_tuple, Beta_cut&&P_cut, "beta:p", 500,0,12,"P [GeV]", 500, 0, 1.2, "#beta",
+	//				"p_beta_pion", output_location, output);
 
 	//----POSITIVE PARTICLES----
 	//p vs beta
