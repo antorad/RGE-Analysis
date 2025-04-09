@@ -65,16 +65,16 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
 
     //ACCEPTED (Data from other target for now)
     //hadrons
-    TFile *input_hadron_acc = new TFile("output/C/data_binned_"+hadron+".root","READ");
+    TFile *input_hadron_acc = new TFile("output/"+Target+"/data_binned_"+hadron+".root","READ");
     //electrons
-    TFile *input_elec_acc = new TFile("output/C/out_clas12.root","READ");
+    TFile *input_elec_acc = new TFile("output/"+Target+"/out_clas12.root","READ");
     TNtuple* elec_tuple_acc = (TNtuple*)input_elec_acc->Get("elec_tuple");
 
     //THROWN (Data from another target for now)
     //hadrons
-    TFile *input_hadron_thr = new TFile("output/C/data_binned_"+hadron+".root","READ");
+    TFile *input_hadron_thr = new TFile("output/"+Target+"/data_binned_"+hadron+".root","READ");
     //electrons
-    TFile *input_elec_thr = new TFile("output/C/out_clas12.root","READ");
+    TFile *input_elec_thr = new TFile("output/"+Target+"/out_clas12.root","READ");
     TNtuple* elec_tuple_thr = (TNtuple*)input_elec_thr->Get("elec_tuple");
 
     //OUTPUT file
