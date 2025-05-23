@@ -248,58 +248,96 @@ void processChain(TChain* input_tuple, TString output_location) {
 
 	//delete all objects;
 	//output->Close();
+
 	delete pion_tuple;
 	delete positive_tuple;
+	delete pion_minus_tuple;
+	delete proton_tuple;
 	delete elec_tuple;
 	delete output;
 }
 
 //Main function that recieves a txt with a list of run number asn the name of the output file
-void simple_plots(const char* inputFileName, TString output_name){
+void simple_plots(const char* inputFileName, TString Target, TString type="data"){
 	ROOT::EnableImplicitMT();
+
 	// Open the input text file
     std::ifstream inputFile(inputFileName);
 
     // Create a TChain to combine input TNuples
     TChain* input_tuple = new TChain("data");
+    TChain* input_tuple_mc = new TChain("MC");
 
     // Read each line from the text file and add the corresponding ROOT file to the TChain
-    std::string rootFileName;
-    while (std::getline(inputFile, rootFileName)) {
-        input_tuple->Add("data/ntuples_dc_0"+TString(rootFileName)+".root");
+    char buffer [10];
+    std::string line;
+    while (std::getline(inputFile, line)) {
+    	int run_N = stoi(line);
+    	sprintf(buffer,"%0*d", 6, run_N);
+		TString run_N_str=TString(buffer);
+        if (type=="data"){
+        	input_tuple->Add(type+"/ntuples_dc_"+run_N_str+".root");
+        }
+        if (type=="simul"){
+        	input_tuple->Add(type+"/"+Target+"/ntuples_dc_"+run_N_str+".root");
+        	input_tuple_mc->Add(type+"/"+Target+"/ntuples_dc_"+run_N_str+".root");
+        }
     }
 
     // Close the input file
     inputFile.close();
 
-    //process the Tchain to make plots
-    TString output_location = "output/"+output_name+"/";
+    //process the Tchain to make plots and output tuples
+    TString output_location = "output/"+type+"/"+Target+"/";
     processChain(input_tuple, output_location);
+
+	if (type=="simul") {
+		output_location=output_location+"thrown/";
+		processChain(input_tuple_mc, output_location);
+	}
 
     //delete all objects
     delete input_tuple;
+    delete input_tuple_mc;
 }
 
 //Main function that recieves a run number as the input
-void simple_plots(int run_N=000000){
+void simple_plots(int run_N=000000, TString Target="unkw", TString type="data"){
 	ROOT::EnableImplicitMT();
+
+    // Create a TChain to load input TNuples
+    TChain* input_tuple = new TChain("data");
+    TChain* input_tuple_mc = new TChain("MC");
+
 	//Transform input run number to Tstring with correct number of digits
 	char buffer [10];
 	sprintf(buffer,"%0*d", 6, run_N);
 	TString run_N_str=TString(buffer);
-	TString output_location = "output/"+run_N_str+"/";
-	cout<<output_location<<endl;
 
-	//extract input TNuple from input file
-	TFile *input = new TFile("data/ntuples_dc_"+run_N_str+".root","READ");
-	cout<<"File found "<<run_N_str<<endl;
-	TChain* input_tuple = (TChain*)input->Get("data");
+	//Output directory
+	TString output_location;
+	output_location = "output/"+type+"/"+Target+"/"+run_N_str+"/";
+	cout<<"output location: "<<output_location<<endl;
 
-	//process the TNtuple to make plots
-	cout<<"tuple done"<<endl;
+    if (type=="data"){
+    	input_tuple->Add(type+"/ntuples_dc_"+run_N_str+".root");
+    }
+    if (type=="simul"){
+    	input_tuple->Add(type+"/"+Target+"/ntuples_dc_"+run_N_str+".root");
+    	input_tuple_mc->Add(type+"/"+Target+"/ntuples_dc_"+run_N_str+".root");
+    }
+
+    //process the Tchain to make plots and output tuples
 	processChain(input_tuple, output_location);
+	cout<<"Data tuple done"<<endl;
+
+	if (type=="simul") {
+		output_location=output_location+"thrown/";
+		processChain(input_tuple_mc, output_location);
+		cout<<"MC tuple done"<<endl;
+	}
 
 	//delete all objects
 	delete input_tuple;
-	delete input;
+	delete input_tuple_mc;
 }
