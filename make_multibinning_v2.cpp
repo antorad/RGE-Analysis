@@ -1,9 +1,7 @@
 #include "include.h"
 
-void make_multibinning_v2(TString Target="C", int Hadron_pid=211){
+void make_multibinning_v2(TString Target="C", int Hadron_pid=211, TString type="data"){
     ROOT::EnableImplicitMT();
-    //output directory
-    TString output_location = "output/"+Target+"/";
 
     //hadron selection
     TString hadron;
@@ -16,11 +14,19 @@ void make_multibinning_v2(TString Target="C", int Hadron_pid=211){
         cout<<"PID not valid"<<endl;
         return;}
 
+    //Subdirectory name depending of type of input data
+    TString subdir;
+    TString thrown_dir = "";
+    if (type=="data"){subdir="data";}
+    if (type=="acc" || type =="thrown"){subdir="simul";}
+    if (type=="thrown"){thrown_dir="/thrown";}
+
     //Output root file for histograms
-    TFile *output = new TFile("output/"+Target+"/data_binned_"+hadron+".root","RECREATE");
+    TFile *output = new TFile("output/"+subdir+"/"+Target+thrown_dir+"/data_binned_"+hadron+".root","RECREATE");
 
     //Get TNtuple input created from simple_plots
-    TFile *input = new TFile("output/"+Target+"/out_clas12.root","READ");
+    TFile *input = new TFile("output/"+subdir+"/"+Target+thrown_dir+"/out_clas12.root","READ");
+
     TNtuple* h_tuple = (TNtuple*)input->Get(hadron+"_ntuple");
     TNtuple* elec_tuple = (TNtuple*)input->Get("elec_tuple");
 
@@ -37,7 +43,6 @@ void make_multibinning_v2(TString Target="C", int Hadron_pid=211){
 
     // Cycle for each bin in Zh, Pt2 and Phi
     cout <<"Starting loop "<<endl;
-    //NOTE: I could change which varibale is final plots made with instead of always pt2
     output->cd();
 	for (int ZhCounter = 0; ZhCounter < N_Zh; ZhCounter++) {
 		for (int Pt2Counter = 0; Pt2Counter < N_Pt2; Pt2Counter++) {
