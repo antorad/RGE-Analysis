@@ -276,9 +276,11 @@ void simple_plots(const char* inputFileName, TString Target, TString type="data"
     	sprintf(buffer,"%0*d", 6, run_N);
 		TString run_N_str=TString(buffer);
         if (type=="data"){
+        	cout<<"Adding run: "<<line<<endl;
         	input_tuple->Add(type+"/ntuples_dc_"+run_N_str+".root");
         }
         if (type=="simul"){
+        	cout<<"Addind simul job: "<<line<<endl;
         	input_tuple->Add(type+"/"+Target+"/ntuples_dc_"+run_N_str+".root");
         	input_tuple_mc->Add(type+"/"+Target+"/ntuples_dc_"+run_N_str+".root");
         }
@@ -289,11 +291,15 @@ void simple_plots(const char* inputFileName, TString Target, TString type="data"
 
     //process the Tchain to make plots and output tuples
     TString output_location = "output/"+type+"/"+Target+"/";
+    cout<<"Output location: "<<output_location<<endl;
+
     processChain(input_tuple, output_location);
+    cout<<"Data tuple done"<<endl;
 
 	if (type=="simul") {
 		output_location=output_location+"thrown/";
 		processChain(input_tuple_mc, output_location);
+		cout<<"MC tuple done"<<endl;
 	}
 
     //delete all objects
@@ -317,7 +323,7 @@ void simple_plots(int run_N=000000, TString Target="unkw", TString type="data"){
 	//Output directory
 	TString output_location;
 	output_location = "output/"+type+"/"+Target+"/"+run_N_str+"/";
-	cout<<"output location: "<<output_location<<endl;
+	cout<<"Output location: "<<output_location<<endl;
 
     if (type=="data"){
     	input_tuple->Add(type+"/ntuples_dc_"+run_N_str+".root");
