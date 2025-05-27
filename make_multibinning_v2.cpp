@@ -40,6 +40,9 @@ void make_multibinning_v2(TString Target="C", int Hadron_pid=211, TString type="
 
     //Create var cuts
     TCut Q2_Cut, Nu_Cut, Zh_Cut, Pt2_Cut, Phi_Cut, total_cut;
+    //Overwriting the z cut in case of thrown to a true statement (ugly but effective).
+    if (type=="thrown" && Target=="D2"){vz_d2_h="1>0";}
+    if (type=="thrown" && Target!="D2"){vz_solid_h="1>0";}
 
     // Cycle for each bin in Zh, Pt2 and Phi
     cout <<"Starting loop "<<endl;
@@ -59,26 +62,25 @@ void make_multibinning_v2(TString Target="C", int Hadron_pid=211, TString type="
 				total_cut = Main_cut&&Zh_Cut&&Pt2_Cut&&Phi_Cut;
 
 				//get TNtuple input created from simple_plots and apply cuts
-				h_tuple->Draw(Form("Q2:nu>>hist_liq(%i,%f,%f,%i,%f,%f)", N_Nu,Nu_bins[0],Nu_bins[N_Nu],
-                                    N_Q2,Q2_bins[0],Q2_bins[N_Q2]), total_cut&&vz_d2_h, "goff");
-                h_tuple->Draw(Form("Q2:nu>>hist_sol(%i,%f,%f,%i,%f,%f)", N_Nu,Nu_bins[0],Nu_bins[N_Nu],
-                                    N_Q2,Q2_bins[0],Q2_bins[N_Q2]), total_cut&&vz_solid_h,"goff");
+                if (type=="data" || (type != "data" && Target=="D2")){
+				    h_tuple->Draw(Form("Q2:nu>>hist_liq(%i,%f,%f,%i,%f,%f)", N_Nu,Nu_bins[0],Nu_bins[N_Nu],
+                                        N_Q2,Q2_bins[0],Q2_bins[N_Q2]), total_cut&&vz_d2_h, "goff");
 
-                hist_liq = (TH2D*) gDirectory->GetList()->FindObject("hist_liq");
-                hist_sol = (TH2D*) gDirectory->GetList()->FindObject("hist_sol");
-
-				//Write histogram to output file;
-                //if (hist_sol->GetEntries() != 0){
-                    hist_sol->Write(Form("Data_sol_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
-                //}
-                //if (hist_liq->GetEntries() != 0){
+                    //Write histo to ouytput file and then set the histo values to 0
+                    hist_liq = (TH2D*) gDirectory->GetList()->FindObject("hist_liq");
                     hist_liq->Write(Form("Data_liq_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
-                //}
-                cout<<"-----------------------------------------------------------------------"<<endl;
-                // Set the histograms values to 0
-                hist_liq->Reset();
-                hist_sol->Reset();
+                    hist_liq->Reset();
+                }
 
+                if (type=="data" || (type != "data" && Target!="D2")){
+                    h_tuple->Draw(Form("Q2:nu>>hist_sol(%i,%f,%f,%i,%f,%f)", N_Nu,Nu_bins[0],Nu_bins[N_Nu],
+                                        N_Q2,Q2_bins[0],Q2_bins[N_Q2]), total_cut&&vz_solid_h,"goff");
+
+                    //Write histo to ouytput file and then set the histo values to 0
+                    hist_sol = (TH2D*) gDirectory->GetList()->FindObject("hist_sol");
+                    hist_sol->Write(Form("Data_sol_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
+                    hist_sol->Reset();
+                }
 			}
 		}
 	}
