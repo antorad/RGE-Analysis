@@ -125,10 +125,90 @@ void m_ratio(TString var, int nbins, float xmin, float xmax, TString hadron,
     std::cout << var <<" MR finished" << std::endl; 
 }
 
-void simple_mr(TString Target="C", int Hadron_pid=211){
+void m_ratio_simul(TString var, int nbins, float xmin, float xmax, TString hadron,
+                    TNtuple* h_tuple_sol, TNtuple* e_tuple_sol, TNtuple* h_tuple_liq, TNtuple* e_tuple_liq,
+                    TString output_location, TFile* output){
+    //Print message of wich vatiable is being calculated
+    cout<<"Calculating Multiplicity Ratio of "<<var<<" variable"<<endl;
+
+    //create canvas for the plots
+    TCanvas *canvas= new TCanvas("canvas","canvas",1000,600);
+    canvas->cd();
+
+    //var histogram for electrons
+    TH1F* elec_d2_hist = make_var_ehisto(var, nbins, xmin, xmax, e_tuple_liq, "d2");
+    TH1F* elec_solid_hist = make_var_ehisto(var, nbins, xmin, xmax, e_tuple_sol, "solid");
+
+    //var histogram for hadron
+    TH1F *h_d2_hist = make_var_histo(var, nbins, xmin, xmax, h_tuple_liq, "d2");
+    TH1F *h_solid_hist = make_var_histo(var, nbins, xmin, xmax, h_tuple_sol, "solid");
+
+    //Error propagation
+    h_d2_hist->Sumw2();
+    h_solid_hist->Sumw2();
+    elec_d2_hist->Sumw2();
+    elec_solid_hist->Sumw2();
+
+    //Multiplicity and multiplicity ratio histograms
+    TH1F *m_d2 = new TH1F("Multiplicity D2 " + var, "Multiplicity D2" + var, nbins, xmin, xmax);
+    TH1F *m_solid = new TH1F("Multiplicity Solid" + var, "Multiplicity solid" + var,
+                                nbins, xmin, xmax);
+    TH1F *mr = new TH1F("Multiplicity ratio " + var, "Multiplicity ratio" + var, nbins, xmin, xmax);
+
+    //Error propagation
+    m_d2->Sumw2();
+    m_solid->Sumw2();
+    mr->Sumw2();
+
+    //Calculation of multiplicity and multiplicity ratio  
+    //**For some reason by using: mr->Divide(m_solid, m_d2, n_e_d2, n_e_solid)
+    //**gives an incorrect calculation. TODO Check why at some point.
+    m_d2->Divide(h_d2_hist, elec_d2_hist);
+    m_solid->Divide(h_solid_hist, elec_solid_hist);
+    mr->Divide(m_solid, m_d2);
+    mr->GetXaxis()->SetTitle(var);
+    mr->GetYaxis()->SetTitle("#frac{N_{A}#pi^{+}}{N_{D2}#pi^{+}}#frac{N_{D2}e^{-}}{N_{A}e^{-}}");
+    mr->SetTitle("Multiplicity Ratio");
+    mr->SetMarkerStyle(21);
+    mr->Draw("COLZ");
+    canvas->SaveAs(output_location+"mr_"+var+"_"+hadron+"_simul.pdf");
+
+    output->cd();
+    h_d2_hist->Write(hadron+"_"+var+"_d2", TObject::kOverwrite);
+    h_solid_hist->Write(hadron+"_"+var+"_solid", TObject::kOverwrite);
+    elec_d2_hist->Write(hadron+"_"+var+"_elec_d2", TObject::kOverwrite);
+    elec_solid_hist->Write(hadron+"_"+var+"_elec_solid", TObject::kOverwrite);
+    m_d2->Write(hadron+"_"+var+"_multiplicity_d2", TObject::kOverwrite);
+    m_solid->Write(hadron+"_"+var+"_multiplicity_solid", TObject::kOverwrite);
+    mr->Write(hadron+"_"+var+"_mratio", TObject::kOverwrite);
+
+    //delete objects
+    delete mr;
+    delete m_solid;
+    delete m_d2;
+    delete elec_solid_hist;
+    delete elec_d2_hist;
+    delete h_solid_hist;
+    delete h_d2_hist;
+    delete canvas;
+
+    std::cout << var <<" MR finished" << std::endl; 
+}
+
+void simple_mr(TString Target="C", int Hadron_pid=211, TString type="data"){
     ROOT::EnableImplicitMT();
-    //output directory
-    TString output_location = "output/"+Target+"/";
+
+    TString subdir;
+    TString thrown_dir = "";
+    if (type=="data"){subdir="data";}
+    if (type=="acc" || type =="thrown"){subdir="simul";}
+    if (type=="thrown"){
+        thrown_dir="/thrown";
+        vz_d2_h="1>0";
+        vz_d2="1>0";
+        vz_solid_h="1>0";
+        vz_solid="1>0";
+    }
 
     //hadron selection
     TString hadron;
@@ -142,17 +222,35 @@ void simple_mr(TString Target="C", int Hadron_pid=211){
         return;}
 
     //get TNtuple input created from simple_plots
-    TFile *input = new TFile("output/"+Target+"/out_clas12.root","READ");
+    TFile *input = new TFile("output/"+subdir+"/"+Target+"/out_clas12.root","READ");
     TNtuple* hadron_tuple = (TNtuple*)input->Get(hadron+"_ntuple");
     TNtuple* elec_tuple = (TNtuple*)input->Get("elec_tuple");
 
     //output root file for histograms
+    TString output_location = "output/"+subdir+"/"+Target+thrown_dir+"/";
     TFile *output = new TFile(output_location+"mr_clas12.root","UPDATE");
 
     //Run the calculation for each variable
-    m_ratio("z_h", 10, 0., 1., hadron, hadron_tuple, elec_tuple, output_location, output);
-    m_ratio("nu", 10, 0., 11., hadron, hadron_tuple, elec_tuple, output_location, output);
-    m_ratio("p_T2", 10, 0., 5., hadron, hadron_tuple, elec_tuple, output_location,output);
+    if (type == "data"){
+        m_ratio("z_h", 10, 0., 1., hadron, hadron_tuple, elec_tuple, output_location, output);
+        m_ratio("nu", 10, 0., 11., hadron, hadron_tuple, elec_tuple, output_location, output);
+        m_ratio("p_T2", 10, 0., 5., hadron, hadron_tuple, elec_tuple, output_location,output);
+    }
+
+    if (type=="acc" || type=="thrown"){
+        TFile *input_sol = new TFile("output/"+subdir+"/"+Target+thrown_dir+"/out_clas12.root","READ");
+        TFile *input_liq = new TFile("output/"+subdir+"/D2"+thrown_dir+"/out_clas12.root","READ");
+
+        TNtuple* hadron_tuple_sol = (TNtuple*)input_sol->Get(hadron+"_ntuple");
+        TNtuple* hadron_tuple_liq = (TNtuple*)input_liq->Get(hadron+"_ntuple");
+
+        TNtuple* elec_tuple_sol = (TNtuple*)input_sol->Get("elec_tuple");
+        TNtuple* elec_tuple_liq = (TNtuple*)input_liq->Get("elec_tuple");
+
+        m_ratio_simul("z_h", 10, 0., 1., hadron, hadron_tuple_sol, elec_tuple_sol, hadron_tuple_liq, elec_tuple_liq, output_location, output);
+        m_ratio_simul("nu", 10, 0., 11., hadron, hadron_tuple_sol, elec_tuple_sol, hadron_tuple_liq, elec_tuple_liq, output_location, output);
+        m_ratio_simul("p_T2", 10, 0., 5., hadron, hadron_tuple_sol, elec_tuple_sol, hadron_tuple_liq, elec_tuple_liq, output_location,output);
+    }
 
     output->Close();
 }
