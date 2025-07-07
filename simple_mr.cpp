@@ -2,6 +2,8 @@
 
 gStyle->SetOptStat(0);
 
+TCut vz_d2, vz_solid, vz_d2_h, vz_solid_h;
+
 TH1F* make_var_histo(TString var, int nbins, float xmin, float xmax, TNtuple* h_tuple, TString target){
     //Assigning targtet cut for electron counting
     //because we need to check hadrons' corresponding electron vertex, we have to check different
@@ -90,9 +92,7 @@ void m_ratio(TString var, int nbins, float xmin, float xmax, TString hadron,
     m_solid->Sumw2();
     mr->Sumw2();
 
-    //Calculation of multiplicity and multiplicity ratio  
-    //**For some reason by using: mr->Divide(m_solid, m_d2, n_e_d2, n_e_solid)
-    //**gives an incorrect calculation. TODO Check why at some point.
+    //Calculation of multiplicity and multiplicity ratio
     m_d2->Divide(h_d2_hist, elec_d2_hist);
     m_solid->Divide(h_solid_hist, elec_solid_hist);
     mr->Divide(m_solid, m_d2);
@@ -161,8 +161,6 @@ void m_ratio_simul(TString var, int nbins, float xmin, float xmax, TString hadro
     mr->Sumw2();
 
     //Calculation of multiplicity and multiplicity ratio  
-    //**For some reason by using: mr->Divide(m_solid, m_d2, n_e_d2, n_e_solid)
-    //**gives an incorrect calculation. TODO Check why at some point.
     m_d2->Divide(h_d2_hist, elec_d2_hist);
     m_solid->Divide(h_solid_hist, elec_solid_hist);
     mr->Divide(m_solid, m_d2);
@@ -200,8 +198,20 @@ void simple_mr(TString Target="C", int Hadron_pid=211, TString type="data"){
 
     TString subdir;
     TString thrown_dir = "";
-    if (type=="data"){subdir="data";}
-    if (type=="acc" || type =="thrown"){subdir="simul";}
+    if (type=="data"){
+        subdir="data";
+        vz_d2 = vz_d2_data;
+        vz_solid = vz_solid_data;
+        vz_d2_h = vz_d2_h_data;
+        vz_solid_h = vz_solid_h_data;
+    }
+    if (type=="acc" || type =="thrown"){
+        subdir="simul";
+        vz_d2 = vz_d2_acc;
+        vz_solid = vz_solid_acc;
+        vz_d2_h = vz_d2_h_acc;
+        vz_solid_h = vz_solid_h_acc;
+    }
     if (type=="thrown"){
         thrown_dir="/thrown";
         vz_d2_h="1>0";
@@ -221,17 +231,16 @@ void simple_mr(TString Target="C", int Hadron_pid=211, TString type="data"){
         cout<<"PID not valid"<<endl;
         return;}
 
-    //get TNtuple input created from simple_plots
-    TFile *input = new TFile("output/"+subdir+"/"+Target+"/out_clas12.root","READ");
-    TNtuple* hadron_tuple = (TNtuple*)input->Get(hadron+"_ntuple");
-    TNtuple* elec_tuple = (TNtuple*)input->Get("elec_tuple");
-
     //output root file for histograms
     TString output_location = "output/"+subdir+"/"+Target+thrown_dir+"/";
     TFile *output = new TFile(output_location+"mr_clas12.root","UPDATE");
 
     //Run the calculation for each variable
     if (type == "data"){
+        //get TNtuple input created from simple_plots
+        TFile *input = new TFile("output/"+subdir+"/"+Target+"/out_clas12.root","READ");
+        TNtuple* hadron_tuple = (TNtuple*)input->Get(hadron+"_ntuple");
+        TNtuple* elec_tuple = (TNtuple*)input->Get("elec_tuple");
         m_ratio("z_h", 10, 0., 1., hadron, hadron_tuple, elec_tuple, output_location, output);
         m_ratio("nu", 10, 0., 11., hadron, hadron_tuple, elec_tuple, output_location, output);
         m_ratio("p_T2", 10, 0., 5., hadron, hadron_tuple, elec_tuple, output_location,output);
