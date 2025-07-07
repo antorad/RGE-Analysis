@@ -22,7 +22,7 @@ void make_multibinning_v3(TString Target="C", int Hadron_pid=211, TString type="
     if (type=="thrown"){thrown_dir="/thrown";}
 
     //Output root file for histograms
-    TFile *output = new TFile("output/"+subdir+"/"+Target+thrown_dir+"/data_binned_"+hadron+"_v3.root","RECREATE");
+    TFile *output = new TFile("output/"+subdir+"/"+Target+thrown_dir+"/data_binned_"+hadron+".root","RECREATE");
 
     //Get TNtuple input created from simple_plots
     TFile *input = new TFile("output/"+subdir+"/"+Target+thrown_dir+"/out_clas12.root","READ");
@@ -46,10 +46,6 @@ void make_multibinning_v3(TString Target="C", int Hadron_pid=211, TString type="
 
     //variables neccesaries for binning and cuts 
     Float_t Q2, nu, z_h, p_T2, phi_PQ, v_z_elec, p, y_bjorken, W2, beta;
-
-    //Overwriting the z cut in case of thrown to a true statement (ugly but effective).
-    if (type=="thrown" && Target=="D2"){vz_d2_h="1>0";}
-    if (type=="thrown" && Target!="D2"){vz_solid_h="1>0";}
 
     //------Read branches with variables needed for cuts and plots------
     h_tuple->SetBranchAddress("Q2",&Q2);
@@ -86,18 +82,22 @@ void make_multibinning_v3(TString Target="C", int Hadron_pid=211, TString type="
             int bin_Phi = int((phi_PQ-Phi_bins[0])/Phi_step);
 
             //cuts
-            bool solid_cut = (v_z_elec>-1.84)&&(v_z_elec<0.09);
-            bool liquid_cut = (v_z_elec>-8.01)&&(v_z_elec<-3.62);
+            bool solid_cut_data = (v_z_elec>C_vz_min_data)&&(v_z_elec<C_vz_max_data);
+            bool liquid_cut_data = (v_z_elec>D2_vz_min_data)&&(v_z_elec<D2_vz_max_data);
+            bool solid_cut_simul = (v_z_elec>C_vz_min_simul)&&(v_z_elec<C_vz_max_simul);
+            bool liquid_cut_simul = (v_z_elec>D2_vz_min_simul)&&(v_z_elec<D2_vz_max_simul);
             bool valid_bin = (bin_Zh>=0 && bin_Zh<N_Zh && bin_Pt2>=0 && bin_Pt2<N_Pt2 && bin_Phi>=0 && bin_Phi<N_Phi);
 
-            if ((((type=="data" || (type == "acc" && Target=="D2")) && liquid_cut) //check data/acc is within vertex cut
-                || (type=="thrown" && Target=="D2"))                               // or check if thrown is correctect target
-                && valid_bin){                                                     //and the bin is within range
+            if (((type=="data" && liquid_cut_data)                      //check data is within vertex cut
+                || (type == "acc" && Target=="D2" && liquid_cut_simul)  //or acc is within vertex cut
+                || (type=="thrown" && Target=="D2"))                    // or if thrown is correct target
+                && valid_bin){                                          //and the bin is within kinemetic range
                     hists_liq[bin_Zh][bin_Pt2][bin_Phi]->Fill(nu, Q2);
             }
 
-            else if ((((type=="data" || (type == "acc" && Target!="D2")) && solid_cut) //check data/acc is within vertex cut
-                || (type=="thrown" && Target!="D2"))                                   // or check if thrown is correctect target
+            else if (((type=="data" && solid_cut_data)
+                    || (type == "acc" && Target!="D2" && solid_cut_simul) //check data/acc is within vertex cut
+                    || (type=="thrown" && Target!="D2"))                                   // or check if thrown is correctect target
                 && valid_bin){                                                         //and the bin is within range
                     hists_sol[bin_Zh][bin_Pt2][bin_Phi]->Fill(nu, Q2);
             } 
