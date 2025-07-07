@@ -112,7 +112,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	const char* hadron_varslist = "pid:Q2:nu:v_z:p:p_T2:p_L2:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:x_bjorken:y_bjorken:W2:beta:phi:sector:phi_PQ";
 	const char* elec_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:x_bjorken:y_bjorken:W2:beta:phi:sector";
 	TNtuple *pion_tuple = new TNtuple("pion_ntuple","pions",hadron_varslist);
-	TNtuple *positive_tuple = new TNtuple("positive_ntuple","positives",hadron_varslist);
+	//TNtuple *positive_tuple = new TNtuple("positive_ntuple","positives",hadron_varslist);
 	TNtuple *pion_minus_tuple = new TNtuple("pion_minus_ntuple","positives",hadron_varslist);
 	TNtuple *proton_tuple = new TNtuple("proton_ntuple","positives",hadron_varslist);
 	TNtuple *elec_tuple = new TNtuple("elec_tuple","electrons",elec_varslist);
@@ -166,7 +166,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 			hadron_vars[16] = phi*rad2deg;
 			hadron_vars[17] = sector;
 			hadron_vars[18] = phi_PQ; 
-			if (charge>0){positive_tuple->Fill(hadron_vars);}
+			//if (charge>0){positive_tuple->Fill(hadron_vars);}
 			if (pid==211){pion_tuple->Fill(hadron_vars);}
 			else if (pid==-211){pion_minus_tuple->Fill(hadron_vars);}
 			else if (pid==2212){proton_tuple->Fill(hadron_vars);}
@@ -178,7 +178,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	pion_tuple->Write();
 	pion_minus_tuple->Write();
 	proton_tuple->Write();
-	positive_tuple->Write();
+	//positive_tuple->Write();
 	elec_tuple->Write();
 
 	//------ PLOTS------
@@ -217,12 +217,8 @@ void processChain(TChain* input_tuple, TString output_location) {
 	draw_plot(pion_tuple, P_cut&&DIS_cut, "z_h",100,0,1, "Z_{h}", "dN/dZ_{h}", "pi_zh",
 				output_location, output);
 
-	//pt2_sol
-	draw_plot(pion_tuple, P_cut&&DIS_cut&&vz_solid_h, "p_T2",100,0,8, "P_{T}^{2}", "dN/dP_{T}^{2}", "pi_pt2_sol",
-				output_location, output);
-
-	//pt2_d2
-	draw_plot(pion_tuple, P_cut&&DIS_cut&&vz_d2_h, "p_T2",100,0,8, "P_{T}^{2}", "dN/dP_{T}^{2}", "pi_pt2_d2",
+	//pt2
+	draw_plot(pion_tuple, P_cut&&DIS_cut, "p_T2",100,0,8, "P_{T}^{2}", "dN/dP_{T}^{2}", "pi_pt2",
 				output_location, output);
 
 	//phi distribution
@@ -230,7 +226,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 				output_location, output);
 
 	//q2 vs nu
-	draw_plot_2D(pion_tuple, Main_cut&&Var_cut&&vz_d2_h, "Q2:nu",4, 2, 9, "Nu",
+	draw_plot_2D(pion_tuple, Main_cut&&Var_cut, "Q2:nu",4, 2, 9, "Nu",
 					 5,1,11,"Q2", "NuxQ2_liq", output_location, output);
 
 	////P vs Etot/P
@@ -243,14 +239,14 @@ void processChain(TChain* input_tuple, TString output_location) {
 
 	//----POSITIVE PARTICLES----
 	//p vs beta
-	draw_plot_2D(positive_tuple, Beta_cut&&P_cut, "beta:p", 500,0,12,"P [GeV]", 500, 0, 1.2, "#beta",
-					"p_beta", output_location, output);
+	//draw_plot_2D(positive_tuple, Beta_cut&&P_cut, "beta:p", 500,0,12,"P [GeV]", 500, 0, 1.2, "#beta",
+	//				"p_beta", output_location, output);
 
 	//delete all objects;
 	//output->Close();
 
 	delete pion_tuple;
-	delete positive_tuple;
+	//delete positive_tuple;
 	delete pion_minus_tuple;
 	delete proton_tuple;
 	delete elec_tuple;
@@ -327,7 +323,7 @@ void simple_plots(int run_N=000000, TString Target="unkw", TString type="data"){
 
     if (type=="data"){
     	input_tuple->Add(type+"/ntuples_dc_"+run_N_str+".root");
-    }
+ 	}
     if (type=="simul"){
     	input_tuple->Add(type+"/"+Target+"/ntuples_dc_"+run_N_str+".root");
     	input_tuple_mc->Add(type+"/"+Target+"/ntuples_dc_"+run_N_str+".root");
