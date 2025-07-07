@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# Define the ROOT macro
-ROOT_MACRO="integrate_multibinning_v2.cpp"
+#Step 3 of the analysis.
+#This script runs integrate_multibinning fir a sinlge target.
+#It calculate 5D MR, with and without acceptance correction, and integrate all bins into a final 1D plot.
 
 # Parse command-line arguments
 while [[ "$#" -gt 0 ]]; do
@@ -36,5 +37,6 @@ done
 
 # Iterate over each set of arguments and open a new terminal
 for ARGS in "${ARGS_LIST[@]}"; do
-        gnome-terminal -- bash -c "root -l -q '$ROOT_MACRO($ARGS)'"
+    #gnome-terminal -- bash -c "root -l -q '$ROOT_MACRO($ARGS)'"
+    root -l -q "integrate_multibinning_v2.cpp($ARGS)" &
 done

@@ -1,7 +1,7 @@
-void plot_mr_all(int Hadron_pid=211, TString var="z_h"){
+void plot_simple_mr_all(int Hadron_pid=211, TString var="z_h"){
     gStyle->SetOptStat(0);
     //output directory
-    TString output_location = "output/";
+    TString output_location = "output/data";
 
     //hadron selection
     TString hadron;
@@ -68,5 +68,5 @@ void plot_mr_all(int Hadron_pid=211, TString var="z_h"){
     legend->Draw("same");
 
     //Save final plot as pdf
-    canvas->SaveAs("output/mr_"+hadron+"_"+var+".pdf");
+    canvas->SaveAs("output/data/mr_"+hadron+"_"+var+".pdf");
 }

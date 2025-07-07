@@ -94,7 +94,7 @@ void mr_ac_1d(TString Target="C", int Hadron_pid=211){
     TFile *input_thrown = new TFile("output/simul/"+Target+"/thrown/mr_clas12.root","READ");
 
     //Output
-    TFile *output = new TFile("output/"+Target+"/mr_1d_"+hadron+".root","RECREATE");
+    TFile *output = new TFile("output/AC_MR/"+Target+"/mr_1d_"+hadron+".root","RECREATE");
 
     //Run MR with acceptance correction calculation
     output->cd();

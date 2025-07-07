@@ -84,7 +84,7 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     TNtuple* elec_tuple_thr_liq = (TNtuple*)input_elec_thr_liq->Get("elec_tuple");
 
     //OUTPUT file
-    TFile *output = new TFile("output/"+Target+"/mr_"+mainVar+"_"+hadron+".root","RECREATE");
+    TFile *output = new TFile("output/AC_MR/"+Target+"/mr_"+mainVar+"_"+hadron+".root","RECREATE");
 
 ////////////////////////////////////////////////////////////////////////
 //////////            HADRON ACEPTANCE CORRECTION             //////////
@@ -337,10 +337,10 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     cout<<"Calculating electron acceptance correction"<<endl;
 
     //Draw 2D electron plots
-    elec_tuple_data->Draw(Form("Q2:nu>>h2_elec_sol_data(%i,%f,%f,%i,%f,%f)",N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut&&vz_solid, "goff");
-    elec_tuple_data->Draw(Form("Q2:nu>>h2_elec_liq_data(%i,%f,%f,%i,%f,%f)",N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut&&vz_d2, "goff");
-    elec_tuple_acc_sol ->Draw(Form("Q2:nu>>h2_elec_sol_acc(%i,%f,%f,%i,%f,%f)", N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut&&vz_solid, "goff");
-    elec_tuple_acc_liq ->Draw(Form("Q2:nu>>h2_elec_liq_acc(%i,%f,%f,%i,%f,%f)", N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut&&vz_d2, "goff");
+    elec_tuple_data->Draw(Form("Q2:nu>>h2_elec_sol_data(%i,%f,%f,%i,%f,%f)",N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut&&vz_solid_data, "goff");
+    elec_tuple_data->Draw(Form("Q2:nu>>h2_elec_liq_data(%i,%f,%f,%i,%f,%f)",N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut&&vz_d2_data, "goff");
+    elec_tuple_acc_sol ->Draw(Form("Q2:nu>>h2_elec_sol_acc(%i,%f,%f,%i,%f,%f)", N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut&&vz_solid_acc, "goff");
+    elec_tuple_acc_liq ->Draw(Form("Q2:nu>>h2_elec_liq_acc(%i,%f,%f,%i,%f,%f)", N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut&&vz_d2_acc, "goff");
     elec_tuple_thr_sol ->Draw(Form("Q2:nu>>h2_elec_sol_thr(%i,%f,%f,%i,%f,%f)", N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut, "goff");
     elec_tuple_thr_liq ->Draw(Form("Q2:nu>>h2_elec_liq_thr(%i,%f,%f,%i,%f,%f)", N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut, "goff");
 
