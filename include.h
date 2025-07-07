@@ -6,12 +6,6 @@ TCut DIS_cut="(Q2>1)&&(sqrt(W2)>2)&&(y_bjorken<0.85)";
 //Total cut
 TCut Main_cut=Beta_cut&&P_cut&&DIS_cut;
 
-//Vertex_cuts
-TCut vz_d2="(v_z>-8.01)&&(v_z<-3.62)";
-TCut vz_solid="(v_z>-1.84)&&(v_z<0.09)";
-TCut vz_d2_h="(v_z_elec>-8.01)&&(v_z_elec<-3.62)";
-TCut vz_solid_h="(v_z_elec>-1.84)&&(v_z_elec<0.09)";
-
 //Binning (Check values later, these are testing for now)
 const int N_Q2=5;
 const int N_Nu=4;
@@ -35,3 +29,39 @@ TCut Phi_cut=Form("phi_PQ>%f&&phi_PQ<%f",Phi_bins[0],Phi_bins[N_Phi]);
 
 TCut elec_cut=Q2_cut&&Nu_cut;
 TCut Var_cut=Q2_cut&&Nu_cut&&Zh_cut&&Pt2_cut&&Phi_cut;
+
+//Vertex_cuts
+// Liquid data
+float D2_mean_data = -6.19907;
+float D2_sigma_data = 1.03201;
+float D2_vz_min_data = -8.26308;
+float D2_vz_max_data = -4.13506;
+
+// Solid data
+float C_mean_data = -1.22086;
+float C_sigma_data = 0.622423;
+float C_vz_min_data = -2.4657;
+float C_vz_max_data = 0.0239888;
+
+// Liquid simul
+float D2_mean_simul = -6.45583;
+float D2_sigma_simul = 0.840164;
+float D2_vz_min_simul = -8.13616;
+float D2_vz_max_simul = -4.7755;
+
+// Solid simul
+float C_mean_simul = -1.47382;
+float C_sigma_simul = 0.513284;
+float C_vz_min_simul = -2.50038;
+float C_vz_max_simul = -0.447247;
+
+//data
+TCut vz_d2_data=Form("(v_z>%f)&&(v_z<%f)",D2_vz_min_data, D2_vz_max_data);
+TCut vz_solid_data=Form("(v_z>%f)&&(v_z<%f)",C_vz_min_data, C_vz_max_data);
+TCut vz_d2_h_data=Form("(v_z_elec>%f)&&(v_z_elec<%f)",D2_vz_min_data, D2_vz_max_data);
+TCut vz_solid_h_data=Form("(v_z_elec>%f)&&(v_z_elec<%f)",C_vz_min_data, C_vz_max_data);
+//simul
+TCut vz_d2_acc=Form("(v_z>%f)&&(v_z<%f)",D2_vz_min_simul, D2_vz_max_simul);
+TCut vz_solid_acc=Form("(v_z>%f)&&(v_z<%f)",C_vz_min_simul, C_vz_max_simul);
+TCut vz_d2_h_acc=Form("(v_z_elec>%f)&&(v_z_elec<%f)",D2_vz_min_simul, D2_vz_max_simul);
+TCut vz_solid_h_acc=Form("(v_z_elec>%f)&&(v_z_elec<%f)",C_vz_min_simul, C_vz_max_simul);
