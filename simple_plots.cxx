@@ -83,7 +83,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	gSystem->Exec(command.c_str());
 	TFile *output = new TFile(output_location+"out_clas12.root","RECREATE");
 
-	Float_t pid, Q2, nu, v_z, z_h, p, p_T2, p_L2, E_total, E_ECIN, E_ECOU, event_num, v_z_elec, phi, x_bjorken, y_bjorken, W2, charge, beta, sector, phi_PQ; 
+	Float_t pid, Q2, nu, v_z, z_h, p, p_T2, p_L2, E_total, E_ECIN, E_ECOU, event_num, v_z_elec, phi, x_bjorken, y_bjorken, W2, charge, beta, sector, phi_PQ, theta, v_x, v_y; 
 	Float_t rad2deg = 57.2958;
 
 	//------Read branches with variables needed for cuts and plots------
@@ -105,14 +105,18 @@ void processChain(TChain* input_tuple, TString output_location) {
 	input_tuple->SetBranchAddress("phi",&phi);
 	input_tuple->SetBranchAddress("sector",&sector);
 	input_tuple->SetBranchAddress("phi_PQ",&phi_PQ);
+	input_tuple->SetBranchAddress("theta",&theta);
+	input_tuple->SetBranchAddress("v_x",&v_x);
+	input_tuple->SetBranchAddress("v_y",&v_y);
+	input_tuple->SetBranchAddress("x_bjorken",&x_bjorken);
 
 	//------output ntuples------
-	Float_t hadron_vars[19];
-	Float_t elec_vars[14];
-	const char* hadron_varslist = "pid:Q2:nu:v_z:p:p_T2:p_L2:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:x_bjorken:y_bjorken:W2:beta:phi:sector:phi_PQ";
-	const char* elec_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:x_bjorken:y_bjorken:W2:beta:phi:sector";
+	Float_t hadron_vars[22];
+	Float_t elec_vars[17];
+	const char* hadron_varslist = "pid:Q2:nu:v_z:p:p_T2:p_L2:E_total:E_ECIN:E_ECOU:z_h:v_z_elec:x_bjorken:y_bjorken:W2:beta:phi:sector:phi_PQ:theta:v_x:v_y";
+	const char* elec_varslist = "pid:Q2:nu:v_z:p:E_total:E_ECIN:E_ECOU:x_bjorken:y_bjorken:W2:beta:phi:sector:theta:v_x:v_y";
 	TNtuple *pion_tuple = new TNtuple("pion_ntuple","pions",hadron_varslist);
-	//TNtuple *positive_tuple = new TNtuple("positive_ntuple","positives",hadron_varslist);
+	TNtuple *hadron_tuple = new TNtuple("hadron_ntuple","hadrons",hadron_varslist);
 	TNtuple *pion_minus_tuple = new TNtuple("pion_minus_ntuple","positives",hadron_varslist);
 	TNtuple *proton_tuple = new TNtuple("proton_ntuple","positives",hadron_varslist);
 	TNtuple *elec_tuple = new TNtuple("elec_tuple","electrons",elec_varslist);
@@ -141,6 +145,9 @@ void processChain(TChain* input_tuple, TString output_location) {
 			elec_vars[11] = beta;
 			elec_vars[12] = phi*rad2deg;
 			elec_vars[13] = sector;
+			elec_vars[14] = theta;
+			elec_vars[15] = v_x;
+			elec_vars[16] = v_y;
 			elec_tuple->Fill(elec_vars);
 			v_z_elec = v_z;
 		}
@@ -165,8 +172,11 @@ void processChain(TChain* input_tuple, TString output_location) {
 			hadron_vars[15] = beta;
 			hadron_vars[16] = phi*rad2deg;
 			hadron_vars[17] = sector;
-			hadron_vars[18] = phi_PQ; 
-			//if (charge>0){positive_tuple->Fill(hadron_vars);}
+			hadron_vars[18] = phi_PQ;
+			hadron_vars[19] = theta;
+			hadron_vars[20] = v_x;
+			hadron_vars[21] = v_y;
+			if (pid!=11 && pid!=-11){hadron_tuple->Fill(hadron_vars);}
 			if (pid==211){pion_tuple->Fill(hadron_vars);}
 			else if (pid==-211){pion_minus_tuple->Fill(hadron_vars);}
 			else if (pid==2212){proton_tuple->Fill(hadron_vars);}
@@ -178,7 +188,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	pion_tuple->Write();
 	pion_minus_tuple->Write();
 	proton_tuple->Write();
-	//positive_tuple->Write();
+	//hadron_tuple->Write();
 	elec_tuple->Write();
 
 	//------ PLOTS------
@@ -190,7 +200,15 @@ void processChain(TChain* input_tuple, TString output_location) {
 
 	//z vertex by sector
 	draw_sector_plot(elec_tuple, P_cut, "v_z",100,-15,6, "V_{z} [cm]", "dN/dV_{z}",
-						"sector_e_vz", output_location, output);
+						"e_vz_sector", output_location, output);
+
+	//x vertex
+	draw_plot(elec_tuple, P_cut, "v_x",100,-5,5, "V_{x} [cm]", "dN/dV_{z}" , "e_v_x",
+				output_location, output);
+
+	//y vertex
+	draw_plot(elec_tuple, P_cut, "v_y",100,-5,5, "V_{y} [cm]", "dN/dV_{z}" , "e_v_y",
+				output_location, output);
 	//W2
 	draw_plot(elec_tuple, P_cut, "W2",100,0,20, "W^{2}", "dN/dW^{2}" , "e_w2", output_location, output);
 
@@ -200,53 +218,111 @@ void processChain(TChain* input_tuple, TString output_location) {
 	//Nu
 	draw_plot(elec_tuple, P_cut, "nu",100,0,12, "#nu", "dN/d#nu" , "e_nu", output_location, output);
 
-	//phi distribution
+	//Phi 
 	draw_plot(elec_tuple, P_cut, "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "e_phi",
 				output_location, output);
 
-	//P vs Etot/P
-	draw_plot_2D(elec_tuple, Beta_cut&&P_cut&&DIS_cut, "E_total/p:p", 100,0,12,"P [GeV]",
-					100, 0, 0.5, "E_{tot}/P", "etot_p", output_location, output);
+	//X_b
+	draw_plot(elec_tuple, P_cut, "x_bjorken",100, 0,1, "#x_{b}", "dN/dx_{b}", "e_x_b",
+				output_location, output);
 
-	//----PIONS----
+	//P vs Etot/P
+	draw_plot_2D(elec_tuple, Main_cut, "E_total/p:p", 100,0,12,"P [GeV]",
+					100, 0, 0.5, "E_{tot}/P", "e_etot_p", output_location, output);
+
+	//theta vs phi
+	draw_plot_2D(elec_tuple, Main_cut, "phi:theta",100, 0, 1, "#theta",
+					 180,-180,180,"#phi", "e_ThetaxPhi", output_location, output);
+
+	//P vs theta
+	draw_plot_2D(elec_tuple, Main_cut, "theta:p",100, 0, 12, "P",
+					 100,0,1,"#theta", "e_PxTheta", output_location, output);
+
+	//x_b vs Q2
+	draw_plot_2D(elec_tuple, Main_cut, "Q2:x_bjorken",100, 0, 1, "X_{b}",
+					 100,0,11,"Q^{2}}", "e_x_bxQ2", output_location, output);
+
+	//Nu vs Q2
+	draw_plot_2D(elec_tuple, Main_cut, "Q2:nu",100, 2, 11, "Nu",
+					 100,1,11,"Q2", "e_NuxQ2", output_location, output);
+
+	//----PION PLUS----
 	//z vertex
 	draw_plot(pion_tuple, P_cut&&DIS_cut, "v_z",100,-15,6, "V_{z} [cm]", "dN/dV_{z}", "pi_v_z",
 				output_location, output);
 
+	//z vertex difference (e-pi)
+	draw_plot(pion_tuple, P_cut&&DIS_cut, "v_z_elec-v_z",100,-10,10, "V_{z e} - V_{z #pi} [cm]", "dN/dV_{z}", "pi_v_z_diff",
+				output_location, output);
+
 	//z_h
-	draw_plot(pion_tuple, P_cut&&DIS_cut, "z_h",100,0,1, "Z_{h}", "dN/dZ_{h}", "pi_zh",
+	draw_plot(pion_tuple, P_cut&&DIS_cut, "z_h",180,0,1, "Z_{h}", "dN/dZ_{h}", "pi_zh",
 				output_location, output);
 
 	//pt2
-	draw_plot(pion_tuple, P_cut&&DIS_cut, "p_T2",100,0,8, "P_{T}^{2}", "dN/dP_{T}^{2}", "pi_pt2",
+	draw_plot(pion_tuple, P_cut&&DIS_cut, "p_T2",100,0,5, "P_{T}^{2}", "dN/dP_{T}^{2}", "pi_pt2",
 				output_location, output);
 
-	//phi distribution
+	//phi
 	draw_plot(pion_tuple, P_cut&&DIS_cut, "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "pi_phi",
 				output_location, output);
 
-	//q2 vs nu
-	draw_plot_2D(pion_tuple, Main_cut&&Var_cut, "Q2:nu",4, 2, 9, "Nu",
-					 5,1,11,"Q2", "NuxQ2_liq", output_location, output);
+	//Pt2 vz Zh
+	draw_plot_2D(pion_tuple, P_cut&&DIS_cut, "z_h:p_T2",100, 0, 5, "P_{T}^{2}",
+					 100, 0, 1,"Z_{h}", "pi_Pt2xZ", output_location, output);
 
-	////P vs Etot/P
-	//draw_plot_2D(pion_tuple, "E_total>0"&&P_cut&&DIS_cut, "E_total/p:p", 100,0,12,"P [GeV]",
-	//				100, 0, 0.5, "E_{tot}/P", "etot_p_pion", output_location, output);
-//
-	////p vs beta
-	//draw_plot_2D(pion_tuple, Beta_cut&&P_cut, "beta:p", 500,0,12,"P [GeV]", 500, 0, 1.2, "#beta",
-	//				"p_beta_pion", output_location, output);
+	//----PION MINUS----
+	//z vertex
+	draw_plot(pion_minus_tuple, P_cut&&DIS_cut, "v_z",100,-15,6, "V_{z} [cm]", "dN/dV_{z}", "pim_v_z",
+				output_location, output);
 
-	//----POSITIVE PARTICLES----
-	//p vs beta
-	//draw_plot_2D(positive_tuple, Beta_cut&&P_cut, "beta:p", 500,0,12,"P [GeV]", 500, 0, 1.2, "#beta",
-	//				"p_beta", output_location, output);
+	//z vertex difference (e-pi)
+	draw_plot(pion_minus_tuple, P_cut&&DIS_cut, "v_z_elec-v_z",100,-10,10, "V_{z e} - V_{z #pi} [cm]", "dN/dV_{z}", "pim_v_z_diff",
+				output_location, output);
 
-	//delete all objects;
-	//output->Close();
+	//z_h
+	draw_plot(pion_minus_tuple, P_cut&&DIS_cut, "z_h",100,0,1, "Z_{h}", "dN/dZ_{h}", "pim_zh",
+				output_location, output);
+
+	//pt2
+	draw_plot(pion_minus_tuple, P_cut&&DIS_cut, "p_T2",100,0,5, "P_{T}^{2}", "dN/dP_{T}^{2}", "pim_pt2",
+				output_location, output);
+
+	//phi
+	draw_plot(pion_minus_tuple, P_cut&&DIS_cut, "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "pim_phi",
+				output_location, output);
+
+	//Pt2 vz Zh
+	draw_plot_2D(pion_minus_tuple, P_cut&&DIS_cut, "z_h:p_T2",100, 0, 5, "P_{T}^{2}",
+					 100, 0, 1,"Z_{h}", "pim_Pt2xZ", output_location, output);
+
+	//----ALL HADRONS----
+	//z vertex
+	draw_plot(hadron_tuple, P_cut&&DIS_cut, "v_z",100,-15,6, "V_{z} [cm]", "dN/dV_{z}", "h_v_z",
+				output_location, output);
+
+	//z vertex difference (e-pi)
+	draw_plot(hadron_tuple, P_cut&&DIS_cut, "v_z_elec-v_z",100,-10,10, "V_{z e} - V_{z #pi} [cm]", "dN/dV_{z}", "h_v_z_diff",
+				output_location, output);
+
+	//z_h
+	draw_plot(hadron_tuple, P_cut&&DIS_cut, "z_h",100,0,1, "Z_{h}", "dN/dZ_{h}", "h_zh",
+				output_location, output);
+
+	//pt2
+	draw_plot(hadron_tuple, P_cut&&DIS_cut, "p_T2",100,0,5, "P_{T}^{2}", "dN/dP_{T}^{2}", "h_pt2",
+				output_location, output);
+
+	//phi
+	draw_plot(hadron_tuple, P_cut&&DIS_cut, "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "h_phi",
+				output_location, output);
+
+	//Pt2 vz Zh
+	draw_plot_2D(hadron_tuple, P_cut&&DIS_cut, "z_h:p_T2",100, 0, 5, "P_{T}^{2}",
+					 100, 0, 1,"Z_{h}", "h_Pt2xZ", output_location, output);
 
 	delete pion_tuple;
-	//delete positive_tuple;
+	delete hadron_tuple;
 	delete pion_minus_tuple;
 	delete proton_tuple;
 	delete elec_tuple;
