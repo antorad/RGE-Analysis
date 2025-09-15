@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Step 3 of the analysis.
-#This script runs integrate_multibinning fir a sinlge target.
+#This script runs integrate_multibinning fir a single target.
 #It calculate 5D MR, with and without acceptance correction, and integrate all bins into a final 1D plot.
 
 # Parse command-line arguments

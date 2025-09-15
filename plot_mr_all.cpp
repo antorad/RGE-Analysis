@@ -74,7 +74,7 @@ void plot_mr_all(int Hadron_pid=211, TString Var="Zh"){
 
     //Total MR comparison
     for (int i = 0; i < 5; ++i){
-        input_files[i] = new TFile(output_location+"/"+targets[i]+"/mr_"+mainVar+"_"+hadron+".root","READ");
+        input_files[i] = new TFile(output_location+"/AC_MR/"+targets[i]+"/mr_"+mainVar+"_"+hadron+".root","READ");
         h_mr_corr[i] = (TH1D*)input_files[i]->Get("MR_corr");
     }
     plot_same_canvas(h_mr_corr);

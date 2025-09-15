@@ -109,7 +109,8 @@ It takes the tuples generated from simple_plots.cxx and applies DIS and target c
 		* Pdf file: A plot with multiple subplots with the multiplicity ratio plotted for all targets in each electron bin.
 
 ##  TODO
-* Write macro explanations
+* Write macro explanations DONE
 * Change make_multibinning algorithm from bin to bin basis in selection to event by event. DONE
+* In case of deciding on make individual vertex cuts, incurporate the fitting in the tuple making script and apply them at the moment instead of a global fit in include
 * Change "run" macros to run in parallel when necessary and make the initial process to wait until all the parallel process are done to finish.
 * Optimize the workflow for the cluster (run each run separately in different jobs and combine them after)

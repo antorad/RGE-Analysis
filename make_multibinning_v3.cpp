@@ -108,7 +108,7 @@ void make_multibinning_v3(TString Target="C", int Hadron_pid=211, TString type="
     for (int i = 0; i < N_Zh; ++i) {
         for (int j = 0; j < N_Pt2; ++j) {
             for (int k = 0; k < N_Phi; ++k) {
-                if (Target=="D2") {hists_liq[i][j][k]->Write();}
+                if (Target=="D2" || type=="data") {hists_liq[i][j][k]->Write();}
                 if (Target!="D2") {hists_sol[i][j][k]->Write();}
             }
         }
