@@ -34,26 +34,26 @@ TCut Var_cut=Q2_cut&&Nu_cut&&Zh_cut&&Pt2_cut&&Phi_cut;
 // Liquid data
 float D2_mean_data = -6.19907;
 float D2_sigma_data = 1.03201;
-float D2_vz_min_data = -8.26308;
-float D2_vz_max_data = -4.13506;
+float D2_vz_min_data = -8.77909;
+float D2_vz_max_data = -3.61906;
 
 // Solid data
 float C_mean_data = -1.22086;
 float C_sigma_data = 0.622423;
-float C_vz_min_data = -2.4657;
-float C_vz_max_data = 0.0239888;
-
-// Liquid simul
-float D2_mean_simul = -6.45583;
-float D2_sigma_simul = 0.840164;
-float D2_vz_min_simul = -8.13616;
-float D2_vz_max_simul = -4.7755;
+float C_vz_min_data = -2.77691;
+float C_vz_max_data = 0.3352;
 
 // Solid simul
-float C_mean_simul = -1.47382;
-float C_sigma_simul = 0.513284;
-float C_vz_min_simul = -2.50038;
-float C_vz_max_simul = -0.447247;
+float C_mean_simul = -1.4864;
+float C_sigma_simul = 0.484443;
+float C_vz_min_simul = -2.69751;
+float C_vz_max_simul = -0.27529;
+
+// Liquid simul
+float D2_mean_simul = -6.47034;
+float D2_sigma_simul = 0.823047;
+float D2_vz_min_simul = -8.52795;
+float D2_vz_max_simul = -4.41272;
 
 //data
 TCut vz_d2_data=Form("(v_z>%f)&&(v_z<%f)",D2_vz_min_data, D2_vz_max_data);
