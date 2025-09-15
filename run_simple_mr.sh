@@ -21,10 +21,17 @@ do
     root -l -q 'simple_mr.cpp("Sn"'", $particle"', "data")'
     root -l -q 'simple_mr.cpp("Pb"'", $particle"', "data")'
 
-#For now C only. When simulations are done, I'll add the rest of targets
+    #For now C only. When simulations are done, I'll add the rest of targets
     root -l -q 'simple_mr.cpp("C" '", $particle"', "acc")'
-
     root -l -q 'simple_mr.cpp("C" '", $particle"', "thrown")'
+    root -l -q 'simple_mr.cpp("Al" '", $particle"', "acc")'
+    root -l -q 'simple_mr.cpp("Al" '", $particle"', "thrown")'
+    root -l -q 'simple_mr.cpp("Cu" '", $particle"', "acc")'
+    root -l -q 'simple_mr.cpp("Cu" '", $particle"', "thrown")'
+    root -l -q 'simple_mr.cpp("Sn" '", $particle"', "acc")'
+    root -l -q 'simple_mr.cpp("Sn" '", $particle"', "thrown")'
+    root -l -q 'simple_mr.cpp("Pb" '", $particle"', "acc")'
+    root -l -q 'simple_mr.cpp("Pb" '", $particle"', "thrown")'
 done
 
 # Comparison between targets

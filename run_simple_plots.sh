@@ -35,3 +35,7 @@ root -l -q 'simple_plots.cxx("runs/Pb_runs.txt", "Pb", "data")'
 
 root -l -q 'simple_plots.cxx("runs/D2_simul_runs.txt" , "D2" , "simul")'
 root -l -q 'simple_plots.cxx("runs/C_simul_runs.txt" , "C" , "simul")'
+root -l -q 'simple_plots.cxx("runs/Al_simul_runs.txt" , "Al" , "simul")'
+root -l -q 'simple_plots.cxx("runs/Cu_simul_runs.txt" , "Cu" , "simul")'
+root -l -q 'simple_plots.cxx("runs/Sn_simul_runs.txt" , "Sn" , "simul")'
+root -l -q 'simple_plots.cxx("runs/Pb_simul_runs.txt" , "Pb" , "simul")'

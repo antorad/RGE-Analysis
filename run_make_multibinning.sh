@@ -20,8 +20,16 @@ for TARGET in "${TARGETS[@]}"; do
 done
 
 #For now C and D2 only. When simulations are done, I'll add the rest of targets
-#gnome-terminal -- bash -c "root -l -q 'make_multibinning_v3.cpp(\"D2\", $PID, \"acc\")'"
-#gnome-terminal -- bash -c "root -l -q 'make_multibinning_v3.cpp(\"C\" , $PID, \"acc\")'"
-#
-#gnome-terminal -- bash -c "root -l -q 'make_multibinning_v3.cpp(\"D2\", $PID, \"thrown\")'"
-#gnome-terminal -- bash -c "root -l -q 'make_multibinning_v3.cpp(\"C\" , $PID, \"thrown\")'"
+gnome-terminal -- bash -c "root -l -q 'make_multibinning_v3.cpp(\"D2\", $PID, \"acc\")'"
+gnome-terminal -- bash -c "root -l -q 'make_multibinning_v3.cpp(\"C\" , $PID, \"acc\")'"
+gnome-terminal -- bash -c "root -l -q 'make_multibinning_v3.cpp(\"Al\" , $PID, \"acc\")'"
+gnome-terminal -- bash -c "root -l -q 'make_multibinning_v3.cpp(\"Cu\" , $PID, \"acc\")'"
+gnome-terminal -- bash -c "root -l -q 'make_multibinning_v3.cpp(\"Sn\" , $PID, \"acc\")'"
+gnome-terminal -- bash -c "root -l -q 'make_multibinning_v3.cpp(\"Pb\" , $PID, \"acc\")'"
+
+gnome-terminal -- bash -c "root -l -q 'make_multibinning_v3.cpp(\"D2\", $PID, \"thrown\")'"
+gnome-terminal -- bash -c "root -l -q 'make_multibinning_v3.cpp(\"C\" , $PID, \"thrown\")'"
+gnome-terminal -- bash -c "root -l -q 'make_multibinning_v3.cpp(\"Al\" , $PID, \"thrown\")'"
+gnome-terminal -- bash -c "root -l -q 'make_multibinning_v3.cpp(\"Cu\" , $PID, \"thrown\")'"
+gnome-terminal -- bash -c "root -l -q 'make_multibinning_v3.cpp(\"Sn\" , $PID, \"thrown\")'"
+gnome-terminal -- bash -c "root -l -q 'make_multibinning_v3.cpp(\"Pb\" , $PID, \"thrown\")'"
