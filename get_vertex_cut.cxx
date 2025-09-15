@@ -15,7 +15,7 @@ using namespace std;
 
 void get_vertex_cut(TString Target="C", TString type="data"){
 	//number of sugmas around mean for cut
-	Float_t Nsigmas = 2;
+	Float_t Nsigmas = 2.5;
 
     //get electron TH1 input created from simple_plots
     TFile *input = new TFile("output/"+type+"/"+Target+"/out_clas12.root","READ");
