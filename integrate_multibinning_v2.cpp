@@ -63,6 +63,7 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     TFile *input_elec_data = new TFile("output/data/"+Target+"/out_clas12.root","READ");
     TNtuple* elec_tuple_data = (TNtuple*)input_elec_data->Get("elec_tuple");
 
+/*
     //ACCEPTED
     //hadrons
     TFile *input_hadron_acc_sol = new TFile("output/simul/"+Target+"/data_binned_"+hadron+".root","READ");
@@ -82,8 +83,35 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     TFile *input_elec_thr_liq = new TFile("output/simul/D2/thrown/out_clas12.root","READ");
     TNtuple* elec_tuple_thr_sol = (TNtuple*)input_elec_thr_sol->Get("elec_tuple");
     TNtuple* elec_tuple_thr_liq = (TNtuple*)input_elec_thr_liq->Get("elec_tuple");
+*/
+//ONLY FOR TESTING, USING DATA FILES AS SIMULATIONS
+//DELETE THIS BLOCK WHEN USING REAL SIMULATIONS AND UNCOMMENT LAST BLOCK
+
+    //ACCEPTED
+    //hadrons
+    TFile *input_hadron_acc_sol = new TFile("output/data/"+Target+"/data_binned_"+hadron+".root","READ");
+    TFile *input_hadron_acc_liq = new TFile("output/data/"+Target+"/data_binned_"+hadron+".root","READ");
+    //electrons
+    TFile *input_elec_acc_sol = new TFile("output/data/"+Target+"/out_clas12.root","READ");
+    TFile *input_elec_acc_liq = new TFile("output/data/"+Target+"/out_clas12.root","READ");
+    TNtuple* elec_tuple_acc_sol = (TNtuple*)input_elec_acc_sol->Get("elec_tuple");
+    TNtuple* elec_tuple_acc_liq = (TNtuple*)input_elec_acc_liq->Get("elec_tuple");
+
+    //THROWN
+    //hadrons
+    TFile *input_hadron_thr_sol = new TFile("output/data/"+Target+"/data_binned_"+hadron+".root","READ");
+    TFile *input_hadron_thr_liq = new TFile("output/data/"+Target+"/data_binned_"+hadron+".root","READ");
+    //electrons
+    TFile *input_elec_thr_sol = new TFile("output/data/"+Target+"/out_clas12.root","READ");
+    TFile *input_elec_thr_liq = new TFile("output/data/"+Target+"/out_clas12.root","READ");
+    TNtuple* elec_tuple_thr_sol = (TNtuple*)input_elec_thr_sol->Get("elec_tuple");
+    TNtuple* elec_tuple_thr_liq = (TNtuple*)input_elec_thr_liq->Get("elec_tuple");
+
+//END OF BLOCK TO BE DELETED WHEN SIMUALTIONS ARE COMPLETED
 
     //OUTPUT file
+    std::string command = std::string("mkdir -p output/AC_MR/") + Target.Data();
+    gSystem->Exec(command.c_str());
     TFile *output = new TFile("output/AC_MR/"+Target+"/mr_"+mainVar+"_"+hadron+".root","RECREATE");
 
 ////////////////////////////////////////////////////////////////////////
