@@ -4,10 +4,10 @@
 ./run_simple_plots.sh
 
 #simple MR
-./run_simple_mr.sh
+./run_simple_mr.sh 211
 
 #1D AC MR
-./run_mr_ac_1d.sh
+#./run_mr_ac_1d.sh 211
 
 #make multibbining
 ./run_make_multibinning.sh 211

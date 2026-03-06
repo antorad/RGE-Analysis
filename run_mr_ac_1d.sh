@@ -4,16 +4,24 @@
 #This script runs run_mr_ac_1d for each target.
 #It calculates AC 1D MR and save them ina single root file per target.
 
-# Array particle pid to calculate multiplicity ratio
-particles=(211 -211 2212)
+# Check if a PID argument is provided
+if [ -z "$1" ]; then
+  echo "Usage: $0 <pid>"
+  exit 1
+fi
+particle=$1
 
-# Calculate mr for individual targets
-for particle in "${particles[@]}"
-do
-    echo "Processing particle pid: $particle"
+echo "Processing particle pid: $particle"
 
-    # Run the mr claculation macro
-    #For now C only. When simulations are done, I'll add the rest of targets
-    root -l -q 'mr_ac_1d.cpp("C" '", $particle"')'
+# Run the mr claculation macro
+#For now C only. When simulations are done, I'll add the rest of targets
+root -l -q 'mr_ac_1d.cpp("C" '", $particle"')'
 
-done
+gnome-terminal --wait -- bash -c "root -l -q 'mr_ac_1d.cpp(\"C\" , $particle)'" &
+gnome-terminal --wait -- bash -c "root -l -q 'mr_ac_1d.cpp(\"Al\", $particle)'" &
+gnome-terminal --wait -- bash -c "root -l -q 'mr_ac_1d.cpp(\"Cu\", $particle)'" &
+gnome-terminal --wait -- bash -c "root -l -q 'mr_ac_1d.cpp(\"Sn\", $particle)'" &
+gnome-terminal --wait -- bash -c "root -l -q 'mr_ac_1d.cpp(\"Pb\", $particle)'" &
+wait
+
+echo "run_mr_ac_1d finished"

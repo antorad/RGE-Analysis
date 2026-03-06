@@ -4,15 +4,17 @@
 #This script runs integrate_multibinning fir a single target.
 #It calculate 5D MR, with and without acceptance correction, and integrate all bins into a final 1D plot.
 
+VARS=("Zh" "Pt2" "Phi_PQ" "Nu" "Q2")
+
 # Parse command-line arguments
 while [[ "$#" -gt 0 ]]; do
     case "$1" in
         -tar)
-            FIRST_ARG="$2"
+            TARGET="$2"
             shift 2
             ;;
         -pid)
-            SECOND_ARG="$2"
+            PID="$2"
             shift 2
             ;;
         *)
@@ -23,20 +25,15 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 # Ensure both arguments are provided
-if [ -z "$FIRST_ARG" ] || [ -z "$SECOND_ARG" ]; then
+if [ -z "$TARGET" ] || [ -z "$PID" ]; then
     echo "Usage: $0 -tar <target> -pid <pid>"
     exit 1
 fi
 
-# Define the argument list dynamically
-PARAMS=("Zh" "Pt2" "Phi_PQ" "Nu" "Q2")
-ARGS_LIST=()
-for PARAM in "${PARAMS[@]}"; do
-    ARGS_LIST+=("\"$FIRST_ARG\", $SECOND_ARG, \"$PARAM\"")
+# Iterate over each set of varaibles and open a new terminal
+for VAR in "${VARS[@]}"; do
+    gnome-terminal --wait -- bash -c "root -l -q 'integrate_multibinning_v2.cpp(\"$TARGET\", $PID, \"$VAR\")'" &
 done
+wait
 
-# Iterate over each set of arguments and open a new terminal
-for ARGS in "${ARGS_LIST[@]}"; do
-    #gnome-terminal -- bash -c "root -l -q '$ROOT_MACRO($ARGS)'"
-    root -l -q "integrate_multibinning_v2.cpp($ARGS)" &
-done
+echo run_integrate_multibinning for $TARGET finished.

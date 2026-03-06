@@ -11,9 +11,18 @@ if [ -z "$1" ]; then
 fi
 
 PID=$1
-VARS=("Zh" "Pt2" "Phi_PQ" "Nu" "Q2")
+VARS_ALL=("Zh" "Pt2" "Phi_PQ" "Nu" "Q2")
+VARS_BIN=("Zh" "Pt2" "Phi_PQ")
 
 # Loop over each target and launch a new terminal that closes after execution
-for VARS in "${VARS[@]}"; do
-  gnome-terminal -- bash -c "root -l -q 'plot_mr_all.cpp($PID, \"$VARS\")'"
+for VAR in "${VARS_ALL[@]}"; do
+  gnome-terminal --wait -- bash -c "root -l -q 'plot_mr_all.cpp($PID, \"$VAR\")'" &
 done
+wait
+
+for VAR in "${VARS_BIN[@]}"; do
+  gnome-terminal --wait -- bash -c "root -l -q 'plot_mr_bin.cpp($PID, \"$VAR\")'" &
+done
+wait
+
+echo run_plots_all_mr finished.
