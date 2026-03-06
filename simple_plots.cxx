@@ -125,7 +125,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	v_z_elec = -99;
 	//Selection of particles to plot
 	Long64_t n_entries = input_tuple->GetEntries();
-	for (Long64_t i=0;i<n_entries;i++) {
+	for (Long64_t i=0;i<10000000;i++) { //changed n_entries to 1000000 for testing
 		input_tuple->GetEntry(i);
 
 		//This part assumes that all hadrons after an electron coes from taht electron to save its v_z
@@ -187,7 +187,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	output->cd();
 	pion_tuple->Write();
 	pion_minus_tuple->Write();
-	proton_tuple->Write();
+	//proton_tuple->Write();
 	//hadron_tuple->Write();
 	elec_tuple->Write();
 
