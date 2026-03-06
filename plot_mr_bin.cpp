@@ -22,7 +22,7 @@ void plot_mr_bin(int Hadron_pid=211, TString mainVar="Zh"){
     TFile* input_files[5];
     TH1D* h_mr_corr[5];
     for (int i = 0; i < 5; ++i){
-    	input_files[i] = new TFile(output_location+"/"+targets[i]+"/mr_"+mainVar+"_"+hadron+".root","READ");
+    	input_files[i] = new TFile(output_location+"/AC_MR/"+targets[i]+"/mr_"+mainVar+"_"+hadron+".root","READ");
 	}
     //Canvas
     TCanvas* canvas = new TCanvas("canvas", "Grid of Plots", 1200, 1000);
@@ -142,5 +142,5 @@ void plot_mr_bin(int Hadron_pid=211, TString mainVar="Zh"){
     latex.DrawLatexNDC(left_margin - 0.03, 0.8, "#frac{N_{A}#pi^{+}}{N_{D2}#pi^{+}}#frac{N_{D2}e^{-}}{N_{A}e^{-}}");
 
     //Save plot as pdf
-    canvas->SaveAs("output/mr_binbybin_"+hadron+"_"+mainVar+".pdf");
+    canvas->SaveAs("output/AC_MR/mr_binbybin_"+hadron+"_"+mainVar+".pdf");
 }

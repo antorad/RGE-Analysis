@@ -46,7 +46,7 @@ TCanvas plot_same_canvas(TH1D* h_mr[5]){
     legend->Draw("same");
 
     //Save final plot as pdf
-    canvas->SaveAs("output/mr_"+hadron+"_"+mainVar+".pdf");
+    canvas->SaveAs("output/AC_MR/mr_"+hadron+"_"+mainVar+".pdf");
     return canvas;
 }
 
