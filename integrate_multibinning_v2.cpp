@@ -57,55 +57,33 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     cout<<"------------------------------------------------------------"<<endl;
 
     //DATA
-    //Get hadron histograms from root file created with create_multibinning
-    TFile *input_hadron_data = new TFile("output/data/"+Target+"/data_binned_"+hadron+".root","READ");
-    //Get electron TNtuple input created from simple_plots
-    TFile *input_elec_data = new TFile("output/data/"+Target+"/out_clas12.root","READ");
-    TNtuple* elec_tuple_data = (TNtuple*)input_elec_data->Get("elec_tuple");
+    //Get hadron and electron histograms from root file created with create_multibinning
+    TFile *input_data = new TFile("output/data/"+Target+"/data_binned_"+hadron+".root","READ");
 
 /*
     //ACCEPTED
     //hadrons
-    TFile *input_hadron_acc_sol = new TFile("output/simul/"+Target+"/data_binned_"+hadron+".root","READ");
-    TFile *input_hadron_acc_liq = new TFile("output/simul/D2/data_binned_"+hadron+".root","READ");
-    //electrons
-    TFile *input_elec_acc_sol = new TFile("output/simul/"+Target+"/out_clas12.root","READ");
-    TFile *input_elec_acc_liq = new TFile("output/simul/D2/out_clas12.root","READ");
-    TNtuple* elec_tuple_acc_sol = (TNtuple*)input_elec_acc_sol->Get("elec_tuple");
-    TNtuple* elec_tuple_acc_liq = (TNtuple*)input_elec_acc_liq->Get("elec_tuple");
+    TFile *input_acc_sol = new TFile("output/simul/"+Target+"/data_binned_"+hadron+".root","READ");
+    TFile *input_acc_liq = new TFile("output/simul/D2/data_binned_"+hadron+".root","READ");
 
     //THROWN
     //hadrons
-    TFile *input_hadron_thr_sol = new TFile("output/simul/"+Target+"/thrown/data_binned_"+hadron+".root","READ");
-    TFile *input_hadron_thr_liq = new TFile("output/simul/D2/thrown/data_binned_"+hadron+".root","READ");
-    //electrons
-    TFile *input_elec_thr_sol = new TFile("output/simul/"+Target+"/thrown/out_clas12.root","READ");
-    TFile *input_elec_thr_liq = new TFile("output/simul/D2/thrown/out_clas12.root","READ");
-    TNtuple* elec_tuple_thr_sol = (TNtuple*)input_elec_thr_sol->Get("elec_tuple");
-    TNtuple* elec_tuple_thr_liq = (TNtuple*)input_elec_thr_liq->Get("elec_tuple");
+    TFile *input_thr_sol = new TFile("output/simul/"+Target+"/thrown/data_binned_"+hadron+".root","READ");
+    TFile *input_thr_liq = new TFile("output/simul/D2/thrown/data_binned_"+hadron+".root","READ");
 */
+    
 //ONLY FOR TESTING, USING DATA FILES AS SIMULATIONS
 //DELETE THIS BLOCK WHEN USING REAL SIMULATIONS AND UNCOMMENT LAST BLOCK
 
     //ACCEPTED
     //hadrons
-    TFile *input_hadron_acc_sol = new TFile("output/data/"+Target+"/data_binned_"+hadron+".root","READ");
-    TFile *input_hadron_acc_liq = new TFile("output/data/"+Target+"/data_binned_"+hadron+".root","READ");
-    //electrons
-    TFile *input_elec_acc_sol = new TFile("output/data/"+Target+"/out_clas12.root","READ");
-    TFile *input_elec_acc_liq = new TFile("output/data/"+Target+"/out_clas12.root","READ");
-    TNtuple* elec_tuple_acc_sol = (TNtuple*)input_elec_acc_sol->Get("elec_tuple");
-    TNtuple* elec_tuple_acc_liq = (TNtuple*)input_elec_acc_liq->Get("elec_tuple");
+    TFile *input_acc_sol = new TFile("output/data/"+Target+"/data_binned_"+hadron+".root","READ");
+    TFile *input_acc_liq = new TFile("output/data/"+Target+"/data_binned_"+hadron+".root","READ");
 
     //THROWN
     //hadrons
-    TFile *input_hadron_thr_sol = new TFile("output/data/"+Target+"/data_binned_"+hadron+".root","READ");
-    TFile *input_hadron_thr_liq = new TFile("output/data/"+Target+"/data_binned_"+hadron+".root","READ");
-    //electrons
-    TFile *input_elec_thr_sol = new TFile("output/data/"+Target+"/out_clas12.root","READ");
-    TFile *input_elec_thr_liq = new TFile("output/data/"+Target+"/out_clas12.root","READ");
-    TNtuple* elec_tuple_thr_sol = (TNtuple*)input_elec_thr_sol->Get("elec_tuple");
-    TNtuple* elec_tuple_thr_liq = (TNtuple*)input_elec_thr_liq->Get("elec_tuple");
+    TFile *input_thr_sol = new TFile("output/data/"+Target+"/data_binned_"+hadron+".root","READ");
+    TFile *input_thr_liq = new TFile("output/data/"+Target+"/data_binned_"+hadron+".root","READ");
 
 //END OF BLOCK TO BE DELETED WHEN SIMUALTIONS ARE COMPLETED
 
@@ -188,14 +166,14 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
                 cout<<"********************* New hadron BIN *******************"<<endl;
                 cout<<"Getting histos: "<<Form("%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter)<<endl;
                 //Data histos
-                h2_liq_data = (TH2D*)input_hadron_data->Get(Form("Data_liq_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
-                h2_sol_data = (TH2D*)input_hadron_data->Get(Form("Data_sol_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
+                h2_liq_data = (TH2D*)input_data->Get(Form("Data_liq_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
+                h2_sol_data = (TH2D*)input_data->Get(Form("Data_sol_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
                 //Accepted histos
-                h2_liq_acc = (TH2D*)input_hadron_acc_liq->Get(Form("Data_liq_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
-                h2_sol_acc = (TH2D*)input_hadron_acc_sol->Get(Form("Data_sol_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
+                h2_liq_acc = (TH2D*)input_acc_liq->Get(Form("Data_liq_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
+                h2_sol_acc = (TH2D*)input_acc_sol->Get(Form("Data_sol_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
                 //Thrown histos
-                h2_liq_thr = (TH2D*)input_hadron_thr_liq->Get(Form("Data_liq_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
-                h2_sol_thr = (TH2D*)input_hadron_thr_sol->Get(Form("Data_sol_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
+                h2_liq_thr = (TH2D*)input_thr_liq->Get(Form("Data_liq_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
+                h2_sol_thr = (TH2D*)input_thr_sol->Get(Form("Data_sol_%i_%i_%i", ZhCounter, Pt2Counter, PhiCounter));
 
                 //acceptance correction factors calculation
                 //LIQUID TARGET
@@ -364,21 +342,14 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     cout<<"------------------------------------------------------------"<<endl;
     cout<<"Calculating electron acceptance correction"<<endl;
 
-    //Draw 2D electron plots
-    elec_tuple_data->Draw(Form("Q2:nu>>h2_elec_sol_data(%i,%f,%f,%i,%f,%f)",N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut&&vz_solid_data, "goff");
-    elec_tuple_data->Draw(Form("Q2:nu>>h2_elec_liq_data(%i,%f,%f,%i,%f,%f)",N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut&&vz_d2_data, "goff");
-    elec_tuple_acc_sol ->Draw(Form("Q2:nu>>h2_elec_sol_acc(%i,%f,%f,%i,%f,%f)", N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut&&vz_solid_acc, "goff");
-    elec_tuple_acc_liq ->Draw(Form("Q2:nu>>h2_elec_liq_acc(%i,%f,%f,%i,%f,%f)", N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut&&vz_d2_acc, "goff");
-    elec_tuple_thr_sol ->Draw(Form("Q2:nu>>h2_elec_sol_thr(%i,%f,%f,%i,%f,%f)", N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut, "goff");
-    elec_tuple_thr_liq ->Draw(Form("Q2:nu>>h2_elec_liq_thr(%i,%f,%f,%i,%f,%f)", N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut, "goff");
+    //Get 2D electron plots from file
+    TH2D* h2_elec_sol_data = (TH2D*)input_data->Get("h2_elec_sol");
+    TH2D* h2_elec_liq_data = (TH2D*)input_data->Get("h2_elec_liq");
+    TH2D* h2_elec_sol_acc  = (TH2D*)input_acc_sol->Get("h2_elec_sol");
+    TH2D* h2_elec_liq_acc  = (TH2D*)input_acc_liq->Get("h2_elec_liq");
+    TH2D* h2_elec_sol_thr  = (TH2D*)input_thr_sol->Get("h2_elec_sol");
+    TH2D* h2_elec_liq_thr  = (TH2D*)input_thr_liq->Get("h2_elec_liq");
 
-    //Save the plots into TH2D to access them later
-    TH2D *h2_elec_sol_data = (TH2D*)gDirectory->Get("h2_elec_sol_data");
-    TH2D *h2_elec_liq_data = (TH2D*)gDirectory->Get("h2_elec_liq_data");
-    TH2D *h2_elec_sol_acc = (TH2D*)gDirectory->Get("h2_elec_sol_acc");
-    TH2D *h2_elec_liq_acc = (TH2D*)gDirectory->Get("h2_elec_liq_acc");
-    TH2D *h2_elec_sol_thr = (TH2D*)gDirectory->Get("h2_elec_sol_thr");
-    TH2D *h2_elec_liq_thr = (TH2D*)gDirectory->Get("h2_elec_liq_thr");
     //Error propagation
     h2_elec_sol_data->Sumw2();
     h2_elec_liq_data->Sumw2();

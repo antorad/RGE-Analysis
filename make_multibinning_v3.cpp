@@ -114,5 +114,18 @@ void make_multibinning_v3(TString Target="C", int Hadron_pid=211, TString type="
         }
     }
 
+//ELECTRONS
+    //Get electron tuple from file
+    TNtuple* elec_tuple = (TNtuple*)input->Get("elec_tuple");
+    //draw 2D Q2vsNu histogram to save on memory
+    elec_tuple->Draw(Form("Q2:nu>>h2_elec_sol(%i,%f,%f,%i,%f,%f)",N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut&&vz_solid_data, "goff");
+    elec_tuple->Draw(Form("Q2:nu>>h2_elec_liq(%i,%f,%f,%i,%f,%f)",N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut&&vz_d2_data, "goff");
+    //Get 2D from memory an save them in TH2Ds
+    TH2D *h2_elec_sol = (TH2D*)gDirectory->Get("h2_elec_sol");
+    TH2D *h2_elec_liq = (TH2D*)gDirectory->Get("h2_elec_liq"); 
+    //Write TH2D into output file
+    h2_elec_sol->Write("h2_elec_sol");
+    h2_elec_liq->Write("h2_elec_liq");
+
 	output->Close();
 }
