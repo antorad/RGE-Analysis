@@ -394,11 +394,11 @@ void simple_plots(int run_N=000000, TString Target="unkw", TString type="data"){
 
 	//Output directory
 	TString output_location;
-	output_location = "output/"+type+"/"+Target+"/"+run_N_str+"/";
+	output_location = "/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass0.10/dc/"+Target+"/"+run_N_str+"/";
 	cout<<"Output location: "<<output_location<<endl;
 
     if (type=="data"){
-    	input_tuple->Add(type+"/ntuples_dc_"+run_N_str+".root");
+    	input_tuple->Add("/volatile/clas12/antorad/rge/data/pass0.10/dc/ntuple_files/ntuples_dc_"+run_N_str+".root");
  	}
     if (type=="simul"){
     	input_tuple->Add(type+"/"+Target+"/ntuples_dc_"+run_N_str+".root");
