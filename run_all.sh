@@ -20,16 +20,16 @@ done
 
 # Ensure both arguments are provided
 if [ -z "$RUN" ] || [ -z "$TARGET" ]; then
-    echo "Usage: $0 -pid <pid> -tar <target>"
+    echo "Usage: $0 -RUN <run> -tar <target>"
     exit 1
 fi
 
 #First part to run in cluster (in job)
 #simple plots
-echo 'simple_plots.cxx('$RUN, "$TARGET"' , "data")'
+root -l -q 'simple_plots.cxx('$RUN', "'$TARGET'" , "data")'
 
 #make multibbining
-echo 'make_multibinning_v3.cpp('$RUN, "$TARGET"' , "data", 211)'
+root -l -q 'make_multibinning_v3.cpp('$RUN', "'$TARGET'" , 211, "data")'
 
 
 #Second part to run interactively (or in personal computer)
