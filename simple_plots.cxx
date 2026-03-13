@@ -20,12 +20,12 @@ void draw_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, float xmin,
 	canvas->cd();
 	TString histo_to_draw;
 	histo_to_draw.Form("%s>>histo(%i,%f,%f)", var, nbins, xmin, xmax);
-	tuple->Draw(histo_to_draw,cut,"COLZ");
+	tuple->Draw(histo_to_draw,cut,"goff");
 	TH1F *histo = (TH1F*)gDirectory->GetList()->FindObject("histo");
 	histo->GetXaxis()->SetTitle(xtitle);
 	histo->GetYaxis()->SetTitle(ytitle);
 	histo->SetTitle(xtitle);
-	histo->Draw("COLZ");
+	histo->Draw("goff");
 	histo->Write(output);
 	canvas->SaveAs(location+output+".pdf");
 	delete histo;
@@ -44,12 +44,12 @@ void draw_sector_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, floa
 		string title = (TString::Format("sec%i", i)).Data();
 		TString histo_to_draw;
 		histo_to_draw.Form("%s>>histo%i(%i,%f,%f)", var, i, nbins, xmin, xmax);
-		tuple->Draw(histo_to_draw,cut&&sector_cut,"COLZ");
+		tuple->Draw(histo_to_draw,cut&&sector_cut,"goff");
 		histo[i-1] = (TH1F*)gDirectory->GetList()->FindObject(Form("histo%i",i));
 		histo[i-1]->GetXaxis()->SetTitle(xtitle);
 		histo[i-1]->GetYaxis()->SetTitle(ytitle);
 		histo[i-1]->SetTitle(xtitle+Form(" Sector %i",i-1));
-		histo[i-1]->Draw("COLZ");
+		histo[i-1]->Draw("goff");
 		histo[i-1]->Write(output+Form("_%i",i-1));
 	}
 	canvas->SaveAs(location+output+".pdf");
@@ -64,12 +64,12 @@ void draw_plot_2D(TNtuple* tuple, TCut cut, char const* var, int xnbins, float x
 	canvas->cd();
 	TString histo_to_draw;
 	histo_to_draw.Form("%s>>histo(%i,%f,%f,%i,%f,%f)", var, xnbins, xmin, xmax, ynbins, ymin, ymax);
-	tuple->Draw(histo_to_draw, cut,"COLZ");
+	tuple->Draw(histo_to_draw, cut,"goff");
 	TH2F *histo = (TH2F*)gDirectory->GetList()->FindObject("histo");
 	histo->GetXaxis()->SetTitle(xtitle);
 	histo->GetYaxis()->SetTitle(ytitle);
 	histo->SetTitle(xtitle + " vs " + ytitle);
-	histo->Draw("COLZ");
+	histo->Draw("goff");
 	histo->Write(output);
 	canvas->SaveAs(location+output+".pdf");
 	delete histo;
@@ -125,7 +125,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	v_z_elec = -99;
 	//Selection of particles to plot
 	Long64_t n_entries = input_tuple->GetEntries();
-	for (Long64_t i=0;i<10000000;i++) { //changed n_entries to 1000000 for testing
+	for (Long64_t i=0;i<n_entries;i++) { //changed n_entries to 1000000 for testing
 		input_tuple->GetEntry(i);
 
 		//This part assumes that all hadrons after an electron coes from taht electron to save its v_z
