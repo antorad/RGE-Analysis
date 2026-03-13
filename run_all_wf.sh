@@ -1,9 +1,10 @@
+  GNU nano 5.6.1                               run_all_wf.sh                                         
 #!/bin/bash
 
 # Parse command-line arguments
 while [[ "$#" -gt 0 ]]; do
     case "$1" in
-    	-run)
+        -run)
             RUN="$2"
             shift 2
             ;;
@@ -20,7 +21,7 @@ done
 
 # Ensure both arguments are provided
 if [ -z "$RUN" ] || [ -z "$TARGET" ]; then
-    echo "Usage: $0 -RUN <run> -tar <target>"
+    echo "Usage: $0 -pid <pid> -tar <target>"
     exit 1
 fi
 
@@ -30,16 +31,3 @@ root -l -q 'simple_plots.cxx('$RUN', "'$TARGET'" , "data")'
 
 #make multibbining
 root -l -q 'make_multibinning_v3.cpp('$RUN', "'$TARGET'" , 211, "data")'
-
-
-#Second part to run interactively (or in personal computer)
-
-# #integrate multibinning
-# ./run_integrate_multibinning.sh -tar C -pid 211
-# ./run_integrate_multibinning.sh -tar Al -pid 211
-# ./run_integrate_multibinning.sh -tar Cu -pid 211
-# ./run_integrate_multibinning.sh -tar Sn -pid 211
-# ./run_integrate_multibinning.sh -tar Pb -pid 211
-# 
-# #plots
-# ./run_plots_all_mr.sh 211
