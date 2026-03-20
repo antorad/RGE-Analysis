@@ -83,7 +83,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	gSystem->Exec(command.c_str());
 	TFile *output = new TFile(output_location+"out_clas12.root","RECREATE");
 
-	Float_t pid, Q2, nu, v_z, z_h, p, p_T2, p_L2, E_total, E_ECIN, E_ECOU, event_num, v_z_elec, phi, x_bjorken, y_bjorken, W2, charge, beta, sector, phi_PQ, theta, v_x, v_y; 
+	Float_t pid, Q2, nu, v_z, z_h, p, p_T2, p_L2, E_total, E_ECIN, E_PCAL, E_ECOU, event_num, v_z_elec, phi, x_bjorken, y_bjorken, W2, charge, beta, sector, phi_PQ, theta, v_x, v_y; 
 	Float_t rad2deg = 57.2958;
 
 	//------Read branches with variables needed for cuts and plots------
@@ -97,6 +97,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	input_tuple->SetBranchAddress("E_total",&E_total);
 	input_tuple->SetBranchAddress("E_ECIN",&E_ECIN);
 	input_tuple->SetBranchAddress("E_ECOU",&E_ECOU);
+	input_tuple->SetBranchAddress("E_PCAL",&E_PCAL);
 	input_tuple->SetBranchAddress("event_num",&event_num);
 	input_tuple->SetBranchAddress("y_bjorken",&y_bjorken);
 	input_tuple->SetBranchAddress("W2",&W2);
@@ -121,16 +122,48 @@ void processChain(TChain* input_tuple, TString output_location) {
 	TNtuple *proton_tuple = new TNtuple("proton_ntuple","positives",hadron_varslist);
 	TNtuple *elec_tuple = new TNtuple("elec_tuple","electrons",elec_varslist);
 
-
 	v_z_elec = -99;
+	bool valid_electron = false;
+
+	//Sampling fraction parameters
+	float sf_up_lim[6][4];
+    float sf_lo_lim[6][4];
+    for (int i=0; i<6; i++){
+        for (int j=0; j<4; j++)
+        {
+            sf_up_lim[i][j] = mu_sf[i][j]+3.5*sigma_sf[i][j];
+            sf_lo_lim[i][j] = mu_sf[i][j]-3.5*sigma_sf[i][j];
+        }
+    }
 	//Selection of particles to plot
 	Long64_t n_entries = input_tuple->GetEntries();
-	for (Long64_t i=0;i<10000000;i++) { //changed n_entries to 1000000 for testing
+	for (Long64_t i=0;i<1000000;i++) { //changed n_entries to 1000000 for testing
 		input_tuple->GetEntry(i);
-
-		//This part assumes that all hadrons after an electron coes from taht electron to save its v_z
+		if (pid == 11){valid_electron = false;}
+		//This part assumes that all hadrons after an electron come from that electron to save its v_z
 		// Check if the particle fullfills being the scattered electron.
-		if  (pid==11) {
+		if  (pid==11 					 		//basic electron cut from CLAS12 event builder
+			&& Q2>1 && W2>4 && y_bjorken<0.8 //DIS cuts
+			&& p>2 && p<8						//momentum cut
+			&& theta*rad2deg>5					//theta cut
+			//&& PCAL_V>14 PCAL_W>14				//PCAL fiducial cuts
+			////REC::Calorimeter::lv and lu???
+			//&& DC_R1_edge>4.5 && DC_R2_edge>3.5 && DC_R3_edge>7.5 //DC fiducial cuts
+			////REC::Traj::edge with ::layer to identify region??
+			&& ((p<4.5)||(p>4.5&&E_PCAL/p>(-0.22/0.15)*E_ECIN/p+0.22)) // Partial and full sampling fration
+			&& ((	sector == 1 && E_total/p < sf_up_lim[0][0]+ sf_up_lim[0][1]*E_total + sf_up_lim[0][2]*pow(E_total,2) + sf_up_lim[0][3]*pow(E_total,3)
+								&& E_total/p > sf_lo_lim[0][0]+ sf_lo_lim[0][1]*E_total + sf_lo_lim[0][2]*pow(E_total,2) + sf_lo_lim[0][3]*pow(E_total,3))
+				|| (sector == 2 && E_total/p < sf_up_lim[1][0]+ sf_up_lim[1][1]*E_total + sf_up_lim[1][2]*pow(E_total,2) + sf_up_lim[1][3]*pow(E_total,3)
+								&& E_total/p > sf_lo_lim[1][0]+ sf_lo_lim[1][1]*E_total + sf_lo_lim[1][2]*pow(E_total,2) + sf_lo_lim[1][3]*pow(E_total,3))
+				|| (sector == 3 && E_total/p < sf_up_lim[2][0]+ sf_up_lim[2][1]*E_total + sf_up_lim[2][2]*pow(E_total,2) + sf_up_lim[2][3]*pow(E_total,3)
+								&& E_total/p > sf_lo_lim[2][0]+ sf_lo_lim[2][1]*E_total + sf_lo_lim[2][2]*pow(E_total,2) + sf_lo_lim[2][3]*pow(E_total,3))
+				|| (sector == 4 && E_total/p < sf_up_lim[3][0]+ sf_up_lim[3][1]*E_total + sf_up_lim[3][2]*pow(E_total,2) + sf_up_lim[3][3]*pow(E_total,3)
+								&& E_total/p > sf_lo_lim[3][0]+ sf_lo_lim[3][1]*E_total + sf_lo_lim[3][2]*pow(E_total,2) + sf_lo_lim[3][3]*pow(E_total,3))
+				|| (sector == 5 && E_total/p < sf_up_lim[4][0]+ sf_up_lim[4][1]*E_total + sf_up_lim[4][2]*pow(E_total,2) + sf_up_lim[4][3]*pow(E_total,3)
+								&& E_total/p > sf_lo_lim[4][0]+ sf_lo_lim[4][1]*E_total + sf_lo_lim[4][2]*pow(E_total,2) + sf_lo_lim[4][3]*pow(E_total,3))
+				|| (sector == 6 && E_total/p < sf_up_lim[5][0]+ sf_up_lim[5][1]*E_total + sf_up_lim[5][2]*pow(E_total,2) + sf_up_lim[5][3]*pow(E_total,3)
+								&& E_total/p > sf_lo_lim[5][0]+ sf_lo_lim[5][1]*E_total + sf_lo_lim[5][2]*pow(E_total,2) + sf_lo_lim[5][3]*pow(E_total,3)))
+			) {
 			elec_vars[0] = pid;
 			elec_vars[1] = Q2;
 			elec_vars[2] = nu;
@@ -150,10 +183,11 @@ void processChain(TChain* input_tuple, TString output_location) {
 			elec_vars[16] = v_y;
 			elec_tuple->Fill(elec_vars);
 			v_z_elec = v_z;
+			valid_electron = true;
 		}
 
 		// Check if the particle is not an electron.
-		else{
+		else if (valid_electron){
 			hadron_vars[0] = pid;
 			hadron_vars[1] = Q2;
 			hadron_vars[2] = nu;
@@ -227,8 +261,8 @@ void processChain(TChain* input_tuple, TString output_location) {
 				output_location, output);
 
 	//P vs Etot/P
-	draw_plot_2D(elec_tuple, Main_cut, "E_total/p:p", 100,0,12,"P [GeV]",
-					100, 0, 0.5, "E_{tot}/P", "e_etot_p", output_location, output);
+	draw_plot_2D(elec_tuple, Main_cut, "E_total/p:E_total", 100,0,2,"P [GeV]",
+					100, 0.150, 0.325, "E_{tot}/E_tot", "sf", output_location, output);
 
 	//theta vs phi
 	draw_plot_2D(elec_tuple, Main_cut, "phi:theta",100, 0, 1, "#theta",
