@@ -137,7 +137,7 @@ void processChain(TChain* input_tuple, TString output_location) {
     }
 	//Selection of particles to plot
 	Long64_t n_entries = input_tuple->GetEntries();
-	for (Long64_t i=0;i<1000000;i++) { //changed n_entries to 1000000 for testing
+	for (Long64_t i=0;i<n_entries;i++) { //changed n_entries to 1000000 for testing
 		input_tuple->GetEntry(i);
 		if (pid == 11){valid_electron = false;}
 		//This part assumes that all hadrons after an electron come from that electron to save its v_z

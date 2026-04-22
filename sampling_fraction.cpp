@@ -2,33 +2,13 @@
 
 using namespace std;
 
-TH1F* draw_1D(TChain* tuple, Float_t &nu, Float_t &sigma, int bin, float bin_step){
-    TString bin_cut;
-    bin_cut.Form("E_total>%f*%i && E_total<%f*(%i+1)", bin_step,bin,bin_step,bin);
-    tuple->Draw("E_total/p>>histo(100,0.150,0.350)",bin_cut,"COLZ");
-    TH1F *histo = (TH1F*)gDirectory->GetList()->FindObject("histo");
-    TF1 *gaus_fit = new TF1("fit", "gaus(0)", 0.150,0.350);
-    histo->Fit("fit");
-
-    nu = gaus_fit->GetParameter("Mean");
-    sigma = gaus_fit->GetParameter("Sigma");
-
-    return histo;
-}
-
 void processChain(TChain* input_tuple, TString output_location){
     ROOT::EnableImplicitMT();
 
     //Output root file
     TFile *output = new TFile(output_location+"/sampling_fraction.root","RECREATE");
 
-    Float_t rad2deg = 57.2958;
-
     //Make histograms for SF studies
-    Int_t Nbin = 100;
-    float bin_step = 2./Nbin;
-    Float_t sf_nu_sigma[Nbin][2];
-
     float sf_up_lim[6][4];
     float sf_lo_lim[6][4];
 
@@ -45,7 +25,7 @@ void processChain(TChain* input_tuple, TString output_location){
     TCut P_cut = "p>2&&p<8";
     TCut theta_cut = "theta*57.2958>5";
     TCut PCal_cut = "PCAL_V>14&&PCAL_W>14";
-    TCut DC_cut = "DC_R1>4.5&&DC_R2>3.5&&DC_R2>7.5";
+    TCut DC_cut = "DC_R1_edge>4.5&&DC_R2_edge>3.5&&DC_R2_edge>7.5";
     TCut partial_sf_cut = "(p<4.5)||(p>4.5&&E_PCAL/p>(-0.22/0.15)*E_ECIN/p+0.22)";
     TCut sf_cut_1u = Form("sector == 1 && E_total/p < %f + %f*E_total + %f*pow(E_total,2) + %f*pow(E_total,3)",sf_up_lim[0][0],sf_up_lim[0][1],sf_up_lim[0][2],sf_up_lim[0][3]);
     TCut sf_cut_1d = Form("sector == 1 && E_total/p > %f + %f*E_total + %f*pow(E_total,2) + %f*pow(E_total,3)",sf_lo_lim[0][0],sf_lo_lim[0][1],sf_lo_lim[0][2],sf_lo_lim[0][3]);
@@ -86,14 +66,6 @@ void processChain(TChain* input_tuple, TString output_location){
     h2_psf_nocut->Write("h2_psf_nocut");
     h2_psf->Write("h2_psf");
     h2_sf->Write("h2_sf");
-
-//    //TH1 bins for SF
-//    for (int bin=0; bin<Nbin; bin++){
-//        TH1F* histo = draw_1D(input_tuple, sf_nu_sigma[bin][0], sf_nu_sigma[bin][1], bin, bin_step);
-//        cout<<"nu:"<<sf_nu_sigma[bin][0]<<" and sigma:"<<sf_nu_sigma[bin][1]<<endl;
-//        histo->Write(Form("hito_%i",bin));
-//    }
-
 
     output->Close();
 }
