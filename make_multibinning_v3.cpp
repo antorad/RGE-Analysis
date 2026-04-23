@@ -27,10 +27,10 @@ void make_multibinning_v3(int run_N=000000, TString Target="C", int Hadron_pid=2
     if (type=="thrown"){thrown_dir="/thrown";}
 
     //Output root file for histograms
-    TFile *output = new TFile("/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass0.10/dc/"+Target+"/"+run_N_str+"/data_binned_"+hadron+".root","RECREATE");
+    TFile *output = new TFile("/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass1/dc/"+Target+"/"+run_N_str+"/data_binned_"+hadron+".root","RECREATE");
 
     //Get TNtuple input created from simple_plots
-    TFile *input = new TFile("/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass0.10/dc/"+Target+"/"+run_N_str+"/out_clas12.root","READ");
+    TFile *input = new TFile("/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass1/dc/"+Target+"/"+run_N_str+"/out_clas12.root","READ");
     TNtuple* h_tuple = (TNtuple*)input->Get(hadron+"_ntuple");
 
     output->cd();

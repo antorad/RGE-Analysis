@@ -1,4 +1,3 @@
-  GNU nano 5.6.1                               run_all_wf.sh                                         
 #!/bin/bash
 
 # Parse command-line arguments
