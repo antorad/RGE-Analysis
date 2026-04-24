@@ -19,7 +19,7 @@ while read -r RUN_NUMBER; do
         -disk 1g \
         -shell /bin/bash \
         "cd /work/clas12/rg-e/antorad/RGE-Analysis/ && ./job_wrapper.sh $BANKS $RUN_NUMBER $TARGET" 
-done < run_list.txt
+done < runs/${TARGET}_runs.txt
 
 # Run workflow
 swif2 run $WORKFLOW_NAME
