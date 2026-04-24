@@ -1,10 +1,10 @@
 #!/bin/bash
 
-WORKFLOW_BASE="rge_data_tuples_pass1"
+WORKFLOW_BASE="rge_data_MR"
 BANKS="dc"
 TARGET="C"
 
-WORKFLOW_NAME="$WORKFLOW_BASE_$BANKS_$TARGET"
+WORKFLOW_NAME="${WORKFLOW_BASE}_${BANKS}_${TARGET}"
 
 # Create workflow
 swif2 create $WORKFLOW_NAME
