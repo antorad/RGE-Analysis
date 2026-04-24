@@ -422,9 +422,7 @@ void simple_plots(int run_N=000000, TString Target="unkw", TString type="data"){
     TChain* input_tuple_mc = new TChain("MC");
 
 	//Transform input run number to Tstring with correct number of digits
-	char buffer [10];
-	sprintf(buffer,"%0*d", 6, run_N);
-	TString run_N_str=TString(buffer);
+	TString run_N_str = TString::Format("%06d", run_N);;
 
 	//Output directory
 	TString output_location;
