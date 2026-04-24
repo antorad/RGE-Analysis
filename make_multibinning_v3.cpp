@@ -4,9 +4,7 @@ void make_multibinning_v3(int run_N=000000, TString Target="C", int Hadron_pid=2
     ROOT::EnableImplicitMT();
 
     //Transform input run number to Tstring with correct number of digits
-    char buffer [10];
-    sprintf(buffer,"%0*d", 6, run_N);
-    TString run_N_str=TString(buffer);
+    TString run_N_str = TString::Format("%06d", run_N);
 
     //hadron selection
     TString hadron;
