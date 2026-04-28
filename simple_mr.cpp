@@ -4,7 +4,7 @@ gStyle->SetOptStat(0);
 
 TCut vz_d2, vz_solid, vz_d2_h, vz_solid_h;
 
-TH1F* make_var_histo(TString var, int nbins, float xmin, float xmax, TNtuple* h_tuple, TString target){
+TH1F* make_var_histo(TString var, int nbins, float xmin, float xmax, TChain* h_tuple, TString target){
     //Assigning targtet cut for electron counting
     //because we need to check hadrons' corresponding electron vertex, we have to check different
     //variables depending on the tuple type, so the variables in the cut have different names 
@@ -30,7 +30,7 @@ TH1F* make_var_histo(TString var, int nbins, float xmin, float xmax, TNtuple* h_
     return h_d2_hist;
 }
 
-TH1F* make_var_ehisto(TString var, int nbins, float xmin, float xmax, TNtuple* e_tuple, TString target){
+TH1F* make_var_ehisto(TString var, int nbins, float xmin, float xmax, TChain* e_tuple, TString target){
     // check if the variable is an electron variable or not
     //if it is an electron variable, make an histo as same as the hadron
     TH1F* elec_hist;
@@ -59,7 +59,7 @@ TH1F* make_var_ehisto(TString var, int nbins, float xmin, float xmax, TNtuple* e
 }
 
 void m_ratio(TString var, int nbins, float xmin, float xmax, TString hadron,
-                    TNtuple* h_tuple, TNtuple* e_tuple, TString output_location, TFile* output){
+                    TChain* h_tuple, TChain* e_tuple, TString output_location, TFile* output){
     //Print message of wich vatiable is being calculated
     cout<<"Calculating Multiplicity Ratio of "<<var<<" variable"<<endl;
 
@@ -126,7 +126,7 @@ void m_ratio(TString var, int nbins, float xmin, float xmax, TString hadron,
 }
 
 void m_ratio_simul(TString var, int nbins, float xmin, float xmax, TString hadron,
-                    TNtuple* h_tuple_sol, TNtuple* e_tuple_sol, TNtuple* h_tuple_liq, TNtuple* e_tuple_liq,
+                    TChain* h_tuple_sol, TChain* e_tuple_sol, TChain* h_tuple_liq, TChain* e_tuple_liq,
                     TString output_location, TFile* output){
     //Print message of wich vatiable is being calculated
     cout<<"Calculating Multiplicity Ratio of "<<var<<" variable"<<endl;
@@ -237,24 +237,39 @@ void simple_mr(TString Target="C", int Hadron_pid=211, TString type="data"){
 
     //Run the calculation for each variable
     if (type == "data"){
-        //get TNtuple input created from simple_plots
-        TFile *input = new TFile("output/"+subdir+"/"+Target+"/out_clas12.root","READ");
-        TNtuple* hadron_tuple = (TNtuple*)input->Get(hadron+"_ntuple");
-        TNtuple* elec_tuple = (TNtuple*)input->Get("elec_tuple");
+        //get TNtuples input created from simple_plots
+        //TFile *input = new TFile("output/"+subdir+"/"+Target+"/out_clas12.root","READ");
+        TChain* hadron_tuple = new TChain(hadron+"_ntuple");
+        hadron_tuple->Add("output/"+subdir+"/"+Target+"/out_clas12.root");
+
+        TChain* elec_tuple = new TChain("elec_tuple");
+        elec_tuple->Add("output/"+subdir+"/"+Target+"/out_clas12.root");
+
+        //TNtuple* hadron_tuple = (TNtuple*)input->Get(hadron+"_ntuple");
+        //TNtuple* elec_tuple = (TNtuple*)input->Get("elec_tuple");
         m_ratio("z_h", 10, 0., 1., hadron, hadron_tuple, elec_tuple, output_location, output);
         m_ratio("nu", 10, 0., 11., hadron, hadron_tuple, elec_tuple, output_location, output);
         m_ratio("p_T2", 10, 0., 5., hadron, hadron_tuple, elec_tuple, output_location,output);
     }
 
     if (type=="acc" || type=="thrown"){
-        TFile *input_sol = new TFile("output/"+subdir+"/"+Target+thrown_dir+"/out_clas12.root","READ");
-        TFile *input_liq = new TFile("output/"+subdir+"/D2"+thrown_dir+"/out_clas12.root","READ");
+        //TFile *input_sol = new TFile("output/"+subdir+"/"+Target+thrown_dir+"/out_clas12.root","READ");
+        //TFile *input_liq = new TFile("output/"+subdir+"/D2"+thrown_dir+"/out_clas12.root","READ");
 
-        TNtuple* hadron_tuple_sol = (TNtuple*)input_sol->Get(hadron+"_ntuple");
-        TNtuple* hadron_tuple_liq = (TNtuple*)input_liq->Get(hadron+"_ntuple");
+        //TNtuple* hadron_tuple_sol = (TNtuple*)input_sol->Get(hadron+"_ntuple");
+        //TNtuple* hadron_tuple_liq = (TNtuple*)input_liq->Get(hadron+"_ntuple");
+        TChain* hadron_tuple_sol = new TChain(hadron+"_ntuple");
+        TChain* hadron_tuple_liq = new TChain(hadron+"_ntuple");
+        hadron_tuple_sol->Add("output/"+subdir+"/"+Target+thrown_dir+"/out_clas12.root");
+        hadron_tuple_liq->Add("output/"+subdir+"/D2"+thrown_dir+"/out_clas12.root");
 
-        TNtuple* elec_tuple_sol = (TNtuple*)input_sol->Get("elec_tuple");
-        TNtuple* elec_tuple_liq = (TNtuple*)input_liq->Get("elec_tuple");
+        //TNtuple* elec_tuple_sol = (TNtuple*)input_sol->Get("elec_tuple");
+        //TNtuple* elec_tuple_liq = (TNtuple*)input_liq->Get("elec_tuple");
+
+        TChain* elec_tuple_sol = new TChain("elec_tuple");
+        TChain* elec_tuple_liq = new TChain("elec_tuple");
+        elec_tuple_sol->Add("output/"+subdir+"/"+Target+thrown_dir+"/out_clas12.root");
+        elec_tuple_liq->Add("output/"+subdir+"/D2"+thrown_dir+"/out_clas12.root");
 
         m_ratio_simul("z_h", 10, 0., 1., hadron, hadron_tuple_sol, elec_tuple_sol, hadron_tuple_liq, elec_tuple_liq, output_location, output);
         m_ratio_simul("nu", 10, 0., 11., hadron, hadron_tuple_sol, elec_tuple_sol, hadron_tuple_liq, elec_tuple_liq, output_location, output);

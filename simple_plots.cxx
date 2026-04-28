@@ -79,6 +79,7 @@ void draw_plot_2D(TNtuple* tuple, TCut cut, char const* var, int xnbins, float x
 //process the input file and crate all the plots
 void processChain(TChain* input_tuple, TString output_location) {
 	//create output file and output directory in case it doenst exist
+	cout<<"Creating output directories "<<endl;
 	std::string command = std::string("mkdir -p ") + output_location.Data();
 	gSystem->Exec(command.c_str());
 	TFile *output = new TFile(output_location+"out_clas12.root","RECREATE");
@@ -86,6 +87,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	Float_t pid, Q2, nu, v_z, z_h, p, p_T2, p_L2, E_total, E_ECIN, E_PCAL, E_ECOU, event_num, v_z_elec, phi, x_bjorken, y_bjorken, W2, charge, beta, sector, phi_PQ, theta, v_x, v_y; 
 	Float_t rad2deg = 57.2958;
 
+	cout<<"Reading input tuple"<<endl;
 	//------Read branches with variables needed for cuts and plots------
 	input_tuple->SetBranchAddress("pid",&pid);
 	input_tuple->SetBranchAddress("Q2",&Q2);
@@ -135,6 +137,7 @@ void processChain(TChain* input_tuple, TString output_location) {
             sf_lo_lim[i][j] = mu_sf[i][j]-3.5*sigma_sf[i][j];
         }
     }
+    cout<<"Starting processing loop "<<endl;
 	//Selection of particles to plot
 	Long64_t n_entries = input_tuple->GetEntries();
 	for (Long64_t i=0;i<n_entries;i++) { //changed n_entries to 1000000 for testing
@@ -216,7 +219,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 			else if (pid==2212){proton_tuple->Fill(hadron_vars);}
 		}
 	}
-
+	cout<<"Writing output tuples into disk "<<endl;
 	//------root file output writing------
 	output->cd();
 	pion_tuple->Write();
@@ -226,7 +229,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	elec_tuple->Write();
 
 	//------ PLOTS------
-
+	cout<<"Creating plots "<<endl;
 	//----ELECTRONS----
 	//z vertex (total)
 	draw_plot(elec_tuple, P_cut, "v_z",100,-15,6, "V_{z} [cm]", "dN/dV_{z}" , "e_v_z",
@@ -355,6 +358,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	draw_plot_2D(hadron_tuple, P_cut&&DIS_cut, "z_h:p_T2",100, 0, 5, "P_{T}^{2}",
 					 100, 0, 1,"Z_{h}", "h_Pt2xZ", output_location, output);
 
+	cout<<"Finished plotting. Cleaning "<<endl;
 	delete pion_tuple;
 	delete hadron_tuple;
 	delete pion_minus_tuple;
@@ -367,6 +371,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 void simple_plots(const char* inputFileName, TString Target, TString type="data"){
 	ROOT::EnableImplicitMT();
 
+	cout<<"Running macro based on file name"<<endl;
 	// Open the input text file
     std::ifstream inputFile(inputFileName);
 
@@ -416,6 +421,8 @@ void simple_plots(const char* inputFileName, TString Target, TString type="data"
 //Main function that recieves a run number as the input
 void simple_plots(int run_N=000000, TString Target="unkw", TString type="data"){
 	ROOT::EnableImplicitMT();
+
+	cout<<"Running macro based on run number"<<endl;
 
     // Create a TChain to load input TNuples
     TChain* input_tuple = new TChain("data");

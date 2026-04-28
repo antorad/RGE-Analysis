@@ -33,6 +33,7 @@ void make_multibinning_v3(int run_N=000000, TString Target="C", int Hadron_pid=2
 
     output->cd();
 
+    cout<<"Creating arrays"<<endl;
     // Histogram array
     TH2F* hists_sol[N_Zh][N_Pt2][N_Phi];
     TH2F* hists_liq[N_Zh][N_Pt2][N_Phi];
@@ -50,6 +51,7 @@ void make_multibinning_v3(int run_N=000000, TString Target="C", int Hadron_pid=2
     //variables neccesaries for binning and cuts 
     Float_t Q2, nu, z_h, p_T2, phi_PQ, v_z_elec, p, y_bjorken, W2, beta;
 
+    cout<<"Reading input"<<endl;
     //------Read branches with variables needed for cuts and plots------
     h_tuple->SetBranchAddress("Q2",&Q2);
     h_tuple->SetBranchAddress("nu",&nu);
@@ -62,6 +64,7 @@ void make_multibinning_v3(int run_N=000000, TString Target="C", int Hadron_pid=2
     h_tuple->SetBranchAddress("W2",&W2);
     h_tuple->SetBranchAddress("beta",&beta);
 
+    cout<<"Calculanting bin ranges"<<endl;
     //Ranges and step size per variable
     float Zh_range = Zh_bins[N_Zh]-Zh_bins[0];
     float Zh_step = Zh_range/N_Zh;
@@ -74,6 +77,7 @@ void make_multibinning_v3(int run_N=000000, TString Target="C", int Hadron_pid=2
     cout<<"Pt2_range: "<<Pt2_range<<" - Pt2 step: "<<Pt2_step<<endl;
     cout<<"Phi_range: "<<Phi_range<<" - Phi step: "<<Phi_step<<endl;
 
+    cout<<"Cycling though input tuple"<<endl;
     //Cycle the tuple once and fill histograms
     Long64_t n_entries = h_tuple->GetEntries();
     for (Long64_t i=0;i<n_entries;i++) {
@@ -107,6 +111,7 @@ void make_multibinning_v3(int run_N=000000, TString Target="C", int Hadron_pid=2
         }
     }
 
+    cout<<"Saving histograms to disk"<<endl;
     //Save histograms
     for (int i = 0; i < N_Zh; ++i) {
         for (int j = 0; j < N_Pt2; ++j) {
@@ -116,7 +121,7 @@ void make_multibinning_v3(int run_N=000000, TString Target="C", int Hadron_pid=2
             }
         }
     }
-
+    cout<<"Working on electrons"<<endl;
 //ELECTRONS
     //Get electron tuple from file
     TNtuple* elec_tuple = (TNtuple*)input->Get("elec_tuple");
