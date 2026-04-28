@@ -371,6 +371,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 void simple_plots(const char* inputFileName, TString Target, TString type="data"){
 	ROOT::EnableImplicitMT();
 
+	cout<<"Running macro based on file name"<<endl;
 	// Open the input text file
     std::ifstream inputFile(inputFileName);
 
@@ -420,6 +421,8 @@ void simple_plots(const char* inputFileName, TString Target, TString type="data"
 //Main function that recieves a run number as the input
 void simple_plots(int run_N=000000, TString Target="unkw", TString type="data"){
 	ROOT::EnableImplicitMT();
+
+	cout<<"Running macro based on run number"<<endl;
 
     // Create a TChain to load input TNuples
     TChain* input_tuple = new TChain("data");

@@ -108,7 +108,7 @@ void make_multibinning_v3(TString Target="C", int Hadron_pid=211, TString type="
         }
     }
 
-    cout<<"Ssving histograms to disk"<<endl;
+    cout<<"Saving histograms to disk"<<endl;
     //Save histograms
     for (int i = 0; i < N_Zh; ++i) {
         for (int j = 0; j < N_Pt2; ++j) {
