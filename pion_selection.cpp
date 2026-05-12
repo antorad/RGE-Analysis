@@ -196,7 +196,7 @@ void pion_selection(const char* inputFileName, TString Target, TString type="dat
         TString run_N_str=TString(buffer);
         if (type=="data"){
             cout<<"Adding run: "<<line<<endl;
-            input_tuple->Add(type+"/ntuples_dc_"+run_N_str+".root");
+            input_tuple->Add("/volatile/clas12/antorad/rge/data/pass1/"+Target+"_D2/dc/ntuple_files/ntuples_dc_"+run_N_str+".root");
         }
         if (type=="simul"){
             cout<<"Addind simul job: "<<line<<endl;
@@ -243,7 +243,7 @@ void pion_selection(int run_N=000000, TString Target="unkw", TString type="data"
     cout<<"Output location: "<<output_location<<endl;
 
     if (type=="data"){
-        input_tuple->Add(type+"/ntuples_dc_"+run_N_str+".root");
+        input_tuple->Add("/volatile/clas12/antorad/rge/data/pass1/"+Target+"_D2/dc/ntuple_files/ntuples_dc_"+run_N_str+".root");
     }
     if (type=="simul"){
         input_tuple->Add(type+"/"+Target+"/ntuples_dc_"+run_N_str+".root");
