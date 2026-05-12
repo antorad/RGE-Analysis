@@ -73,10 +73,14 @@ void processChain(TChain* input_tuple, TString output_location){
     }
 
     output->cd();
-    positves_tuple->Write();
-    pion_nofilter_tuple->Write();
+    //positves_tuple->Write();
+    //pion_nofilter_tuple->Write();
+
     Float_t mu[N_slices], sigma[N_slices], mu_err[N_slices], sigma_err[N_slices];
     TH1F *mu_Dt = new TH1F("mu_Dt", "mu_Dt", N_slices, 0, 8);
+    mu_Dt->SetMarkerStyle(8);
+    mu_Dt->SetMarkerColor(2);
+    mu_Dt->SetLineColor(2);
     TH1F *sigma_Dt = new TH1F("sigma_Dt", "sigma_Dt", N_slices, 0, 8);
 
     for (int i=0; i<N_slices; i++){
@@ -95,15 +99,53 @@ void processChain(TChain* input_tuple, TString output_location){
             sigma_Dt->SetBinError(i, sigma_err[i]);
         }
         else{
-            mu[i]        = 99;
-            sigma[i]     = 99;
-            mu_err[i]    = 99;
-            sigma_err[i] = 99;
+            cout <<"emoty bin"<< endl;
+            mu_Dt->SetBinContent(i, 0);
+            mu_Dt->SetBinError(i, 0);
+            sigma_Dt->SetBinContent(i, 99);
+            sigma_Dt->SetBinError(i, 99);
         }
 
         h_p_slice[i]->Write();
     }
 
+// APPROACH 1 (SUM AND THEN FIT)
+
+    TH1F *sigma_up, *sigma_low;
+    sigma_up = (TH1F*)mu_Dt->Clone("sigma_up");
+    sigma_up->Add(sigma_Dt, 3);
+
+    sigma_low = (TH1F*)mu_Dt->Clone("sigma_low");
+    sigma_low->Add(sigma_Dt, -3);
+
+    //Fit mu and sigma plots
+    TF1* fit_mu = new TF1("fit_mu", "[0]*x*x+[1]*x+[2]", 0, 8);
+    mu_Dt->Fit("fit_mu","","",0,8);
+    mu_Dt->Write();
+
+    TF1* fit_sigma_up = new TF1("fit_sigma_up", "[0]*x*x+[1]*x+[2]", 0, 8);
+    sigma_up->Fit("fit_sigma_up","","",0,8);
+    sigma_up->Write();
+
+    TF1* fit_sigma_low = new TF1("fit_sigma_low", "[0]*x*x+[1]*x+[2]", 0, 8);
+    sigma_low->Fit("fit_sigma_low","","",0,8);
+    sigma_low->Write();
+
+// APPROACH 2 (FIT AND THEN SUM)
+    
+    TF1* fit_sigma = new TF1("fit_sigma", "[s0]*x*x+[s1]*x+[s2]", 0, 8);
+    sigma_Dt->Fit("fit_sigma","","",0,8);
+    sigma_Dt->Write();
+
+    TF1* upper_lim = new TF1("upper_lim", "fit_mu+3*fit_sigma",0,8);
+    TF1* lower_lim = new TF1("lower_lim", "fit_mu-3*fit_sigma",0,8);
+    upper_lim->Write();
+    lower_lim->Write();
+
+
+//PLOTS
+
+    //2D plots, positives and REC pions
     TCut pi_cut = "pid==211";
     TCut pos_cut = "charge==1";
     positves_tuple->Draw("D_T:p>>h2_dt_p_pos(100,0,10,100,-1.5,1.5)",pos_cut,"COLZ");
@@ -115,9 +157,22 @@ void processChain(TChain* input_tuple, TString output_location){
     h2_dt_p_pos->Write("h2_dt_p_pos");
     h2_dt_p_pi_nocut->Write("h2_dt_p_pi_nocut");
 
-    mu_Dt->Write();
-    sigma_Dt->Write();
+    TCanvas* c_fitsum = new TCanvas("fitsum", "fitsum", 600, 400);
+    c_fitsum->cd();
+    h2_dt_p_pi_nocut->Draw("COLZ");
+    fit_mu->Draw("same");
+    upper_lim->Draw("same");
+    lower_lim->Draw("same");
+    c_fitsum->Write();
     
+    TCanvas* c_sumfit = new TCanvas("sumfit", "sumfit", 600, 400);
+    c_sumfit->cd();
+    h2_dt_p_pi_nocut->Draw("COLZ");
+    mu_Dt->Draw("same");
+    sigma_up->Draw("same");
+    sigma_low->Draw("same");
+    c_sumfit->Write();
+
     output->Close();
 }
 
