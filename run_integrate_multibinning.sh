@@ -32,8 +32,7 @@ fi
 
 # Iterate over each set of varaibles and open a new terminal
 for VAR in "${VARS[@]}"; do
-    gnome-terminal --wait -- bash -c "root -l -q 'integrate_multibinning_v2.cpp(\"$TARGET\", $PID, \"$VAR\")'" &
+    root -l -q 'integrate_multibinning_v2.cpp("'$TARGET'", '$PID', "'$VAR'")'
 done
-wait
 
 echo run_integrate_multibinning for $TARGET finished.

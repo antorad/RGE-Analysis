@@ -20,12 +20,12 @@ void draw_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, float xmin,
 	canvas->cd();
 	TString histo_to_draw;
 	histo_to_draw.Form("%s>>histo(%i,%f,%f)", var, nbins, xmin, xmax);
-	tuple->Draw(histo_to_draw,cut,"COLZ");
+	tuple->Draw(histo_to_draw,cut,"goff");
 	TH1F *histo = (TH1F*)gDirectory->GetList()->FindObject("histo");
 	histo->GetXaxis()->SetTitle(xtitle);
 	histo->GetYaxis()->SetTitle(ytitle);
 	histo->SetTitle(xtitle);
-	histo->Draw("COLZ");
+	histo->Draw("goff");
 	histo->Write(output);
 	canvas->SaveAs(location+output+".pdf");
 	delete histo;
@@ -44,12 +44,12 @@ void draw_sector_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, floa
 		string title = (TString::Format("sec%i", i)).Data();
 		TString histo_to_draw;
 		histo_to_draw.Form("%s>>histo%i(%i,%f,%f)", var, i, nbins, xmin, xmax);
-		tuple->Draw(histo_to_draw,cut&&sector_cut,"COLZ");
+		tuple->Draw(histo_to_draw,cut&&sector_cut,"goff");
 		histo[i-1] = (TH1F*)gDirectory->GetList()->FindObject(Form("histo%i",i));
 		histo[i-1]->GetXaxis()->SetTitle(xtitle);
 		histo[i-1]->GetYaxis()->SetTitle(ytitle);
 		histo[i-1]->SetTitle(xtitle+Form(" Sector %i",i-1));
-		histo[i-1]->Draw("COLZ");
+		histo[i-1]->Draw("goff");
 		histo[i-1]->Write(output+Form("_%i",i-1));
 	}
 	canvas->SaveAs(location+output+".pdf");
@@ -64,12 +64,12 @@ void draw_plot_2D(TNtuple* tuple, TCut cut, char const* var, int xnbins, float x
 	canvas->cd();
 	TString histo_to_draw;
 	histo_to_draw.Form("%s>>histo(%i,%f,%f,%i,%f,%f)", var, xnbins, xmin, xmax, ynbins, ymin, ymax);
-	tuple->Draw(histo_to_draw, cut,"COLZ");
+	tuple->Draw(histo_to_draw, cut,"goff");
 	TH2F *histo = (TH2F*)gDirectory->GetList()->FindObject("histo");
 	histo->GetXaxis()->SetTitle(xtitle);
 	histo->GetYaxis()->SetTitle(ytitle);
 	histo->SetTitle(xtitle + " vs " + ytitle);
-	histo->Draw("COLZ");
+	histo->Draw("goff");
 	histo->Write(output);
 	canvas->SaveAs(location+output+".pdf");
 	delete histo;
@@ -388,7 +388,7 @@ void simple_plots(const char* inputFileName, TString Target, TString type="data"
 		TString run_N_str=TString(buffer);
         if (type=="data"){
         	cout<<"Adding run: "<<line<<endl;
-        	input_tuple->Add(type+"/ntuples_dc_"+run_N_str+".root");
+        	input_tuple->Add("/volatile/clas12/antorad/rge/data/pass1/"+Target+"_D2/dc/ntuple_files/ntuples_dc_"+run_N_str+".root");
         }
         if (type=="simul"){
         	cout<<"Addind simul job: "<<line<<endl;
@@ -434,12 +434,12 @@ void simple_plots(int run_N=000000, TString Target="unkw", TString type="data"){
 
 	//Output directory
 	TString output_location;
-	output_location = "output/"+type+"/"+Target+"/"+run_N_str+"/";
+	output_location = "/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass1/dc/"+Target+"/"+run_N_str+"/";
 	gSystem->Exec("mkdir -vp "+output_location);
 	cout<<"Output location: "<<output_location<<endl;
 
     if (type=="data"){
-    	input_tuple->Add(type+"/ntuples_dc_"+run_N_str+".root");
+    	input_tuple->Add("/volatile/clas12/antorad/rge/data/pass1/"+Target+"_D2/dc/ntuple_files/ntuples_dc_"+run_N_str+".root");
  	}
     if (type=="simul"){
     	input_tuple->Add(type+"/"+Target+"/ntuples_dc_"+run_N_str+".root");

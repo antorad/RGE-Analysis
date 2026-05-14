@@ -16,13 +16,11 @@ VARS_BIN=("Zh" "Pt2" "Phi_PQ")
 
 # Loop over each target and launch a new terminal that closes after execution
 for VAR in "${VARS_ALL[@]}"; do
-  gnome-terminal --wait -- bash -c "root -l -q 'plot_mr_all.cpp($PID, \"$VAR\")'" &
+  root -l -q 'plot_mr_all.cpp('$PID', "'$VAR'")'
 done
-wait
 
 for VAR in "${VARS_BIN[@]}"; do
-  gnome-terminal --wait -- bash -c "root -l -q 'plot_mr_bin.cpp($PID, \"$VAR\")'" &
+  root -l -q 'plot_mr_bin.cpp('$PID', "'$VAR'")'
 done
-wait
 
 echo run_plots_all_mr finished.
