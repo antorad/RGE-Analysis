@@ -402,6 +402,7 @@ void simple_plots(const char* inputFileName, TString Target, TString type="data"
 
     //process the Tchain to make plots and output tuples
     TString output_location = "output/"+type+"/"+Target+"/";
+    gSystem->Exec("mkdir -vp "+output_location);
     cout<<"Output location: "<<output_location<<endl;
 
     processChain(input_tuple, output_location);
@@ -434,6 +435,7 @@ void simple_plots(int run_N=000000, TString Target="unkw", TString type="data"){
 	//Output directory
 	TString output_location;
 	output_location = "output/"+type+"/"+Target+"/"+run_N_str+"/";
+	gSystem->Exec("mkdir -vp "+output_location);
 	cout<<"Output location: "<<output_location<<endl;
 
     if (type=="data"){
