@@ -1,4 +1,4 @@
-# RGE Analysis (Multiplicity Ratio)
+# RGE Analysis (Multiplicity Ratio) - FOR JLAB farm use
 
 ## Inputs
 
