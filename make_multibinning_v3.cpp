@@ -1,7 +1,10 @@
 #include "include.h"
 
-void make_multibinning_v3(TString Target="C", int Hadron_pid=211, TString type="data"){
+void make_multibinning_v3(int run_N=000000, TString Target="C", int Hadron_pid=211, TString type="data"){
     ROOT::EnableImplicitMT();
+
+    //Transform input run number to Tstring with correct number of digits
+    TString run_N_str = TString::Format("%06d", run_N);
 
     //hadron selection
     TString hadron;
@@ -22,10 +25,10 @@ void make_multibinning_v3(TString Target="C", int Hadron_pid=211, TString type="
     if (type=="thrown"){thrown_dir="/thrown";}
 
     //Output root file for histograms
-    TFile *output = new TFile("output/"+subdir+"/"+Target+thrown_dir+"/data_binned_"+hadron+".root","RECREATE");
+    TFile *output = new TFile("/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass1/dc/"+Target+"/"+run_N_str+"/data_binned_"+hadron+".root","RECREATE");
 
     //Get TNtuple input created from simple_plots
-    TFile *input = new TFile("output/"+subdir+"/"+Target+thrown_dir+"/out_clas12.root","READ");
+    TFile *input = new TFile("/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass1/dc/"+Target+"/"+run_N_str+"/out_clas12.root","READ");
     TNtuple* h_tuple = (TNtuple*)input->Get(hadron+"_ntuple");
 
     output->cd();
