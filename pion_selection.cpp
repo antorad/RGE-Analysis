@@ -8,8 +8,8 @@ void processChain(TChain* input_tuple, TString output_location){
     //Output root file
     TFile *output = new TFile(output_location+"/pion_selection.root","RECREATE");
 
-    Float_t pid, TOF, path, beta, p, charge, D_T, theo_time, exp_time, start_time, status;
-    Float_t pimass = 139.57039;
+    Float_t pid, TOF, path, beta_pi, p, charge, D_T, theo_time, exp_time, start_time, status;
+    Float_t pimass = 0.139570;
     Float_t c = 29.9702547;
 
     cout<<"Reading input tuple"<<endl;
@@ -18,26 +18,25 @@ void processChain(TChain* input_tuple, TString output_location){
     input_tuple->SetBranchAddress("start_time",&start_time);
     input_tuple->SetBranchAddress("TOF",&TOF);
     input_tuple->SetBranchAddress("path",&path);
-    input_tuple->SetBranchAddress("beta",&beta);
     input_tuple->SetBranchAddress("p",&p);
     input_tuple->SetBranchAddress("charge",&charge);
     input_tuple->SetBranchAddress("status",&status);
 
     Float_t hadron_vars[9];
-    const char* varslist = "pid:TOF:path:beta:p:charge:D_T:theo_time:exp_time";
+    const char* varslist = "pid:TOF:path:beta_pi:p:charge:D_T:theo_time:exp_time";
 
     TNtuple *positives_tuple = new TNtuple("positives","positives",varslist);
     TNtuple *pion_nofilter_tuple = new TNtuple("pion_nofilter","pion_nofilter",varslist);
     TNtuple *pion_filtered_tuple = new TNtuple("pion_filtered","pion_filtered",varslist);
 
     //Create p bin pion tuples
-    const int N_slices = 32;
-    float p_step = 8./N_slices;
+    const int N_slices = 45;
+    float p_step = 9./N_slices;
 
     TH1F *h_p_slice[N_slices];
     for (int i = 0; i < N_slices; ++i) {
         TString slice_name = Form("p_dt_slice_%i", i);
-        h_p_slice[i] = new TH1F(slice_name, slice_name, 100, -1, 1);
+        h_p_slice[i] = new TH1F(slice_name, slice_name, 500, -1, 1);
     }
 
     //Cycle through entries
@@ -45,14 +44,15 @@ void processChain(TChain* input_tuple, TString output_location){
     for (Long64_t i=0;i<n_entries;i++) {
         input_tuple->GetEntry(i);
 
-        theo_time = (path/(c*beta));
+        beta_pi=p/sqrt(p*p+pimass*pimass);
+        theo_time = (path/(c*beta_pi));
         exp_time  = TOF - start_time;
         D_T       = exp_time - theo_time;
 
         hadron_vars[0] = pid;
         hadron_vars[1] = TOF;
         hadron_vars[2] = path;
-        hadron_vars[3] = beta;
+        hadron_vars[3] = beta_pi;
         hadron_vars[4] = p;
         hadron_vars[5] = charge;
         hadron_vars[6] = D_T;
@@ -78,14 +78,14 @@ void processChain(TChain* input_tuple, TString output_location){
     //pion_nofilter_tuple->Write();
 
     Float_t mu[N_slices], sigma[N_slices], mu_err[N_slices], sigma_err[N_slices];
-    TH1F *mu_Dt = new TH1F("mu_Dt", "mu_Dt", N_slices, 0, 8);
+    TH1F *mu_Dt = new TH1F("mu_Dt", "mu_Dt", N_slices, 0, 9);
     mu_Dt->SetMarkerStyle(8);
     mu_Dt->SetMarkerColor(2);
     mu_Dt->SetLineColor(2);
-    TH1F *sigma_Dt = new TH1F("sigma_Dt", "sigma_Dt", N_slices, 0, 8);
+    TH1F *sigma_Dt = new TH1F("sigma_Dt", "sigma_Dt", N_slices, 0, 9);
 
     for (int i=0; i<N_slices; i++){
-        h_p_slice[i]->Fit("gaus","","", -0.5, 0.5);
+        h_p_slice[i]->Fit("gaus","","", -0.25, 0.25);
         TF1 * fit = h_p_slice[i]->GetFunction("gaus");
         if (fit){
             mu[i]        = fit->GetParameter(1);
@@ -113,8 +113,8 @@ void processChain(TChain* input_tuple, TString output_location){
 //FITTING
 cout<<"fitting mu"<<endl;
     //Fit mu and sigma plots
-    TF1* fit_mu = new TF1("fit_mu", "[m0]*x*x+[m1]*x+[m2]", 0, 8);
-    mu_Dt->Fit("fit_mu","","",0,8);
+    TF1* fit_mu = new TF1("fit_mu", "[m0]*x*x+[m1]*x+[m2]", 0.4, 9);
+    mu_Dt->Fit("fit_mu","","",0.4, 9);
     mu_Dt->Write();
 
 // APPROACH 1 (SUM AND THEN FIT)
@@ -128,41 +128,41 @@ cout<<"app 1"<<endl;
 
 cout<<"fitting sigma"<<endl;
 
-    TF1* fit_pol_sigma_up = new TF1("fit_pol_sigma_up", "[0_up]*x*x+[1_up]*x+[2_up]", 0, 8);
-    TF1* fit_rgd_sigma_up = new TF1("fit_rgd_sigma_up", "sqrt(pow([s_up],2)+pow(([k_up]/x),2))+[c_up]*x", 0, 8);
-    TF1* fit_res_sigma_up = new TF1("fit_res_sigma_up", "sqrt(pow([a_up],2)+pow([b_up]/pow(x,[e_up]),2))", 0, 8);
+    TF1* fit_pol_sigma_up = new TF1("fit_pol_sigma_up", "[0_up]*x*x+[1_up]*x+[2_up]", 0.4, 9);
+    TF1* fit_rgd_sigma_up = new TF1("fit_rgd_sigma_up", "sqrt(pow([s_up],2)+pow(([k_up]/x),2))+[c_up]*x", 0.4, 9);
+    TF1* fit_res_sigma_up = new TF1("fit_res_sigma_up", "sqrt(pow([a_up],2)+pow([b_up]/pow(x,[e_up]),2))", 0.4, 9);
     fit_res_sigma_up->SetParameters(0.05,0,0.5);
-    sigma_up->Fit("fit_pol_sigma_up","","",0,8);
-    sigma_up->Fit("fit_rgd_sigma_up","+","",0,8);
-    sigma_up->Fit("fit_res_sigma_up","+","",0,8);
+    sigma_up->Fit("fit_pol_sigma_up","","",0.4, 9);
+    sigma_up->Fit("fit_rgd_sigma_up","+","",0.4, 9);
+    sigma_up->Fit("fit_res_sigma_up","+","",0.4, 9);
     sigma_up->Write();
 
-    TF1* fit_pol_sigma_low = new TF1("fit_pol_sigma_low", "[0_dw]*x*x+[1_dw]*x+[2_dw]", 0, 8);
-    TF1* fit_rgd_sigma_low = new TF1("fit_rgd_sigma_low", "-sqrt(pow([s_dw],2)+pow(([k_dw]/x),2))+[c_dw]*x", 0, 8);
-    TF1* fit_res_sigma_low = new TF1("fit_res_sigma_low", "-sqrt(pow([a_dw],2)+pow([b_dw]/pow(x,[e_dw]),2))", 0, 8);
+    TF1* fit_pol_sigma_low = new TF1("fit_pol_sigma_low", "[0_dw]*x*x+[1_dw]*x+[2_dw]", 0.4, 8);
+    TF1* fit_rgd_sigma_low = new TF1("fit_rgd_sigma_low", "-sqrt(pow([s_dw],2)+pow(([k_dw]/x),2))+[c_dw]*x", 0.4, 9);
+    TF1* fit_res_sigma_low = new TF1("fit_res_sigma_low", "-sqrt(pow([a_dw],2)+pow([b_dw]/pow(x,[e_dw]),2))", 0.4, 9);
     fit_res_sigma_low->SetParameters(0.05,0,0.5);
-    sigma_low->Fit("fit_pol_sigma_low","","",0,8);
-    sigma_low->Fit("fit_rgd_sigma_low","+","",0,8);
-    sigma_low->Fit("fit_res_sigma_low","+","",0,8);
+    sigma_low->Fit("fit_pol_sigma_low","","",0.4, 9);
+    sigma_low->Fit("fit_rgd_sigma_low","+","",0.4, 9);
+    sigma_low->Fit("fit_res_sigma_low","+","",0.4, 9);
     sigma_low->Write();
 
 // APPROACH 2 (FIT AND THEN SUM)
 cout<<"app2"<<endl;
-    TF1* fit_p_sigma = new TF1("fit_p_sigma", "[s0]*x*x+[s1]*x+[s2]", 0, 8);
-    TF1* fit_rgd_sigma = new TF1("fit_rgd_sigma", "sqrt(pow([s],2)+pow(([k]/x),2))+[c]*x", 0, 8);
-    TF1* fit_res_sigma = new TF1("fit_res_sigma", "sqrt(pow([a],2)+pow([b]/pow(x,[e]),2))", 0, 8);
+    TF1* fit_p_sigma = new TF1("fit_p_sigma", "[s0]*x*x+[s1]*x+[s2]", 0.4, 9);
+    TF1* fit_rgd_sigma = new TF1("fit_rgd_sigma", "sqrt(pow([s],2)+pow(([k]/x),2))+[c]*x", 0.4, 9);
+    TF1* fit_res_sigma = new TF1("fit_res_sigma", "sqrt(pow([a],2)+pow([b]/pow(x,[e]),2))", 0.4, 9);
     fit_res_sigma->SetParameters(0.05,1,1);
-    sigma_Dt->Fit("fit_p_sigma","","",0,8);
-    sigma_Dt->Fit("fit_rgd_sigma","+","",0,8);
-    sigma_Dt->Fit("fit_res_sigma","+","",0,8);
+    sigma_Dt->Fit("fit_p_sigma","","",0.4, 9);
+    sigma_Dt->Fit("fit_rgd_sigma","+","",0.4, 9);
+    sigma_Dt->Fit("fit_res_sigma","+","",0.4, 9);
     sigma_Dt->Write();
 
-    TF1* upper_lim_pol = new TF1("upper_lim_p", "fit_mu+3*fit_p_sigma",0,8);
-    TF1* lower_lim_pol = new TF1("lower_lim_p", "fit_mu-3*fit_p_sigma",0,8);
-    TF1* upper_lim_rgd = new TF1("upper_lim_rgd", "fit_mu+3*fit_rgd_sigma",0,8);
-    TF1* lower_lim_rgd = new TF1("lower_lim_rgd", "fit_mu-3*fit_rgd_sigma",0,8);
-    TF1* upper_lim_res = new TF1("upper_lim_res", "fit_mu+3*fit_res_sigma",0,8);
-    TF1* lower_lim_res = new TF1("lower_lim_res", "fit_mu-3*fit_res_sigma",0,8);
+    TF1* upper_lim_pol = new TF1("upper_lim_p", "fit_mu+3*fit_p_sigma",0.4, 9);
+    TF1* lower_lim_pol = new TF1("lower_lim_p", "fit_mu-3*fit_p_sigma",0.4, 9);
+    TF1* upper_lim_rgd = new TF1("upper_lim_rgd", "fit_mu+3*fit_rgd_sigma",0.4, 9);
+    TF1* lower_lim_rgd = new TF1("lower_lim_rgd", "fit_mu-3*fit_rgd_sigma",0.4, 9);
+    TF1* upper_lim_res = new TF1("upper_lim_res", "fit_mu+3*fit_res_sigma",0.4, 9);
+    TF1* lower_lim_res = new TF1("lower_lim_res", "fit_mu-3*fit_res_sigma",0.4, 9);
 
     upper_lim_pol->Write();
     lower_lim_pol->Write();
