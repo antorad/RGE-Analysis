@@ -13,6 +13,47 @@
 
 using namespace std;
 
+bool psf_eval(int sector, double p, double E_PCAL, double E_ECIN){
+	int bin;
+	if 	 	(0<p && p<2) {bin=1;}
+	else if (2<p && p<3) {bin=2;}
+	else if (3<p && p<4) {bin=3;}
+	else if (4<p && p<5) {bin=4;}
+	else if (5<p && p<6) {bin=5;}
+	else if (6<p && p<7) {bin=6;}
+	else if (7<p && p<8) {bin=7;}
+	else if (8<p && p<9) {bin=8;}
+	else if (9<p && p<12){bin=9;}
+	else {return false;}
+
+	return (E_PCAL/p>psf_a[sector-1][bin-1]*E_ECIN/p+psf_b[sector-1][bin-1]);
+}
+
+bool sf_eval(int sector, double p, double E_total){
+	double mu_sf = sf_pars[sector-1][0]+sf_pars[sector-1][1]/E_total+sf_pars[sector-1][2]/pow(E_total,2);
+	double sigma_sf = sf_pars[sector-1][3]+sf_pars[sector-1][4]/E_total+sf_pars[sector-1][5]/pow(E_total,2);
+
+	double spread = 3.5;
+	double up_lim  = mu_sf+spread*sigma_sf;
+	double low_lim = mu_sf-spread*sigma_sf;
+
+	return (E_total/p < up_lim && E_total/p > low_lim);
+}
+
+int vertex_sel(int sector, double vz){
+	int targ_type;
+
+	if (vz>vertex_cut[sector-1][0] && vz<vertex_cut[sector-1][1]){
+		targ_type = 1; //liquid
+	}
+	else if (vz>vertex_cut[sector-1][2] && vz<vertex_cut[sector-1][3]){
+		targ_type = 2; //solid
+	}
+	else {targ_type=0;} //none
+
+	return targ_type;
+}
+
 //plot 1D plots
 void draw_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, float xmin, float xmax,
 				TString xtitle, TString ytitle, TString output, TString location, TFile* output_file){
@@ -84,7 +125,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	gSystem->Exec(command.c_str());
 	TFile *output = new TFile(output_location+"out_clas12.root","RECREATE");
 
-	Float_t pid, Q2, nu, vz, z_h, p, p_T2, p_L2, E_total, E_ECIN, E_PCAL, E_ECOU, event_num, vz_elec, phi, x_bjorken, y_bjorken, W2, charge, beta, sector, phi_PQ, theta, vx, vy, status; 
+	Float_t pid, Q2, nu, vz, z_h, p, p_T2, p_L2, E_total, E_ECIN, E_PCAL, E_ECOU, event_num, vz_elec, phi, x_bjorken, y_bjorken, W2, charge, beta, sector, phi_PQ, theta, vx, vy, status, PCAL_V, PCAL_W, DC_R1_edge, DC_R2_edge, DC_R3_edge, targ_type; 
 	Float_t rad2deg = 57.2958;
 
 	cout<<"Reading input tuple"<<endl;
@@ -112,13 +153,18 @@ void processChain(TChain* input_tuple, TString output_location) {
 	input_tuple->SetBranchAddress("phi_PQ",&phi_PQ);
 	input_tuple->SetBranchAddress("theta",&theta);
 	input_tuple->SetBranchAddress("x_bjorken",&x_bjorken);
+	input_tuple->SetBranchAddress("PCAL_V",&PCAL_V);
+	input_tuple->SetBranchAddress("PCAL_W",&PCAL_W);
+	input_tuple->SetBranchAddress("DC_R1_edge",&DC_R1_edge);
+	input_tuple->SetBranchAddress("DC_R2_edge",&DC_R2_edge);
+	input_tuple->SetBranchAddress("DC_R3_edge",&DC_R3_edge);
 	input_tuple->SetBranchAddress("status",&status);
 
 	//------output ntuples------
-	Float_t hadron_vars[22];
-	Float_t elec_vars[17];
-	const char* hadron_varslist = "pid:Q2:nu:vz:vx:vy:p:p_T2:p_L2:E_total:E_ECIN:E_ECOU:z_h:vz_elec:x_bjorken:y_bjorken:W2:beta:phi:sector:phi_PQ:theta";
-	const char* elec_varslist = "pid:Q2:nu:vz:vx:vy:p:E_total:E_ECIN:E_ECOU:x_bjorken:y_bjorken:W2:beta:phi:sector:theta";
+	Float_t hadron_vars[23];
+	Float_t elec_vars[18];
+	const char* hadron_varslist = "pid:Q2:nu:vz:vx:vy:p:p_T2:p_L2:E_total:E_ECIN:E_ECOU:z_h:vz_elec:x_bjorken:y_bjorken:W2:beta:phi:sector:phi_PQ:theta:targ_type";
+	const char* elec_varslist = "pid:Q2:nu:vz:vx:vy:p:E_total:E_ECIN:E_ECOU:x_bjorken:y_bjorken:W2:beta:phi:sector:theta:targ_type";
 	TNtuple *pion_tuple = new TNtuple("pion_ntuple","pions",hadron_varslist);
 	TNtuple *hadron_tuple = new TNtuple("hadron_ntuple","hadrons",hadron_varslist);
 	TNtuple *pion_minus_tuple = new TNtuple("pion_minus_ntuple","positives",hadron_varslist);
@@ -128,46 +174,25 @@ void processChain(TChain* input_tuple, TString output_location) {
 	vz_elec = -99;
 	bool valid_electron = false;
 
-	//Sampling fraction parameters
-	float sf_up_lim[6][4];
-    float sf_lo_lim[6][4];
-    for (int i=0; i<6; i++){
-        for (int j=0; j<4; j++)
-        {
-            sf_up_lim[i][j] = mu_sf[i][j]+3.5*sigma_sf[i][j];
-            sf_lo_lim[i][j] = mu_sf[i][j]-3.5*sigma_sf[i][j];
-        }
-    }
     cout<<"Starting processing loop "<<endl;
-	//Selection of particles to plot
+	//Selection of particles
 	Long64_t n_entries = input_tuple->GetEntries();
 	for (Long64_t i=0;i<n_entries;i++) { //changed n_entries to 1000000 for testing
 		input_tuple->GetEntry(i);
 		if (pid == 11){valid_electron = false;}
 		//This part assumes that all hadrons after an electron come from that electron to save its vz
 		// Check if the particle fullfills being the scattered electron.
-		if  (pid==11 && status<=-2000 && status>-3000		//basic FD electron cut from CLAS12 event builder
-			&& Q2>1 && W2>4 && y_bjorken<0.8 				//DIS cuts
-			&& p>2 && p<8									//momentum cut
-			&& theta*rad2deg>5								//theta cut
-			//&& PCAL_V>14 PCAL_W>14						//PCAL fiducial cuts
-			////REC::Calorimeter::lv and lu???
-			//&& DC_R1_edge>4.5 && DC_R2_edge>3.5 && DC_R3_edge>7.5 //DC fiducial cuts
-			////REC::Traj::edge with ::layer to identify region??
-			&& ((p<4.5)||(p>4.5&&E_PCAL/p>(-0.22/0.15)*E_ECIN/p+0.22)) // Partial and full sampling fration
-			&& ((	sector == 1 && E_total/p < sf_up_lim[0][0]+ sf_up_lim[0][1]*E_total + sf_up_lim[0][2]*pow(E_total,2) + sf_up_lim[0][3]*pow(E_total,3)
-								&& E_total/p > sf_lo_lim[0][0]+ sf_lo_lim[0][1]*E_total + sf_lo_lim[0][2]*pow(E_total,2) + sf_lo_lim[0][3]*pow(E_total,3))
-				|| (sector == 2 && E_total/p < sf_up_lim[1][0]+ sf_up_lim[1][1]*E_total + sf_up_lim[1][2]*pow(E_total,2) + sf_up_lim[1][3]*pow(E_total,3)
-								&& E_total/p > sf_lo_lim[1][0]+ sf_lo_lim[1][1]*E_total + sf_lo_lim[1][2]*pow(E_total,2) + sf_lo_lim[1][3]*pow(E_total,3))
-				|| (sector == 3 && E_total/p < sf_up_lim[2][0]+ sf_up_lim[2][1]*E_total + sf_up_lim[2][2]*pow(E_total,2) + sf_up_lim[2][3]*pow(E_total,3)
-								&& E_total/p > sf_lo_lim[2][0]+ sf_lo_lim[2][1]*E_total + sf_lo_lim[2][2]*pow(E_total,2) + sf_lo_lim[2][3]*pow(E_total,3))
-				|| (sector == 4 && E_total/p < sf_up_lim[3][0]+ sf_up_lim[3][1]*E_total + sf_up_lim[3][2]*pow(E_total,2) + sf_up_lim[3][3]*pow(E_total,3)
-								&& E_total/p > sf_lo_lim[3][0]+ sf_lo_lim[3][1]*E_total + sf_lo_lim[3][2]*pow(E_total,2) + sf_lo_lim[3][3]*pow(E_total,3))
-				|| (sector == 5 && E_total/p < sf_up_lim[4][0]+ sf_up_lim[4][1]*E_total + sf_up_lim[4][2]*pow(E_total,2) + sf_up_lim[4][3]*pow(E_total,3)
-								&& E_total/p > sf_lo_lim[4][0]+ sf_lo_lim[4][1]*E_total + sf_lo_lim[4][2]*pow(E_total,2) + sf_lo_lim[4][3]*pow(E_total,3))
-				|| (sector == 6 && E_total/p < sf_up_lim[5][0]+ sf_up_lim[5][1]*E_total + sf_up_lim[5][2]*pow(E_total,2) + sf_up_lim[5][3]*pow(E_total,3)
-								&& E_total/p > sf_lo_lim[5][0]+ sf_lo_lim[5][1]*E_total + sf_lo_lim[5][2]*pow(E_total,2) + sf_lo_lim[5][3]*pow(E_total,3)))
+		if  (pid==11 && status<=-2000 && status>-3000				//basic FD electron cut from CLAS12 event builder
+			&& Q2>Q2_min && W2>W2_min && y_bjorken<y_bjorken_max 	//DIS cuts
+			//&& p>p_min && p<p_max									//momentum cut
+			&& theta*rad2deg>theta_min								//theta cut
+			&& PCAL_V>PCAL_V_fc && PCAL_W>PCAL_W_fc					//PCAL fiducial cuts
+			&& DC_R1_edge>DC_R1_fc && DC_R2_edge>DC_R1_fc && DC_R3_edge>DC_R3_fc //DC fiducial cuts
+			//sector based cuts
+			&& psf_eval(sector, p, E_PCAL, E_ECIN) //Partial sampling fraction
+			&& sf_eval(sector, p, E_total) //Partial sampling fraction
 			) {
+			targ_type = vertex_sel(sector, vz);
 			elec_vars[0]  = pid;
 			elec_vars[1]  = Q2;
 			elec_vars[2]  = nu;
@@ -185,6 +210,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 			elec_vars[14] = phi*rad2deg;
 			elec_vars[15] = sector;
 			elec_vars[16] = theta;
+			elec_vars[17] = targ_type;
 			elec_tuple->Fill(elec_vars);
 			vz_elec = vz;
 			valid_electron = true;
@@ -214,6 +240,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 			hadron_vars[19] = sector;
 			hadron_vars[20] = phi_PQ;
 			hadron_vars[21] = theta;
+			hadron_vars[22] = targ_type;
 
 			if (pid!=11 && pid!=-11 && status<3000 && pid!=22){hadron_tuple->Fill(hadron_vars);}
 			if (pid==211 && status<3000){pion_tuple->Fill(hadron_vars);}
@@ -234,130 +261,130 @@ void processChain(TChain* input_tuple, TString output_location) {
 	cout<<"Creating plots "<<endl;
 	//----ELECTRONS----
 	//z vertex (total)
-	draw_plot(elec_tuple, P_cut, "vz",100,-15,6, "V_{z} [cm]", "dN/dV_{z}" , "e_vz",
+	draw_plot(elec_tuple, "", "vz",100,-15,6, "V_{z} [cm]", "dN/dV_{z}" , "e_vz",
 				output_location, output);
 
 	//z vertex by sector
-	draw_sector_plot(elec_tuple, P_cut, "vz",100,-15,6, "V_{z} [cm]", "dN/dV_{z}",
+	draw_sector_plot(elec_tuple, "", "vz",100,-15,6, "V_{z} [cm]", "dN/dV_{z}",
 						"e_vz_sector", output_location, output);
 
 	//x vertex
-	draw_plot(elec_tuple, P_cut, "vx",100,-5,5, "V_{x} [cm]", "dN/dV_{z}" , "e_vx",
+	draw_plot(elec_tuple, "", "vx",100,-5,5, "V_{x} [cm]", "dN/dV_{z}" , "e_vx",
 				output_location, output);
 
 	//y vertex
-	draw_plot(elec_tuple, P_cut, "vy",100,-5,5, "V_{y} [cm]", "dN/dV_{z}" , "e_vy",
+	draw_plot(elec_tuple, "", "vy",100,-5,5, "V_{y} [cm]", "dN/dV_{z}" , "e_vy",
 				output_location, output);
 	//W2
-	draw_plot(elec_tuple, P_cut, "W2",100,0,20, "W^{2}", "dN/dW^{2}" , "e_w2", output_location, output);
+	draw_plot(elec_tuple, "", "W2",100,0,20, "W^{2}", "dN/dW^{2}" , "e_w2", output_location, output);
 
 	//Q2
-	draw_plot(elec_tuple, P_cut, "Q2",100,0,12, "Q^{2}", "dN/dQ^{2}" , "e_q2", output_location, output);
+	draw_plot(elec_tuple, "", "Q2",100,0,12, "Q^{2}", "dN/dQ^{2}" , "e_q2", output_location, output);
 
 	//Nu
-	draw_plot(elec_tuple, P_cut, "nu",100,0,12, "#nu", "dN/d#nu" , "e_nu", output_location, output);
+	draw_plot(elec_tuple, "", "nu",100,0,12, "#nu", "dN/d#nu" , "e_nu", output_location, output);
 
 	//Phi 
-	draw_plot(elec_tuple, P_cut, "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "e_phi",
+	draw_plot(elec_tuple, "", "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "e_phi",
 				output_location, output);
 
 	//X_b
-	draw_plot(elec_tuple, P_cut, "x_bjorken",100, 0,1, "#x_{b}", "dN/dx_{b}", "e_x_b",
+	draw_plot(elec_tuple, "", "x_bjorken",100, 0,1, "#x_{b}", "dN/dx_{b}", "e_x_b",
 				output_location, output);
 
 	//P vs Etot/P
-	draw_plot_2D(elec_tuple, Main_cut, "E_total/p:E_total", 100,0,2,"E_{tot} [GeV]",
+	draw_plot_2D(elec_tuple, "", "E_total/p:E_total", 100,0,2,"E_{tot} [GeV]",
 					100, 0.150, 0.325, "E_{tot}/P", "sf", output_location, output);
 
 	//theta vs phi
-	draw_plot_2D(elec_tuple, Main_cut, "phi:theta",100, 0, 1, "#theta",
+	draw_plot_2D(elec_tuple, "", "phi:theta",100, 0, 1, "#theta",
 					 180,-180,180,"#phi", "e_ThetaxPhi", output_location, output);
 
 	//P vs theta
-	draw_plot_2D(elec_tuple, Main_cut, "theta:p",100, 0, 12, "P",
+	draw_plot_2D(elec_tuple, "", "theta:p",100, 0, 12, "P",
 					 100,0,1,"#theta", "e_PxTheta", output_location, output);
 
 	//x_b vs Q2
-	draw_plot_2D(elec_tuple, Main_cut, "Q2:x_bjorken",100, 0, 1, "X_{b}",
+	draw_plot_2D(elec_tuple, "", "Q2:x_bjorken",100, 0, 1, "X_{b}",
 					 100,0,11,"Q^{2}}", "e_x_bxQ2", output_location, output);
 
 	//Nu vs Q2
-	draw_plot_2D(elec_tuple, Main_cut, "Q2:nu",100, 2, 11, "Nu",
+	draw_plot_2D(elec_tuple, "", "Q2:nu",100, 2, 11, "Nu",
 					 100,1,11,"Q2", "e_NuxQ2", output_location, output);
 
 	//----PION PLUS----
 	//z vertex
-	draw_plot(pion_tuple, P_cut&&DIS_cut, "vz",100,-15,6, "V_{z} [cm]", "dN/dV_{z}", "pi_vz",
+	draw_plot(pion_tuple, "", "vz",100,-15,6, "V_{z} [cm]", "dN/dV_{z}", "pi_vz",
 				output_location, output);
 
 	//z vertex difference (e-pi)
-	draw_plot(pion_tuple, P_cut&&DIS_cut, "vz_elec-vz",100,-10,10, "V_{z e} - V_{z #pi} [cm]", "dN/dV_{z}", "pi_vz_diff",
+	draw_plot(pion_tuple, "", "vz_elec-vz",100,-10,10, "V_{z e} - V_{z #pi} [cm]", "dN/dV_{z}", "pi_vz_diff",
 				output_location, output);
 
 	//z_h
-	draw_plot(pion_tuple, P_cut&&DIS_cut, "z_h",180,0,1, "Z_{h}", "dN/dZ_{h}", "pi_zh",
+	draw_plot(pion_tuple, "", "z_h",180,0,1, "Z_{h}", "dN/dZ_{h}", "pi_zh",
 				output_location, output);
 
 	//pt2
-	draw_plot(pion_tuple, P_cut&&DIS_cut, "p_T2",100,0,5, "P_{T}^{2}", "dN/dP_{T}^{2}", "pi_pt2",
+	draw_plot(pion_tuple, "", "p_T2",100,0,5, "P_{T}^{2}", "dN/dP_{T}^{2}", "pi_pt2",
 				output_location, output);
 
 	//phi
-	draw_plot(pion_tuple, P_cut&&DIS_cut, "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "pi_phi",
+	draw_plot(pion_tuple, "", "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "pi_phi",
 				output_location, output);
 
 	//Pt2 vz Zh
-	draw_plot_2D(pion_tuple, P_cut&&DIS_cut, "z_h:p_T2",100, 0, 5, "P_{T}^{2}",
+	draw_plot_2D(pion_tuple, "", "z_h:p_T2",100, 0, 5, "P_{T}^{2}",
 					 100, 0, 1,"Z_{h}", "pi_Pt2xZ", output_location, output);
 
 	//----PION MINUS----
 	//z vertex
-	draw_plot(pion_minus_tuple, P_cut&&DIS_cut, "vz",100,-15,6, "V_{z} [cm]", "dN/dV_{z}", "pim_vz",
+	draw_plot(pion_minus_tuple, "", "vz",100,-15,6, "V_{z} [cm]", "dN/dV_{z}", "pim_vz",
 				output_location, output);
 
 	//z vertex difference (e-pi)
-	draw_plot(pion_minus_tuple, P_cut&&DIS_cut, "vz_elec-vz",100,-10,10, "V_{z e} - V_{z #pi} [cm]", "dN/dV_{z}", "pim_vz_diff",
+	draw_plot(pion_minus_tuple, "", "vz_elec-vz",100,-10,10, "V_{z e} - V_{z #pi} [cm]", "dN/dV_{z}", "pim_vz_diff",
 				output_location, output);
 
 	//z_h
-	draw_plot(pion_minus_tuple, P_cut&&DIS_cut, "z_h",100,0,1, "Z_{h}", "dN/dZ_{h}", "pim_zh",
+	draw_plot(pion_minus_tuple, "", "z_h",100,0,1, "Z_{h}", "dN/dZ_{h}", "pim_zh",
 				output_location, output);
 
 	//pt2
-	draw_plot(pion_minus_tuple, P_cut&&DIS_cut, "p_T2",100,0,5, "P_{T}^{2}", "dN/dP_{T}^{2}", "pim_pt2",
+	draw_plot(pion_minus_tuple, "", "p_T2",100,0,5, "P_{T}^{2}", "dN/dP_{T}^{2}", "pim_pt2",
 				output_location, output);
 
 	//phi
-	draw_plot(pion_minus_tuple, P_cut&&DIS_cut, "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "pim_phi",
+	draw_plot(pion_minus_tuple, "", "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "pim_phi",
 				output_location, output);
 
 	//Pt2 vz Zh
-	draw_plot_2D(pion_minus_tuple, P_cut&&DIS_cut, "z_h:p_T2",100, 0, 5, "P_{T}^{2}",
+	draw_plot_2D(pion_minus_tuple, "", "z_h:p_T2",100, 0, 5, "P_{T}^{2}",
 					 100, 0, 1,"Z_{h}", "pim_Pt2xZ", output_location, output);
 
 	//----ALL HADRONS----
 	//z vertex
-	draw_plot(hadron_tuple, P_cut&&DIS_cut, "vz",100,-15,6, "V_{z} [cm]", "dN/dV_{z}", "h_vz",
+	draw_plot(hadron_tuple, "", "vz",100,-15,6, "V_{z} [cm]", "dN/dV_{z}", "h_vz",
 				output_location, output);
 
 	//z vertex difference (e-pi)
-	draw_plot(hadron_tuple, P_cut&&DIS_cut, "vz_elec-vz",100,-10,10, "V_{z e} - V_{z #pi} [cm]", "dN/dV_{z}", "h_vz_diff",
+	draw_plot(hadron_tuple, "", "vz_elec-vz",100,-10,10, "V_{z e} - V_{z #pi} [cm]", "dN/dV_{z}", "h_vz_diff",
 				output_location, output);
 
 	//z_h
-	draw_plot(hadron_tuple, P_cut&&DIS_cut, "z_h",100,0,1, "Z_{h}", "dN/dZ_{h}", "h_zh",
+	draw_plot(hadron_tuple, "", "z_h",100,0,1, "Z_{h}", "dN/dZ_{h}", "h_zh",
 				output_location, output);
 
 	//pt2
-	draw_plot(hadron_tuple, P_cut&&DIS_cut, "p_T2",100,0,5, "P_{T}^{2}", "dN/dP_{T}^{2}", "h_pt2",
+	draw_plot(hadron_tuple, "", "p_T2",100,0,5, "P_{T}^{2}", "dN/dP_{T}^{2}", "h_pt2",
 				output_location, output);
 
 	//phi
-	draw_plot(hadron_tuple, P_cut&&DIS_cut, "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "h_phi",
+	draw_plot(hadron_tuple, "", "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "h_phi",
 				output_location, output);
 
 	//Pt2 vz Zh
-	draw_plot_2D(hadron_tuple, P_cut&&DIS_cut, "z_h:p_T2",100, 0, 5, "P_{T}^{2}",
+	draw_plot_2D(hadron_tuple, "", "z_h:p_T2",100, 0, 5, "P_{T}^{2}",
 					 100, 0, 1,"Z_{h}", "h_Pt2xZ", output_location, output);
 
 	cout<<"Finished plotting. Cleaning "<<endl;
