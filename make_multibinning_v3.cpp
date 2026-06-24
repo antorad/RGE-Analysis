@@ -1,6 +1,6 @@
 #include "include.h"
 
-void make_multibinning_v3(TString Target="C", int Hadron_pid=211, TString type="data"){
+void make_multibinning_v3(int run_N=000000, TString Target="C", int Hadron_pid=211, TString type="data"){
     ROOT::EnableImplicitMT();
 
     //hadron selection
@@ -21,11 +21,14 @@ void make_multibinning_v3(TString Target="C", int Hadron_pid=211, TString type="
     if (type=="acc" || type =="thrown"){subdir="simul";}
     if (type=="thrown"){thrown_dir="/thrown";}
 
+    //Transform input run number to Tstring with correct number of digits
+    TString run_N_str = TString::Format("%06d", run_N);
+
     //Output root file for histograms
-    TFile *output = new TFile("output/"+subdir+"/"+Target+thrown_dir+"/data_binned_"+hadron+".root","RECREATE");
+    TFile *output = new TFile("output/"+subdir+"/"+Target+"/"+run_N_str+thrown_dir+"/data_binned_"+hadron+".root","RECREATE");
 
     //Get TNtuple input created from simple_plots
-    TFile *input = new TFile("output/"+subdir+"/"+Target+thrown_dir+"/out_clas12.root","READ");
+    TFile *input = new TFile("output/"+subdir+"/"+Target+"/"+run_N_str+thrown_dir+"/out_clas12.root","READ");
     TNtuple* h_tuple = (TNtuple*)input->Get(hadron+"_ntuple");
 
     output->cd();
@@ -46,7 +49,7 @@ void make_multibinning_v3(TString Target="C", int Hadron_pid=211, TString type="
     }
 
     //variables neccesaries for binning and cuts 
-    Float_t Q2, nu, z_h, p_T2, phi_PQ, v_z_elec, p, y_bjorken, W2, beta;
+    Float_t Q2, nu, z_h, p_T2, phi_PQ, targ_type;
 
     cout<<"Reading input"<<endl;
     //------Read branches with variables needed for cuts and plots------
@@ -55,11 +58,7 @@ void make_multibinning_v3(TString Target="C", int Hadron_pid=211, TString type="
     h_tuple->SetBranchAddress("z_h",&z_h);
     h_tuple->SetBranchAddress("p_T2",&p_T2);
     h_tuple->SetBranchAddress("phi_PQ",&phi_PQ);
-    h_tuple->SetBranchAddress("v_z_elec",&v_z_elec);
-    h_tuple->SetBranchAddress("p",&p);
-    h_tuple->SetBranchAddress("y_bjorken",&y_bjorken);
-    h_tuple->SetBranchAddress("W2",&W2);
-    h_tuple->SetBranchAddress("beta",&beta);
+    h_tuple->SetBranchAddress("targ_type",&targ_type);
 
     cout<<"Calculanting bin ranges"<<endl;
     //Ranges and step size per variable
@@ -75,39 +74,25 @@ void make_multibinning_v3(TString Target="C", int Hadron_pid=211, TString type="
     cout<<"Phi_range: "<<Phi_range<<" - Phi step: "<<Phi_step<<endl;
 
     cout<<"Cycling though input tuple"<<endl;
+
+    //PIONS
     //Cycle the tuple once and fill histograms
     Long64_t n_entries = h_tuple->GetEntries();
     for (Long64_t i=0;i<n_entries;i++) {
         h_tuple->GetEntry(i);
-        if ((beta>0)&&(beta<1.2)&&(p>0)&&(p<12)&&(Q2>1)&&(sqrt(W2)>2)&&(y_bjorken<0.85)){ //dis and checks cuts
-            //dermine which bin the event belongs to
-            int bin_Zh = int((z_h-Zh_bins[0])/Zh_step);
-            int bin_Pt2 = int((p_T2-Pt2_bins[0])/Pt2_step);
-            int bin_Phi = int((phi_PQ-Phi_bins[0])/Phi_step);
+        //dermine which bin the event belongs to
+        int bin_Zh = int((z_h-Zh_bins[0])/Zh_step);
+        int bin_Pt2 = int((p_T2-Pt2_bins[0])/Pt2_step);
+        int bin_Phi = int((phi_PQ-Phi_bins[0])/Phi_step);
 
-            //cuts
-            bool solid_cut_data = (v_z_elec>C_vz_min_data)&&(v_z_elec<C_vz_max_data);
-            bool liquid_cut_data = (v_z_elec>D2_vz_min_data)&&(v_z_elec<D2_vz_max_data);
-            bool solid_cut_simul = (v_z_elec>C_vz_min_simul)&&(v_z_elec<C_vz_max_simul);
-            bool liquid_cut_simul = (v_z_elec>D2_vz_min_simul)&&(v_z_elec<D2_vz_max_simul);
-            bool valid_bin = (bin_Zh>=0 && bin_Zh<N_Zh && bin_Pt2>=0 && bin_Pt2<N_Pt2 && bin_Phi>=0 && bin_Phi<N_Phi);
+        bool valid_bin = (bin_Zh>=0 && bin_Zh<N_Zh && bin_Pt2>=0 && bin_Pt2<N_Pt2 && bin_Phi>=0 && bin_Phi<N_Phi);
 
-            if (((type=="data" && liquid_cut_data)                      //check data is within vertex cut
-                || (type == "acc" && Target=="D2" && liquid_cut_simul)  //or acc is within vertex cut
-                || (type=="thrown" && Target=="D2"))                    // or if thrown is correct target
-                && valid_bin){                                          //and the bin is within kinemetic range
-                    hists_liq[bin_Zh][bin_Pt2][bin_Phi]->Fill(nu, Q2);
-            }
-
-            else if (((type=="data" && solid_cut_data)
-                    || (type == "acc" && Target!="D2" && solid_cut_simul) //check data/acc is within vertex cut
-                    || (type=="thrown" && Target!="D2"))                                   // or check if thrown is correctect target
-                && valid_bin){                                                         //and the bin is within range
-                    hists_sol[bin_Zh][bin_Pt2][bin_Phi]->Fill(nu, Q2);
-            } 
-        }
+        if      (valid_bin && targ_type==1){hists_liq[bin_Zh][bin_Pt2][bin_Phi]->Fill(nu, Q2);}
+        else if (valid_bin && targ_type==2){hists_sol[bin_Zh][bin_Pt2][bin_Phi]->Fill(nu, Q2);} 
     }
 
+int total_sol = 0; 
+int total_liq = 0;
     cout<<"Saving histograms to disk"<<endl;
     //Save histograms
     for (int i = 0; i < N_Zh; ++i) {
@@ -115,16 +100,21 @@ void make_multibinning_v3(TString Target="C", int Hadron_pid=211, TString type="
             for (int k = 0; k < N_Phi; ++k) {
                 if (Target=="D2" || type=="data") {hists_liq[i][j][k]->Write();}
                 if (Target!="D2") {hists_sol[i][j][k]->Write();}
+                total_sol = total_sol+hists_liq[i][j][k]->GetEntries();
+                total_liq = total_liq+hists_sol[i][j][k]->GetEntries();
             }
         }
     }
+cout<<"Total solid entries: "<<total_sol<<endl;
+cout<<"Total liquid entries: "<<total_liq<<endl;;
+
+    //ELECTRONS
     cout<<"Working on electrons"<<endl;
-//ELECTRONS
     //Get electron tuple from file
     TNtuple* elec_tuple = (TNtuple*)input->Get("elec_tuple");
     //draw 2D Q2vsNu histogram to save on memory
-    elec_tuple->Draw(Form("Q2:nu>>h2_elec_sol(%i,%f,%f,%i,%f,%f)",N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut&&vz_solid_data, "goff");
-    elec_tuple->Draw(Form("Q2:nu>>h2_elec_liq(%i,%f,%f,%i,%f,%f)",N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), Main_cut&&vz_d2_data, "goff");
+    elec_tuple->Draw(Form("Q2:nu>>h2_elec_sol(%i,%f,%f,%i,%f,%f)",N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), "targ_type==2", "goff");
+    elec_tuple->Draw(Form("Q2:nu>>h2_elec_liq(%i,%f,%f,%i,%f,%f)",N_Nu,Nu_bins[0],Nu_bins[N_Nu], N_Q2,Q2_bins[0],Q2_bins[N_Q2]), "targ_type==1", "goff");
     //Get 2D from memory an save them in TH2Ds
     TH2D *h2_elec_sol = (TH2D*)gDirectory->Get("h2_elec_sol");
     TH2D *h2_elec_liq = (TH2D*)gDirectory->Get("h2_elec_liq"); 
