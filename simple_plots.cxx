@@ -13,6 +13,9 @@
 
 using namespace std;
 
+Float_t pimass = 0.139570;
+Float_t c = 29.9702547;
+
 bool psf_eval(int sector, double p, double E_PCAL, double E_ECIN){
 	int bin;
 	if 	 	(0<p && p<2) {bin=1;}
@@ -40,16 +43,28 @@ bool sf_eval(int sector, double p, double E_total){
 	return (E_total/p < up_lim && E_total/p > low_lim);
 }
 
+double get_pion_D_T(double p, double path, double start_time, double TOF){
+    double beta_pi	 = p/sqrt(p*p+pimass*pimass);
+    double theo_time = (path/(c*beta_pi));
+    double exp_time  = TOF - start_time;
+    double D_T       = exp_time - theo_time;
+    return D_T;
+}
+
+bool valid_pion(double p, double D_T){
+	double up_lim = sqrt(pow(pion_cuts[0][0],2)+pow(pion_cuts[0][1]/pow(p,pion_cuts[0][2]),2));
+	double low_lim = -sqrt(pow(pion_cuts[0][3],2)+pow(pion_cuts[0][4]/pow(p,pion_cuts[0][5]),2));
+
+	return (D_T< up_lim && D_T > low_lim);
+}
+
+
 int vertex_sel(int sector, double vz){
 	int targ_type;
 
-	if (vz>vertex_cut[sector-1][0] && vz<vertex_cut[sector-1][1]){
-		targ_type = 1; //liquid
-	}
-	else if (vz>vertex_cut[sector-1][2] && vz<vertex_cut[sector-1][3]){
-		targ_type = 2; //solid
-	}
-	else {targ_type=0;} //none
+	if 		(vz>vertex_cut[sector-1][0] && vz<vertex_cut[sector-1][1]){targ_type = 1;} //liquid
+	else if (vz>vertex_cut[sector-1][2] && vz<vertex_cut[sector-1][3]){targ_type = 2;} //solid
+	else 	{targ_type=0;} //none
 
 	return targ_type;
 }
@@ -125,7 +140,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	gSystem->Exec(command.c_str());
 	TFile *output = new TFile(output_location+"out_clas12.root","RECREATE");
 
-	Float_t pid, Q2, nu, vz, z_h, p, p_T2, p_L2, E_total, E_ECIN, E_PCAL, E_ECOU, event_num, vz_elec, phi, x_bjorken, y_bjorken, W2, charge, beta, sector, phi_PQ, theta, vx, vy, status, PCAL_V, PCAL_W, DC_R1_edge, DC_R2_edge, DC_R3_edge, targ_type; 
+	Float_t pid, Q2, nu, vz, z_h, p, p_T2, p_L2, E_total, E_ECIN, E_PCAL, E_ECOU, event_num, vz_elec, phi, x_bjorken, y_bjorken, W2, charge, beta, sector, phi_PQ, theta, vx, vy, status, PCAL_V, PCAL_W, DC_R1_edge, DC_R2_edge, DC_R3_edge, targ_type, path_tof, time_tof, start_time, D_T; 
 	Float_t rad2deg = 57.2958;
 
 	cout<<"Reading input tuple"<<endl;
@@ -159,11 +174,14 @@ void processChain(TChain* input_tuple, TString output_location) {
 	input_tuple->SetBranchAddress("DC_R2_edge",&DC_R2_edge);
 	input_tuple->SetBranchAddress("DC_R3_edge",&DC_R3_edge);
 	input_tuple->SetBranchAddress("status",&status);
+	input_tuple->SetBranchAddress("path_tof",&path_tof);
+	input_tuple->SetBranchAddress("time_tof",&time_tof);
+	input_tuple->SetBranchAddress("start_time",&start_time);
 
 	//------output ntuples------
-	Float_t hadron_vars[23];
+	Float_t hadron_vars[24];
 	Float_t elec_vars[18];
-	const char* hadron_varslist = "pid:Q2:nu:vz:vx:vy:p:p_T2:p_L2:E_total:E_ECIN:E_ECOU:z_h:vz_elec:x_bjorken:y_bjorken:W2:beta:phi:sector:phi_PQ:theta:targ_type";
+	const char* hadron_varslist = "pid:Q2:nu:vz:vx:vy:p:p_T2:p_L2:E_total:E_ECIN:E_ECOU:z_h:vz_elec:x_bjorken:y_bjorken:W2:beta:phi:sector:phi_PQ:theta:targ_type:D_T";
 	const char* elec_varslist = "pid:Q2:nu:vz:vx:vy:p:E_total:E_ECIN:E_ECOU:x_bjorken:y_bjorken:W2:beta:phi:sector:theta:targ_type";
 	TNtuple *pion_tuple = new TNtuple("pion_ntuple","pions",hadron_varslist);
 	TNtuple *hadron_tuple = new TNtuple("hadron_ntuple","hadrons",hadron_varslist);
@@ -241,10 +259,12 @@ void processChain(TChain* input_tuple, TString output_location) {
 			hadron_vars[20] = phi_PQ;
 			hadron_vars[21] = theta;
 			hadron_vars[22] = targ_type;
+			D_T = get_pion_D_T(p, path_tof, start_time, time_tof);
+			hadron_vars[23] = D_T;
 
 			if (pid!=11 && pid!=-11 && status<3000 && pid!=22){hadron_tuple->Fill(hadron_vars);}
-			if (pid==211 && status<3000){pion_tuple->Fill(hadron_vars);}
-			else if (pid==-211 && status<3000){pion_minus_tuple->Fill(hadron_vars);}
+			if (pid==211 && status<3000 && valid_pion(p, D_T)){pion_tuple->Fill(hadron_vars);}
+			else if (pid==-211 && status<3000 && valid_pion(p, D_T)){pion_minus_tuple->Fill(hadron_vars);}
 			else if (pid==2212 && status<3000){proton_tuple->Fill(hadron_vars);}
 		}
 	}
@@ -337,6 +357,10 @@ void processChain(TChain* input_tuple, TString output_location) {
 	draw_plot_2D(pion_tuple, "", "z_h:p_T2",100, 0, 5, "P_{T}^{2}",
 					 100, 0, 1,"Z_{h}", "pi_Pt2xZ", output_location, output);
 
+	//P vz D_T
+	draw_plot_2D(pion_tuple, "", "D_T:p",100, 0, 10, "P",
+					 100, -1.5, 1.5,"#DeltaT_{#pi}", "pi_PxD_t", output_location, output);
+
 	//----PION MINUS----
 	//z vertex
 	draw_plot(pion_minus_tuple, "", "vz",100,-15,6, "V_{z} [cm]", "dN/dV_{z}", "pim_vz",
@@ -361,6 +385,10 @@ void processChain(TChain* input_tuple, TString output_location) {
 	//Pt2 vz Zh
 	draw_plot_2D(pion_minus_tuple, "", "z_h:p_T2",100, 0, 5, "P_{T}^{2}",
 					 100, 0, 1,"Z_{h}", "pim_Pt2xZ", output_location, output);
+
+	//P vz D_T
+	draw_plot_2D(pion_minus_tuple, "", "D_T:p",100, 0, 10, "P",
+					 100, -1.5, 1.5,"#DeltaT_{#pi}", "pim_PxD_t", output_location, output);
 
 	//----ALL HADRONS----
 	//z vertex
