@@ -37,6 +37,12 @@ while read -r RUN_NUMBER; do
 done < runs/Pb_runs.txt
 wait
 
+hadd -T -f output/data/C/out_clas12.root output/data/C/*/out_clas12.root
+hadd -T -f output/data/Al/out_clas12.root output/data/Al/*/out_clas12.root
+hadd -T -f output/data/Cu/out_clas12.root output/data/Cu/*/out_clas12.root
+hadd -T -f output/data/Sn/out_clas12.root output/data/Sn/*/out_clas12.root
+hadd -T -f output/data/Pb/out_clas12.root output/data/Pb/*/out_clas12.root
+
 #root -l -q 'simple_plots.cxx("runs/D2_simul_runs.txt" , "D2" , "simul")'
 #root -l -q 'simple_plots.cxx("runs/C_simul_runs.txt" , "C" , "simul")'
 #root -l -q 'simple_plots.cxx("runs/Al_simul_runs.txt" , "Al" , "simul")'
