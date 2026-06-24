@@ -1,10 +1,5 @@
-//Cuts for the plots
-//TCut Beta_cut="(beta>0)&&(beta<1.2)";
-//TCut P_cut="(p>0)&&(p<12)";
-// DIS cuts
-//TCut DIS_cut="(Q2>1)&&(sqrt(W2)>2)&&(y_bjorken<0.85)";
-//Total cut
-//TCut Main_cut=Beta_cut&&P_cut&&DIS_cut;
+//Scripts run location (own pc or farm) (own_pc, farm, cluster)
+TString run_location = "own_pc";
 
 //Binning (Check values later, these are testing for now)
 const int N_Q2=5;
