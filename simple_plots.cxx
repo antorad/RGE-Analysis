@@ -387,6 +387,59 @@ void processChain(TChain* input_tuple, TString output_location) {
 	draw_plot_2D(hadron_tuple, "", "z_h:p_T2",100, 0, 5, "P_{T}^{2}",
 					 100, 0, 1,"Z_{h}", "h_Pt2xZ", output_location, output);
 
+	//Plots for MR
+	//pi+
+	//d2
+	draw_plot(pion_tuple, "targ_type==1", "z_h",10,Zh_bins[0],Zh_bins[N_Zh], "Z_{h}", "dN/dZ_{h}",
+				"pion_z_h_d2", output_location, output);
+	draw_plot(pion_tuple, "targ_type==1", "p_T2",10,Pt2_bins[0],Pt2_bins[N_Pt2], "P_{T}^{2}", "dN/dP_{T}^{2}",
+				"pion_p_T2_d2", output_location, output);
+	draw_plot(pion_tuple, "targ_type==1", "Q2",10,Q2_bins[0],Q2_bins[N_Q2], "Q^{2}", "dN/dQ^{2}" ,
+				"pion_Q2_d2", output_location, output);
+	draw_plot(pion_tuple, "targ_type==1", "nu",10,Nu_bins[0],Nu_bins[N_Nu], "#nu", "dN/d#nu" ,
+				"pion_nu_d2", output_location, output);
+	//solid
+	draw_plot(pion_tuple, "targ_type==2", "z_h",10,Zh_bins[0],Zh_bins[N_Zh], "Z_{h}", "dN/dZ_{h}",
+				"pion_z_h_solid", output_location, output);
+	draw_plot(pion_tuple, "targ_type==2", "p_T2",10,Pt2_bins[0],Pt2_bins[N_Pt2], "P_{T}^{2}", "dN/dP_{T}^{2}",
+				"pion_p_T2_solid", output_location, output);
+	draw_plot(pion_tuple, "targ_type==2", "Q2",10,Q2_bins[0],Q2_bins[N_Q2], "Q^{2}", "dN/dQ^{2}" ,
+				"pion_Q2_solid", output_location, output);
+	draw_plot(pion_tuple, "targ_type==2", "nu",10,Nu_bins[0],Nu_bins[N_Nu], "#nu", "dN/d#nu" ,
+				"pion_nu_solid", output_location, output);
+
+	//pi-
+	//d2
+	draw_plot(pion_minus_tuple, "targ_type==1", "z_h",10,Zh_bins[0],Zh_bins[N_Zh], "Z_{h}", "dN/dZ_{h}",
+				"pion_minus_z_h_d2", output_location, output);
+	draw_plot(pion_minus_tuple, "targ_type==1", "p_T2",10,Pt2_bins[0],Pt2_bins[N_Pt2], "P_{T}^{2}", "dN/dP_{T}^{2}",
+				"pion_minus_p_T2_d2", output_location, output);
+	draw_plot(pion_minus_tuple, "targ_type==1", "Q2",10,Q2_bins[0],Q2_bins[N_Q2], "Q^{2}", "dN/dQ^{2}" ,
+				"pion_minus_Q2_d2", output_location, output);
+	draw_plot(pion_minus_tuple, "targ_type==1", "nu",10,Nu_bins[0],Nu_bins[N_Nu], "#nu", "dN/d#nu" ,
+				"pion_minus_nu_d2", output_location, output);
+	//solid
+	draw_plot(pion_minus_tuple, "targ_type==2", "z_h",10,Zh_bins[0],Zh_bins[N_Zh], "Z_{h}", "dN/dZ_{h}",
+				"pion_minus_z_h_solid", output_location, output);
+	draw_plot(pion_minus_tuple, "targ_type==2", "p_T2",10,Pt2_bins[0],Pt2_bins[N_Pt2], "P_{T}^{2}", "dN/dP_{T}^{2}",
+				"pion_minus_p_T2_solid", output_location, output);
+	draw_plot(pion_minus_tuple, "targ_type==2", "Q2",10,Q2_bins[0],Q2_bins[N_Q2], "Q^{2}", "dN/dQ^{2}" ,
+				"pion_minus_Q2_solid", output_location, output);
+	draw_plot(pion_minus_tuple, "targ_type==2", "nu",10,Nu_bins[0],Nu_bins[N_Nu], "#nu", "dN/d#nu" ,
+				"pion_minus_nu_solid", output_location, output);
+
+	//elec
+	//d2
+	draw_plot(elec_tuple, "targ_type==1", "Q2",10,Q2_bins[0],Q2_bins[N_Q2], "Q^{2}", "dN/dQ^{2}" ,
+				"e_Q2_d2", output_location, output);
+	draw_plot(elec_tuple, "targ_type==1", "nu",10,Nu_bins[0],Nu_bins[N_Nu], "#nu", "dN/d#nu" ,
+				"e_nu_d2", output_location, output);
+	//solid
+	draw_plot(elec_tuple, "targ_type==2", "Q2",10,Q2_bins[0],Q2_bins[N_Q2], "Q^{2}", "dN/dQ^{2}" ,
+				"e_Q2_solid", output_location, output);
+	draw_plot(elec_tuple, "targ_type==2", "nu",10,Nu_bins[0],Nu_bins[N_Nu], "#nu", "dN/d#nu" ,
+				"e_nu_solid", output_location, output);
+
 	cout<<"Finished plotting. Cleaning "<<endl;
 	delete pion_tuple;
 	delete hadron_tuple;

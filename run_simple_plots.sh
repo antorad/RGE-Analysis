@@ -5,11 +5,36 @@
 #It creates simple plots for varaible checks and creates electron and hadron tuples. 
 
 # Run simple_plots for each target in a new terminal for each one.
-gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx(\"runs/C_runs.txt\" , \"C\" , \"data\")'" &
-gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx(\"runs/Al_runs.txt\", \"Al\", \"data\")'" &
-gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx(\"runs/Cu_runs.txt\", \"Cu\", \"data\")'" &
-gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx(\"runs/Sn_runs.txt\", \"Sn\", \"data\")'" &
-gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx(\"runs/Pb_runs.txt\", \"Pb\", \"data\")'" &
+#gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx(\"runs/C_runs.txt\" , \"C\" , \"data\")'" &
+#gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx(\"runs/Al_runs.txt\", \"Al\", \"data\")'" &
+#gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx(\"runs/Cu_runs.txt\", \"Cu\", \"data\")'" &
+#gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx(\"runs/Sn_runs.txt\", \"Sn\", \"data\")'" &
+#gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx(\"runs/Pb_runs.txt\", \"Pb\", \"data\")'" &
+#wait
+
+while read -r RUN_NUMBER; do
+    gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx($RUN_NUMBER, \"C\", \"data\")'" &
+done < runs/C_runs.txt
+wait
+
+while read -r RUN_NUMBER; do
+    gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx($RUN_NUMBER, \"Al\", \"data\")'" &
+done < runs/Al_runs.txt
+wait
+
+while read -r RUN_NUMBER; do
+    gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx($RUN_NUMBER, \"Cu\", \"data\")'" &
+done < runs/Cu_runs.txt
+wait
+
+while read -r RUN_NUMBER; do
+    gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx($RUN_NUMBER, \"Sn\", \"data\")'" &
+done < runs/Sn_runs.txt
+wait
+
+while read -r RUN_NUMBER; do
+    gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx($RUN_NUMBER, \"Pb\", \"data\")'" &
+done < runs/Pb_runs.txt
 wait
 
 #root -l -q 'simple_plots.cxx("runs/D2_simul_runs.txt" , "D2" , "simul")'

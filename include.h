@@ -14,7 +14,7 @@ const int N_Pt2=5;
 const int N_Phi=12; //Phi_PQ
 
 float Q2_bins[N_Q2+1]={1.,2.6, 4.2, 5.8, 7.4, 9.};
-float Nu_bins[N_Nu+1]={2., 3.75, 5.5, 7.25, 9.};
+float Nu_bins[N_Nu+1]={1.5, 3.25, 5.0, 6.75, 8.5};
 float Zh_bins[N_Zh+1]={0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.};
 float Pt2_bins[N_Pt2+1]={0., 1., 2., 3., 4., 5.};
 float Phi_bins[N_Phi+1]={-3.1416, -2.618, -2.0944, -1.5708, -1.0472, -0.5236,
