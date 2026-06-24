@@ -11,9 +11,7 @@ TCanvas plot_same_canvas(TH1D* h_mr[5]){
 
     //set range on y axis for each case
     if (mainVar=="Zh") {h_mr[0]->GetYaxis()->SetRangeUser(0,1.6);}
-    if (mainVar=="Zh" && hadron=="proton") {h_mr[0]->GetYaxis()->SetRangeUser(0,6);}
     if (mainVar=="Nu") {h_mr[0]->GetYaxis()->SetRangeUser(0.6,1.2);}
-    if (mainVar=="Nu" && hadron=="proton") {h_mr[0]->GetYaxis()->SetRangeUser(1,4);}
 
     //Set axis names
     h_mr[0]->GetYaxis()->SetTitle("#frac{N_{A}#pi^{+}}{N_{D2}#pi^{+}}#frac{N_{D2}e^{-}}{N_{A}e^{-}}");

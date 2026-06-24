@@ -17,8 +17,8 @@ void processChain(TChain* input_tuple, TString output_location){
     //------Read branches with variables needed for cuts and plots------
     input_tuple->SetBranchAddress("pid",&pid);
     input_tuple->SetBranchAddress("start_time",&start_time);
-    input_tuple->SetBranchAddress("TOF",&TOF);
-    input_tuple->SetBranchAddress("path",&path);
+    input_tuple->SetBranchAddress("time_tof",&TOF);
+    input_tuple->SetBranchAddress("path_tof",&path);
     input_tuple->SetBranchAddress("p",&p);
     input_tuple->SetBranchAddress("charge",&charge);
     input_tuple->SetBranchAddress("status",&status);
@@ -327,7 +327,7 @@ void pion_selection(const char* inputFileName, TString Target, TString type="dat
     std::ifstream inputFile(inputFileName);
 
     // Create a TChain to combine input TNuples
-    TChain* input_tuple = new TChain("data");
+    TChain* input_tuple = new TChain("DT");
     TChain* input_tuple_mc = new TChain("MC");
 
     // Read each line from the text file and add the corresponding ROOT file to the TChain
@@ -375,7 +375,7 @@ void pion_selection(int run_N=000000, TString Target="unkw", TString type="data"
     ROOT::EnableImplicitMT();
 
     // Create a TChain to load input TNuples
-    TChain* input_tuple = new TChain("data");
+    TChain* input_tuple = new TChain("DT");
     TChain* input_tuple_mc = new TChain("MC");
 
     //Transform input run number to Tstring with correct number of digits
