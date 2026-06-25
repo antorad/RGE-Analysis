@@ -17,18 +17,18 @@ vars=(z_h nu p_T2 Q2)
 echo "Processing particle pid: $particle"
 
 # Run the mr claculation macro
-gnome-terminal --wait -- bash -c "root -l -q 'simple_mr.cpp(\"C\" , $particle , \"data\")'"  &
-gnome-terminal --wait -- bash -c "root -l -q 'simple_mr.cpp(\"Al\" , $particle , \"data\")'" &
-gnome-terminal --wait -- bash -c "root -l -q 'simple_mr.cpp(\"Cu\" , $particle , \"data\")'" &
-gnome-terminal --wait -- bash -c "root -l -q 'simple_mr.cpp(\"Sn\" , $particle , \"data\")'" &
-gnome-terminal --wait -- bash -c "root -l -q 'simple_mr.cpp(\"Pb\" , $particle , \"data\")'" &
-wait
+#gnome-terminal --wait -- bash -c "root -l -q 'simple_mr.cpp(\"C\" , $particle , \"data\")'"  &
+#gnome-terminal --wait -- bash -c "root -l -q 'simple_mr.cpp(\"Al\" , $particle , \"data\")'" &
+#gnome-terminal --wait -- bash -c "root -l -q 'simple_mr.cpp(\"Cu\" , $particle , \"data\")'" &
+#gnome-terminal --wait -- bash -c "root -l -q 'simple_mr.cpp(\"Sn\" , $particle , \"data\")'" &
+#gnome-terminal --wait -- bash -c "root -l -q 'simple_mr.cpp(\"Pb\" , $particle , \"data\")'" &
+#wait
 
-#root -l -q 'simple_mr.cpp("C" '", $particle"', "data")'
-#root -l -q 'simple_mr.cpp("Al"'", $particle"', "data")'
-#root -l -q 'simple_mr.cpp("Cu"'", $particle"', "data")'
-#root -l -q 'simple_mr.cpp("Sn"'", $particle"', "data")'
-#root -l -q 'simple_mr.cpp("Pb"'", $particle"', "data")'
+root -l -q 'simple_mr.cpp("C" '", $particle"', "data")'
+root -l -q 'simple_mr.cpp("Al"'", $particle"', "data")'
+root -l -q 'simple_mr.cpp("Cu"'", $particle"', "data")'
+root -l -q 'simple_mr.cpp("Sn"'", $particle"', "data")'
+root -l -q 'simple_mr.cpp("Pb"'", $particle"', "data")'
 
 #For now C only. When simulations are done, I'll add the rest of targets
 #root -l -q 'simple_mr.cpp("C" '", $particle"', "acc")'
