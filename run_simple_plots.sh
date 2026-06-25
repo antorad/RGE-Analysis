@@ -12,29 +12,20 @@
 #gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx(\"runs/Pb_runs.txt\", \"Pb\", \"data\")'" &
 #wait
 
-while read -r RUN_NUMBER; do
-    gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx($RUN_NUMBER, \"C\", \"data\")'" &
-done < runs/C_runs.txt
+gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx(20156, \"C\", \"data\")'" &
+gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx(20161, \"C\", \"data\")'" &
 wait
-
-while read -r RUN_NUMBER; do
-    gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx($RUN_NUMBER, \"Al\", \"data\")'" &
-done < runs/Al_runs.txt
+gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx(20437, \"Al\", \"data\")'" &
+gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx(20482, \"Al\", \"data\")'" &
 wait
-
-while read -r RUN_NUMBER; do
-    gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx($RUN_NUMBER, \"Cu\", \"data\")'" &
-done < runs/Cu_runs.txt
+gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx(20178, \"Cu\", \"data\")'" &
+gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx(20205, \"Cu\", \"data\")'" &
 wait
-
-while read -r RUN_NUMBER; do
-    gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx($RUN_NUMBER, \"Sn\", \"data\")'" &
-done < runs/Sn_runs.txt
+gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx(20344, \"Sn\", \"data\")'" &
+gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx(20383, \"Sn\", \"data\")'" &
 wait
-
-while read -r RUN_NUMBER; do
-    gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx($RUN_NUMBER, \"Pb\", \"data\")'" &
-done < runs/Pb_runs.txt
+gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx(20265, \"Pb\", \"data\")'" &
+gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx(20315, \"Pb\", \"data\")'" &
 wait
 
 hadd -T -f output/data/C/out_clas12.root output/data/C/*/out_clas12.root
