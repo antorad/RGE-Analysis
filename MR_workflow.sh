@@ -15,7 +15,7 @@ while read -r RUN_NUMBER; do
     swif2 add-job $WORKFLOW_NAME \
         -name run_$RUN_NUMBER \
         -partition production \
-        -time 2h \
+        -time 4h \
         -ram 1g \
         -disk 1g \
         -shell /bin/bash \
