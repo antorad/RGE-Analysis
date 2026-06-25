@@ -39,8 +39,10 @@ void plot_mr_bin(int Hadron_pid=211, TString mainVar="Zh"){
     float pad_height = (1.0 - bottom_margin - top_margin) / N_Q2;
 
     // --- Plot limits ---
-    float xmin = 0, xmax = 1;
-    float ymin = 0, ymax = 1.6;
+    float xmin, xmax, ymin, ymax;
+    if (mainVar=="Zh"){xmin = 0; xmax = 1; ymin = 0; ymax = 1.6;}
+    if (mainVar=="Pt2"){xmin = 0; xmax = 2.5; ymin = 0.5; ymax = 3.0;}
+    if (mainVar=="Phi_PQ"){xmin = -3.15; xmax = 3.15; ymin = 0; ymax = 2.0;}
 
     // --- Create pads and plots ---
     for (int Nu_Counter = 0; Nu_Counter < N_Nu; ++Nu_Counter) {
@@ -136,10 +138,11 @@ void plot_mr_bin(int Hadron_pid=211, TString mainVar="Zh"){
     latex.SetTextAngle(0);
     latex.SetTextAlign(22);
     latex.SetTextSize(0.03);
-    latex.DrawLatexNDC(0.8, bottom_margin - 0.03, "Zh");
+    latex.DrawLatexNDC(0.8, bottom_margin - 0.03, mainVar);
 
     latex.SetTextAngle(90);
-    latex.DrawLatexNDC(left_margin - 0.03, 0.8, "#frac{N_{A}#pi^{+}}{N_{D2}#pi^{+}}#frac{N_{D2}e^{-}}{N_{A}e^{-}}");
+    if (hadron=="pion"){latex.DrawLatexNDC(left_margin - 0.03, 0.8, "#frac{N_{A}#pi^{+}}{N_{D2}#pi^{+}}#frac{N_{D2}e^{-}}{N_{A}e^{-}}");}
+    if (hadron=="pion_minus"){latex.DrawLatexNDC(left_margin - 0.03, 0.8, "#frac{N_{A}#pi^{-}}{N_{D2}#pi^{-}}#frac{N_{D2}e^{-}}{N_{A}e^{-}}");}
 
     //Save plot as pdf
     canvas->SaveAs("output/AC_MR/mr_binbybin_"+hadron+"_"+mainVar+".pdf");

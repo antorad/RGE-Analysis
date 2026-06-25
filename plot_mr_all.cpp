@@ -10,11 +10,15 @@ TCanvas plot_same_canvas(TH1D* h_mr[5]){
     canvas->SetGrid();
 
     //set range on y axis for each case
-    if (mainVar=="Zh") {h_mr[0]->GetYaxis()->SetRangeUser(0,1.6);}
-    if (mainVar=="Nu") {h_mr[0]->GetYaxis()->SetRangeUser(0.6,1.2);}
+    if      (mainVar=="Zh") {h_mr[0]->GetYaxis()->SetRangeUser(0,1.6);}
+    else if (mainVar=="Nu") {h_mr[0]->GetYaxis()->SetRangeUser(0.2,1.2);}
+    else if (mainVar=="Q2") {h_mr[0]->GetYaxis()->SetRangeUser(0.5,1.2);}
+    else if (mainVar=="Pt2") {h_mr[0]->GetYaxis()->SetRangeUser(0.5,3.0);}
+    else if (mainVar=="Phi_PQ") {h_mr[0]->GetYaxis()->SetRangeUser(0.5,1.2);}
 
     //Set axis names
-    h_mr[0]->GetYaxis()->SetTitle("#frac{N_{A}#pi^{+}}{N_{D2}#pi^{+}}#frac{N_{D2}e^{-}}{N_{A}e^{-}}");
+    if(hadron=="pion") {h_mr[0]->GetYaxis()->SetTitle("#frac{N_{A}#pi^{+}}{N_{D2}#pi^{+}}#frac{N_{D2}e^{-}}{N_{A}e^{-}}");}
+    if(hadron=="pion_minus") {h_mr[0]->GetYaxis()->SetTitle("#frac{N_{A}#pi^{-}}{N_{D2}#pi^{-}}#frac{N_{D2}e^{-}}{N_{A}e^{-}}");}
     h_mr[0]->GetXaxis()->SetTitle(mainVar);
 
     //set colors
@@ -36,6 +40,7 @@ TCanvas plot_same_canvas(TH1D* h_mr[5]){
 
     //Draw legens in the top right corner
     TLegend* legend = new TLegend(0.75, 0.75, 0.9, 0.9);
+    if (mainVar=="Pt2"){legend = new TLegend(0.75, 0.25, 0.9, 0.1);}
     legend->AddEntry(h_mr[0], "Carbon", "p");
     legend->AddEntry(h_mr[1], "Aluminum", "p");
     legend->AddEntry(h_mr[2], "Copper", "p");
