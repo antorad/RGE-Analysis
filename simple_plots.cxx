@@ -441,7 +441,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	draw_plot(pion_tuple, "targ_type==1", "nu",10,Nu_bins[0],Nu_bins[N_Nu], "#nu", "dN/d#nu" ,
 				"pion_nu_d2", output_location, output);
 	draw_plot(pion_tuple, "targ_type==1", "phi_PQ",10,Phi_bins[0],Phi_bins[N_Phi], "#phi_PQ", "dN/d#phi_PQ" ,
-				"pion_phiPQ_d2", output_location, output);
+				"pion_phi_PQ_d2", output_location, output);
 	//solid
 	draw_plot(pion_tuple, "targ_type==2", "z_h",10,Zh_bins[0],Zh_bins[N_Zh], "Z_{h}", "dN/dZ_{h}",
 				"pion_z_h_solid", output_location, output);
@@ -452,7 +452,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	draw_plot(pion_tuple, "targ_type==2", "nu",10,Nu_bins[0],Nu_bins[N_Nu], "#nu", "dN/d#nu" ,
 				"pion_nu_solid", output_location, output);
 	draw_plot(pion_tuple, "targ_type==2", "phi_PQ",10,Phi_bins[0],Phi_bins[N_Phi], "#phi_PQ", "dN/d#phi_PQ" ,
-				"pion_phiPQ_solid", output_location, output);
+				"pion_phi_PQ_solid", output_location, output);
 
 	//pi-
 	//d2
@@ -465,7 +465,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	draw_plot(pion_minus_tuple, "targ_type==1", "nu",10,Nu_bins[0],Nu_bins[N_Nu], "#nu", "dN/d#nu" ,
 				"pion_minus_nu_d2", output_location, output);
 	draw_plot(pion_minus_tuple, "targ_type==1", "phi_PQ",10,Phi_bins[0],Phi_bins[N_Phi], "#phi_PQ", "dN/d#phi_PQ" ,
-				"pion_minus_phiPQ_d2", output_location, output);
+				"pion_minus_phi_PQ_d2", output_location, output);
 	//solid
 	draw_plot(pion_minus_tuple, "targ_type==2", "z_h",10,Zh_bins[0],Zh_bins[N_Zh], "Z_{h}", "dN/dZ_{h}",
 				"pion_minus_z_h_solid", output_location, output);
@@ -476,7 +476,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	draw_plot(pion_minus_tuple, "targ_type==2", "nu",10,Nu_bins[0],Nu_bins[N_Nu], "#nu", "dN/d#nu" ,
 				"pion_minus_nu_solid", output_location, output);
 	draw_plot(pion_minus_tuple, "targ_type==2", "phi_PQ",10,Phi_bins[0],Phi_bins[N_Phi], "#phi_PQ", "dN/d#phi_PQ" ,
-				"pion_minus_phiPQ_solid", output_location, output);
+				"pion_minus_phi_PQ_solid", output_location, output);
 
 	//elec
 	//d2
