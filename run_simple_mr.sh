@@ -12,7 +12,7 @@ fi
 particle=$1
 
 # Array of variable to compare between targets
-vars=(z_h nu p_T2 Q2)
+vars=(z_h nu p_T2 Q2 phi_PQ)
 
 echo "Processing particle pid: $particle"
 

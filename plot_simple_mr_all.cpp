@@ -37,7 +37,7 @@ void plot_simple_mr_all(int Hadron_pid=211, TString var="z_h"){
     if      (var=="z_h") {mr_hist_C->GetYaxis()->SetRangeUser(0,1.6);}
     else if (var=="nu") {mr_hist_C->GetYaxis()->SetRangeUser(0.2,1.2);}
     else if (var=="Q2") {mr_hist_C->GetYaxis()->SetRangeUser(0.5,1.2);}
-    else if (var=="p_T2") {mr_hist_C->GetYaxis()->SetRangeUser(0.5,3.0);}
+    else if (var=="p_T2") {mr_hist_C->GetYaxis()->SetRangeUser(0.5,4.0);}
     else if (var=="phi_PQ") {mr_hist_C->GetYaxis()->SetRangeUser(0.5,1.2);}
 
     //set colors
@@ -61,7 +61,7 @@ void plot_simple_mr_all(int Hadron_pid=211, TString var="z_h"){
 
     //Draw legens in the top right corner
     TLegend* legend = new TLegend(0.75, 0.75, 0.9, 0.9);
-    if (var=="p_T2"){legend = new TLegend(0.75, 0.25, 0.9, 0.1);}
+    if (var=="p_T2" || var=="Q2" || var=="nu"){legend = new TLegend(0.75, 0.25, 0.9, 0.1);}
     legend->AddEntry(mr_hist_C, "Carbon", "p");
     legend->AddEntry(mr_hist_Al, "Aluminum", "p");
     legend->AddEntry(mr_hist_Cu, "Copper", "p");
