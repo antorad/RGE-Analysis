@@ -186,7 +186,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	TNtuple *pion_tuple = new TNtuple("pion_ntuple","pions",hadron_varslist);
 	TNtuple *hadron_tuple = new TNtuple("hadron_ntuple","hadrons",hadron_varslist);
 	TNtuple *pion_minus_tuple = new TNtuple("pion_minus_ntuple","positives",hadron_varslist);
-	TNtuple *proton_tuple = new TNtuple("proton_ntuple","positives",hadron_varslist);
+	//TNtuple *proton_tuple = new TNtuple("proton_ntuple","positives",hadron_varslist);
 	TNtuple *elec_tuple = new TNtuple("elec_tuple","electrons",elec_varslist);
 
 	vz_elec = -99;
@@ -205,7 +205,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 			//&& p>p_min && p<p_max									//momentum cut
 			&& theta*rad2deg>theta_min								//theta cut
 			&& PCAL_V>PCAL_V_fc && PCAL_W>PCAL_W_fc					//PCAL fiducial cuts
-			&& DC_R1_edge>DC_R1_fc && DC_R2_edge>DC_R1_fc && DC_R3_edge>DC_R3_fc //DC fiducial cuts
+			&& DC_R1_edge>DC_R1_fc_e && DC_R2_edge>DC_R1_fc_e && DC_R3_edge>DC_R3_fc_e //DC fiducial cuts
 			//sector based cuts
 			&& psf_eval(sector, p, E_PCAL, E_ECIN) //Partial sampling fraction
 			&& sf_eval(sector, p, E_total) //Partial sampling fraction
@@ -262,10 +262,20 @@ void processChain(TChain* input_tuple, TString output_location) {
 			D_T = get_pion_D_T(p, path_tof, start_time, time_tof);
 			hadron_vars[23] = D_T;
 
+			//all hadrons
 			if (pid!=11 && pid!=-11 && status<3000 && pid!=22){hadron_tuple->Fill(hadron_vars);}
-			if (pid==211 && status<3000 && valid_pion(p, D_T)){pion_tuple->Fill(hadron_vars);}
-			else if (pid==-211 && status<3000 && valid_pion(p, D_T)){pion_minus_tuple->Fill(hadron_vars);}
-			else if (pid==2212 && status<3000){proton_tuple->Fill(hadron_vars);}
+
+			////positive pions
+			if (pid==211 && status<3000 && valid_pion(p, D_T)
+				&& DC_R1_fc_pi<DC_R1_edge && DC_R2_fc_pi<DC_R2_edge && DC_R3_fc_pi<DC_R3_edge){
+					pion_tuple->Fill(hadron_vars);}
+
+			//negative pions
+			else if (pid==-211 && status<3000 && valid_pion(p, D_T)
+				&& DC_R1_fc_pi<DC_R1_edge && DC_R2_fc_pi<DC_R2_edge && DC_R3_fc_pi<DC_R3_edge){
+					pion_minus_tuple->Fill(hadron_vars);}
+
+			//else if (pid==2212 && status<3000){proton_tuple->Fill(hadron_vars);}
 		}
 	}
 	cout<<"Writing output tuples into disk "<<endl;
@@ -353,6 +363,10 @@ void processChain(TChain* input_tuple, TString output_location) {
 	draw_plot(pion_tuple, "", "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "pi_phi",
 				output_location, output);
 
+	//phiPQ
+	draw_plot(pion_tuple, "", "phi_PQ",360,-180,180, "#phi_PQ [deg]", "dN/d#phi_PQ", "pi_phi_PQ",
+				output_location, output);
+
 	//Pt2 vz Zh
 	draw_plot_2D(pion_tuple, "", "z_h:p_T2",100, 0, 5, "P_{T}^{2}",
 					 100, 0, 1,"Z_{h}", "pi_Pt2xZ", output_location, output);
@@ -426,6 +440,8 @@ void processChain(TChain* input_tuple, TString output_location) {
 				"pion_Q2_d2", output_location, output);
 	draw_plot(pion_tuple, "targ_type==1", "nu",10,Nu_bins[0],Nu_bins[N_Nu], "#nu", "dN/d#nu" ,
 				"pion_nu_d2", output_location, output);
+	draw_plot(pion_tuple, "targ_type==1", "phi_PQ",10,Phi_bins[0],Phi_bins[N_Phi], "#phi_PQ", "dN/d#phi_PQ" ,
+				"pion_phiPQ_d2", output_location, output);
 	//solid
 	draw_plot(pion_tuple, "targ_type==2", "z_h",10,Zh_bins[0],Zh_bins[N_Zh], "Z_{h}", "dN/dZ_{h}",
 				"pion_z_h_solid", output_location, output);
@@ -435,6 +451,8 @@ void processChain(TChain* input_tuple, TString output_location) {
 				"pion_Q2_solid", output_location, output);
 	draw_plot(pion_tuple, "targ_type==2", "nu",10,Nu_bins[0],Nu_bins[N_Nu], "#nu", "dN/d#nu" ,
 				"pion_nu_solid", output_location, output);
+	draw_plot(pion_tuple, "targ_type==2", "phi_PQ",10,Phi_bins[0],Phi_bins[N_Phi], "#phi_PQ", "dN/d#phi_PQ" ,
+				"pion_phiPQ_solid", output_location, output);
 
 	//pi-
 	//d2
@@ -446,6 +464,8 @@ void processChain(TChain* input_tuple, TString output_location) {
 				"pion_minus_Q2_d2", output_location, output);
 	draw_plot(pion_minus_tuple, "targ_type==1", "nu",10,Nu_bins[0],Nu_bins[N_Nu], "#nu", "dN/d#nu" ,
 				"pion_minus_nu_d2", output_location, output);
+	draw_plot(pion_minus_tuple, "targ_type==1", "phi_PQ",10,Phi_bins[0],Phi_bins[N_Phi], "#phi_PQ", "dN/d#phi_PQ" ,
+				"pion_minus_phiPQ_d2", output_location, output);
 	//solid
 	draw_plot(pion_minus_tuple, "targ_type==2", "z_h",10,Zh_bins[0],Zh_bins[N_Zh], "Z_{h}", "dN/dZ_{h}",
 				"pion_minus_z_h_solid", output_location, output);
@@ -455,6 +475,8 @@ void processChain(TChain* input_tuple, TString output_location) {
 				"pion_minus_Q2_solid", output_location, output);
 	draw_plot(pion_minus_tuple, "targ_type==2", "nu",10,Nu_bins[0],Nu_bins[N_Nu], "#nu", "dN/d#nu" ,
 				"pion_minus_nu_solid", output_location, output);
+	draw_plot(pion_minus_tuple, "targ_type==2", "phi_PQ",10,Phi_bins[0],Phi_bins[N_Phi], "#phi_PQ", "dN/d#phi_PQ" ,
+				"pion_minus_phiPQ_solid", output_location, output);
 
 	//elec
 	//d2
@@ -472,7 +494,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	delete pion_tuple;
 	delete hadron_tuple;
 	delete pion_minus_tuple;
-	delete proton_tuple;
+	//delete proton_tuple;
 	delete elec_tuple;
 	delete output;
 }

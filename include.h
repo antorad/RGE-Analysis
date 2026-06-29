@@ -27,20 +27,25 @@ TCut Var_cut=Q2_cut&&Nu_cut&&Zh_cut&&Pt2_cut&&Phi_cut;
 
 //electron cuts
 float Q2_min = 1.0;
-float W2_min = 2.0;
+float W2_min = 4.0; //W>2
 float y_bjorken_max = 0.8;
 float p_min = 2.0;
 float p_max = 8.0;
 float theta_min = 5.0;
 
-//DC fiducial cuts
-float DC_R1_fc = 1.25;
-float DC_R2_fc = 1.35;
-float DC_R3_fc = 1.94;
-
 //PCAL electron fiducial cuts
 float PCAL_V_fc = 9.0;
 float PCAL_W_fc = 9.0;
+
+//DC electron fiducial cuts
+float DC_R1_fc_e = 4.5;
+float DC_R2_fc_e = 3.5;
+float DC_R3_fc_e = 7.5;
+
+//DC pion fiducial cuts
+float DC_R1_fc_pi = 1.25;
+float DC_R2_fc_pi = 1.35;
+float DC_R3_fc_pi = 1.94;
 
 //Partial sampling fraction {p_bin_1, p_bin_2, p_bin_3, p_bin_4, p_bin_5, p_bin_6, p_bin_7, p_bin_8, p_bin_9}
 float psf_a[6][9] ={ //[sector][bin]
