@@ -1,6 +1,6 @@
 #include "include.h"
 
-void vertex_dependance(int run_N=000000, TString Target="C", TString type="data"){
+void vertex_dependence(int run_N=000000, TString Target="C", TString type="data"){
     //Transform input run number to Tstring with correct number of digits
     TString run_N_str = TString::Format("%06d", run_N);
 
