@@ -65,9 +65,12 @@ void vertex_dependence(int run_N=000000, TString Target="C", TString type="data"
         for (int j=0; j<10; j++){
             if (h_vertex[i][j]->Integral()>0){
                 h_vertex[i][j]->Scale(1.0/h_vertex[i][j]->Integral());
-                h_vertex[i][j]->GetYaxis()->SetRangeUser(0,0.05);
+                h_vertex[i][j]->GetYaxis()->SetRangeUser(0,0.03);
+                h_vertex[i][j]->GetYaxis()->SetTitle("Normalized count");
+                h_vertex[i][j]->GetXaxis()->SetTitle("v_{z}");
                 h_vertex[i][j]->SetLineColor(j*5+51);
                 h_vertex[i][j]->Write();
+                h_vertex[i][j]->SetTitle(Form("%i < p < %i GeV electrons", i+2, i+3));
                 h_vertex[i][j]->Draw("HIST same");
                 th_min=j*2+8;
                 legend[i]->AddEntry(h_vertex[i][j], Form("%i<#theta<%i",th_min, th_min+2));
