@@ -1,5 +1,6 @@
 //Scripts run location (own pc or farm) (own_pc, farm, cluster)
 TString run_location = "own_pc";
+TString torus_pol = "inb";
 
 //Binning (Check values later, these are testing for now)
 const int N_Q2=5;

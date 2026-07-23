@@ -566,14 +566,14 @@ void simple_plots(int run_N=000000, TString Target="unkw", TString type="data"){
 
 	//Output directory
 	TString output_location;
-	if 		(run_location=="own_pc"){output_location = "output/"+type+"/"+Target+"/"+run_N_str+"/";}
-	else if (run_location=="farm")  {output_location = "/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass1/dc/"+Target+"/"+run_N_str+"/";}
+	if 		(run_location=="own_pc"){output_location = "output/"+torus_pol+"/"+type+"/"+Target+"/"+run_N_str+"/";}
+	else if (run_location=="farm")  {output_location = "/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass1/"+torus_pol+"/dc/"+Target+"/"+run_N_str+"/";}
 	gSystem->Exec("mkdir -vp "+output_location);
 	cout<<"Output location: "<<output_location<<endl;
 
     if (type=="data"){
     	if 		(run_location=="own_pc"){input_tuple->Add(type+"/ntuples_dc_"+run_N_str+".root");}
-    	else if (run_location=="farm")  {input_tuple->Add("/volatile/clas12/antorad/rge/data/pass1/"+Target+"_D2/dc/ntuple_files/ntuples_dc_"+run_N_str+".root");}
+    	else if (run_location=="farm")  {input_tuple->Add("/volatile/clas12/antorad/rge/data/pass1/"+torus_pol+"/"+Target+"_D2/dc/ntuple_files/ntuples_dc_"+run_N_str+".root");}
  	}
     if (type=="simul"){
     	input_tuple->Add(type+"/"+Target+"/ntuples_dc_"+run_N_str+".root");

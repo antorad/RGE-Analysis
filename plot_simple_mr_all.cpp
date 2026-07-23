@@ -1,10 +1,107 @@
-void plot_simple_mr_all(int Hadron_pid=211, TString var="z_h"){
+#include "include.h"
+
+TString mainVar="";
+TString hadron="";
+
+TCanvas plot_same_canvas_inb(TH1D* h_mr[5]){
+    //canvas
+    TCanvas *canvas= new TCanvas("canvas","canvas",1000,600);
+    canvas->cd();
+    canvas->SetGrid();
+
+    //set range on y axis for each case
+    if      (mainVar=="z_h") {h_mr[0]->GetYaxis()->SetRangeUser(0,1.6);}
+    else if (mainVar=="nu") {h_mr[0]->GetYaxis()->SetRangeUser(0.2,1.2);}
+    else if (mainVar=="Q2") {h_mr[0]->GetYaxis()->SetRangeUser(0.5,1.2);}
+    else if (mainVar=="p_T2") {h_mr[0]->GetYaxis()->SetRangeUser(0.5,4.0);}
+    else if (mainVar=="phi_PQ") {h_mr[0]->GetYaxis()->SetRangeUser(0.5,1.2);}
+
+    //Set axis names
+    if(hadron=="pion") {h_mr[0]->GetYaxis()->SetTitle("#frac{N_{A}#pi^{+}}{N_{D2}#pi^{+}}#frac{N_{D2}e^{-}}{N_{A}e^{-}}");}
+    if(hadron=="pion_minus") {h_mr[0]->GetYaxis()->SetTitle("#frac{N_{A}#pi^{-}}{N_{D2}#pi^{-}}#frac{N_{D2}e^{-}}{N_{A}e^{-}}");}
+    h_mr[0]->GetXaxis()->SetTitle(mainVar);
+
+    //set colors
+    h_mr[0]->SetMarkerColor(1);
+    h_mr[0]->SetLineColor(1);
+    h_mr[1]->SetMarkerColor(2);
+    h_mr[1]->SetLineColor(2);
+    h_mr[2]->SetMarkerColor(4);
+    h_mr[2]->SetLineColor(4);
+    h_mr[3]->SetMarkerColor(209);
+    h_mr[3]->SetLineColor(209);
+    h_mr[4]->SetMarkerColor(205);
+    h_mr[4]->SetLineColor(205);
+
+    //draw plots without horizontal error bars
+    for (int i = 0; i < 5; ++i){
+        h_mr[i]->Draw("E1X0same");
+    }
+
+    //Draw legens in the top right corner
+    TLegend* legend = new TLegend(0.75, 0.75, 0.9, 0.9);
+    if (mainVar=="Pt2" || mainVar=="Q2" || mainVar=="Nu"){legend = new TLegend(0.75, 0.25, 0.9, 0.1);}
+    legend->AddEntry(h_mr[0], "Carbon", "p");
+    legend->AddEntry(h_mr[1], "Aluminum", "p");
+    legend->AddEntry(h_mr[2], "Copper", "p");
+    legend->AddEntry(h_mr[3], "Tin", "p");
+    legend->AddEntry(h_mr[4], "Lead", "p");
+    legend->Draw("same");
+
+    //Save final plot as pdf
+    canvas->SaveAs("output/"+torus_pol+"/data/mr_"+hadron+"_"+mainVar+".pdf");
+    return canvas;
+}
+
+TCanvas plot_same_canvas_out(TH1D* h_mr[2]){
+    //canvas
+    TCanvas *canvas= new TCanvas("canvas","canvas",1000,600);
+    canvas->cd();
+    canvas->SetGrid();
+
+    //set range on y axis for each case
+    if      (mainVar=="z_h") {h_mr[0]->GetYaxis()->SetRangeUser(0,1.6);}
+    else if (mainVar=="nu") {h_mr[0]->GetYaxis()->SetRangeUser(0.2,1.2);}
+    else if (mainVar=="Q2") {h_mr[0]->GetYaxis()->SetRangeUser(0.5,1.2);}
+    else if (mainVar=="p_T2") {h_mr[0]->GetYaxis()->SetRangeUser(0.5,4.0);}
+    else if (mainVar=="phi_PQ") {h_mr[0]->GetYaxis()->SetRangeUser(0.5,1.2);}
+
+    //Set axis names
+    if(hadron=="pion") {h_mr[0]->GetYaxis()->SetTitle("#frac{N_{A}#pi^{+}}{N_{D2}#pi^{+}}#frac{N_{D2}e^{-}}{N_{A}e^{-}}");}
+    if(hadron=="pion_minus") {h_mr[0]->GetYaxis()->SetTitle("#frac{N_{A}#pi^{-}}{N_{D2}#pi^{-}}#frac{N_{D2}e^{-}}{N_{A}e^{-}}");}
+    h_mr[0]->GetXaxis()->SetTitle(mainVar);
+
+    //set colors
+    h_mr[0]->SetMarkerColor(1);
+    h_mr[0]->SetLineColor(1);
+    h_mr[1]->SetMarkerColor(205);
+    h_mr[1]->SetLineColor(205);
+
+    //draw plots without horizontal error bars
+    for (int i = 0; i < 2; ++i){
+        h_mr[i]->Draw("E1X0same");
+    }
+
+    //Draw legens in the top right corner
+    TLegend* legend = new TLegend(0.75, 0.75, 0.9, 0.9);
+    if (mainVar=="p_T2" || mainVar=="Q2" || mainVar=="nu"){legend = new TLegend(0.75, 0.25, 0.9, 0.1);}
+    legend->AddEntry(h_mr[0], "Carbon", "p");
+    legend->AddEntry(h_mr[1], "Lead", "p");
+    legend->Draw("same");
+
+    //Save final plot as pdf
+    canvas->SaveAs("output/"+torus_pol+"/data/mr_"+hadron+"_"+mainVar+".pdf");
+    return canvas;
+}
+
+void plot_simple_mr_all(int Hadron_pid=211, TString Var="z_h"){
     gStyle->SetOptStat(0);
+    mainVar=Var;
+
     //output directory
-    TString output_location = "output/data";
+    TString output_location = "output/"+torus_pol+"/data";
 
     //hadron selection
-    TString hadron;
     if (Hadron_pid==211){hadron="pion";}
     else if (Hadron_pid==-211){hadron="pion_minus";}
     else if (Hadron_pid==2212){hadron="proton";}
@@ -14,61 +111,28 @@ void plot_simple_mr_all(int Hadron_pid=211, TString var="z_h"){
         cout<<"PID not valid"<<endl;
         return;}
 
-    //get TH1Fs from root files created with calculate_mr
-    //input files
-    TFile *input_C = new TFile(output_location+"/C/mr_clas12.root","READ");
-    TFile *input_Al = new TFile(output_location+"/Al/mr_clas12.root","READ");
-    TFile *input_Cu = new TFile(output_location+"/Cu/mr_clas12.root","READ");
-    TFile *input_Sn = new TFile(output_location+"/Sn/mr_clas12.root","READ");
-    TFile *input_Pb = new TFile(output_location+"/Pb/mr_clas12.root","READ");
-    //mr histograms
-    TH1F* mr_hist_C = (TH1F*)input_C->Get(hadron+"_"+var+"_mratio");
-    TH1F* mr_hist_Al = (TH1F*)input_Al->Get(hadron+"_"+var+"_mratio");
-    TH1F* mr_hist_Cu = (TH1F*)input_Cu->Get(hadron+"_"+var+"_mratio");
-    TH1F* mr_hist_Sn = (TH1F*)input_Sn->Get(hadron+"_"+var+"_mratio");
-    TH1F* mr_hist_Pb = (TH1F*)input_Pb->Get(hadron+"_"+var+"_mratio");
+    //array for files and inputs
+    TString targets_inb[5] = {"C", "Al", "Cu", "Sn", "Pb"};
+    TFile* input_files_inb[5];
+    TH1D* h_mr_corr_inb[5];
 
-    //canvas
-    TCanvas *canvas= new TCanvas("canvas","canvas",1000,600);
-    canvas->cd();
-    canvas->SetGrid();
+    TString targets_out[2] = {"C", "Pb"};
+    TFile* input_files_out[2];
+    TH1D* h_mr_corr_out[2];
 
-    //set range on y axis for each case
-    if      (var=="z_h") {mr_hist_C->GetYaxis()->SetRangeUser(0,1.6);}
-    else if (var=="nu") {mr_hist_C->GetYaxis()->SetRangeUser(0.2,1.2);}
-    else if (var=="Q2") {mr_hist_C->GetYaxis()->SetRangeUser(0.5,1.2);}
-    else if (var=="p_T2") {mr_hist_C->GetYaxis()->SetRangeUser(0.5,4.0);}
-    else if (var=="phi_PQ") {mr_hist_C->GetYaxis()->SetRangeUser(0.5,1.2);}
-
-    //set colors
-    mr_hist_C->SetMarkerColor(1);
-    mr_hist_C->SetLineColor(1);
-    mr_hist_Al->SetMarkerColor(2);
-    mr_hist_Al->SetLineColor(2);
-    mr_hist_Cu->SetMarkerColor(4);
-    mr_hist_Cu->SetLineColor(4);
-    mr_hist_Sn->SetMarkerColor(209);
-    mr_hist_Sn->SetLineColor(209);
-    mr_hist_Pb->SetMarkerColor(205);
-    mr_hist_Pb->SetLineColor(205);
-
-    //draw plots without horizontal error bars
-    mr_hist_C->Draw("E1X0same");
-    mr_hist_Al->Draw("E1X0same");
-    mr_hist_Cu->Draw("E1X0same");
-    mr_hist_Sn->Draw("E1X0same");
-    mr_hist_Pb->Draw("E1X0same");
-
-    //Draw legens in the top right corner
-    TLegend* legend = new TLegend(0.75, 0.75, 0.9, 0.9);
-    if (var=="p_T2" || var=="Q2" || var=="nu"){legend = new TLegend(0.75, 0.25, 0.9, 0.1);}
-    legend->AddEntry(mr_hist_C, "Carbon", "p");
-    legend->AddEntry(mr_hist_Al, "Aluminum", "p");
-    legend->AddEntry(mr_hist_Cu, "Copper", "p");
-    legend->AddEntry(mr_hist_Sn, "Tin", "p");
-    legend->AddEntry(mr_hist_Pb, "Lead", "p");
-    legend->Draw("same");
-
-    //Save final plot as pdf
-    canvas->SaveAs("output/data/mr_"+hadron+"_"+var+".pdf");
+    //Total MR comparison
+    if (torus_pol=="inb"){
+        for (int i = 0; i < 5; ++i){
+            input_files_inb[i] = new TFile(output_location+"/"+targets_inb[i]+"/mr_clas12.root","READ");
+            h_mr_corr_inb[i] = (TH1D*)input_files_inb[i]->Get(hadron+"_"+mainVar+"_mratio");
+        }
+        plot_same_canvas_inb(h_mr_corr_inb);
+    }
+    else if (torus_pol=="out"){
+        for (int i = 0; i < 2; ++i){
+            input_files_out[i] = new TFile(output_location+"/"+targets_out[i]+"/mr_clas12.root","READ");
+            h_mr_corr_out[i] = (TH1D*)input_files_out[i]->Get(hadron+"_"+mainVar+"_mratio");
+        }
+        plot_same_canvas_out(h_mr_corr_out);
+    }
 }

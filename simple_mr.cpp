@@ -236,13 +236,13 @@ void simple_mr(TString Target="C", int Hadron_pid=211, TString type="data"){
         return;}
 
     //output root file for histograms
-    TString output_location = "output/"+subdir+"/"+Target+thrown_dir+"/";
+    TString output_location = "output/"+torus_pol+"/"+subdir+"/"+Target+thrown_dir+"/";
     TFile *output = new TFile(output_location+"mr_clas12.root","UPDATE");
 
     //Run the calculation for each variable
     if (type == "data"){
         //get input with histos created from simple_plots
-        TFile *input = new TFile("output/"+subdir+"/"+Target+"/out_clas12.root","READ");
+        TFile *input = new TFile("output/"+torus_pol+"/"+subdir+"/"+Target+"/out_clas12.root","READ");
 
         m_ratio("z_h" , 10, Zh_bins[0], Zh_bins[N_Zh], hadron, input, output_location, output);
         m_ratio("nu"  , 10, Nu_bins[0], Nu_bins[N_Nu], hadron, input, output_location, output);
