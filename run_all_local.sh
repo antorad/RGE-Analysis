@@ -9,7 +9,7 @@ TORUS_POL=$1
 
 #Second part to run interactively in farm
 INPUT_DIR="/volatile/clas12/antorad/rge/MR_analysis/data/pass1/$TORUS_POL/dc"
-OUTPUT_DIR="/work/clas12/rg-e/antorad/RGE-Analysis/output/$TORUS_POL"
+OUTPUT_DIR="/work/clas12/rg-e/antorad/RGE-Analysis/output/$TORUS_POL/data"
 #torus: inbending or outbendig
 
 #out_clas12
@@ -44,13 +44,13 @@ hadd -T -f $INPUT_DIR/Pb/data_binned_pion_minus.root $INPUT_DIR/Pb/020*/data_bin
 
 #Create directories in /work dir
 echo "Creating directories in work"
-mkdir -p $OUTPUT_DIR/data/C/
+mkdir -p $OUTPUT_DIR/C/
 if [[ $TORUS_POL == "inb" ]]; then
-mkdir -p $OUTPUT_DIR/data/Al/
-mkdir -p $OUTPUT_DIR/data/Cu/
-mkdir -p $OUTPUT_DIR/data/Sn/
+mkdir -p $OUTPUT_DIR/Al/
+mkdir -p $OUTPUT_DIR/Cu/
+mkdir -p $OUTPUT_DIR/Sn/
 fi
-mkdir -p $OUTPUT_DIR/data/Pb/
+mkdir -p $OUTPUT_DIR/Pb/
 
 #copy outputs to /work
 echo "Copying out_clas12 ROOT files to work"
@@ -82,8 +82,8 @@ cp $INPUT_DIR/Pb/data_binned_pion_minus.root $OUTPUT_DIR/Pb/
 
 #simple MR
 echo "Running simple_mr"
-./run_simple_mr.sh 211
-./run_simple_mr.sh -211
+./run_simple_mr.sh -pid 211 -pol $TORUS_POL
+./run_simple_mr.sh -pid -211 -pol $TORUS_POL
 
 #integrate multibinning
 echo "Running integrate_multibinning"
