@@ -40,7 +40,7 @@ TCanvas plot_same_canvas_inb(TH1D* h_mr[5]){
 
     //Draw legens in the top right corner
     TLegend* legend = new TLegend(0.75, 0.75, 0.9, 0.9);
-    if (mainVar=="Pt2" || mainVar=="Q2" || mainVar=="Nu"){legend = new TLegend(0.75, 0.25, 0.9, 0.1);}
+    if (mainVar=="p_T2" || mainVar=="Q2" || mainVar=="nu"){legend = new TLegend(0.75, 0.25, 0.9, 0.1);}
     legend->AddEntry(h_mr[0], "Carbon", "p");
     legend->AddEntry(h_mr[1], "Aluminum", "p");
     legend->AddEntry(h_mr[2], "Copper", "p");
