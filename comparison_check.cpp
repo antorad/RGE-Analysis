@@ -6,7 +6,7 @@ void comparison_check(){
     //TFile *output = new TFile("comparison_check.root","UPDATE");
 
     //Get TNtuple from make_ntuples
-    TFile *input = new TFile("data/ntuples_dc_000000.root","READ");
+    TFile *input = new TFile("data/ntuples_"+fwd_rec+"_000000.root","READ");
     TNtuple* input_tuple = (TNtuple*)input->Get("data");
 
     Float_t pid, v_z, Q2, E_PCAL, p, P_sf, status, DC_R1_edge;

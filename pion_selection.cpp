@@ -339,12 +339,12 @@ void pion_selection(const char* inputFileName, TString Target, TString type="dat
         TString run_N_str=TString(buffer);
         if (type=="data"){
             cout<<"Adding run: "<<line<<endl;
-            input_tuple->Add(type+"/ntuples_dc_"+run_N_str+".root");
+            input_tuple->Add(type+"/ntuples_"+fwd_rec+"_"+run_N_str+".root");
         }
         if (type=="simul"){
             cout<<"Addind simul job: "<<line<<endl;
-            input_tuple->Add(type+"/"+Target+"/ntuples_dc_"+run_N_str+".root");
-            input_tuple_mc->Add(type+"/"+Target+"/ntuples_dc_"+run_N_str+".root");
+            input_tuple->Add(type+"/"+Target+"/ntuples_"+fwd_rec+"_"+run_N_str+".root");
+            input_tuple_mc->Add(type+"/"+Target+"/ntuples_"+fwd_rec+"_"+run_N_str+".root");
         }
     }
 
@@ -352,7 +352,7 @@ void pion_selection(const char* inputFileName, TString Target, TString type="dat
     inputFile.close();
 
     //process the Tchain to make plots and output tuples
-    TString output_location = "output/"+type+"/"+Target+"/";
+    TString output_location = "output_"+fwd_rec+"/"+type+"/"+Target+"/";
     gSystem->Exec("mkdir -vp "+output_location);
     cout<<"Output location: "<<output_location<<endl;
 
@@ -383,16 +383,16 @@ void pion_selection(int run_N=000000, TString Target="unkw", TString type="data"
 
     //Output directory
     TString output_location;
-    output_location = "output/"+type+"/"+Target+"/"+run_N_str+"/";
+    output_location = "output_"+fwd_rec+"/"+type+"/"+Target+"/"+run_N_str+"/";
     gSystem->Exec("mkdir -vp "+output_location);
     cout<<"Output location: "<<output_location<<endl;
 
     if (type=="data"){
-        input_tuple->Add(type+"/ntuples_dc_"+run_N_str+".root");
+        input_tuple->Add(type+"/ntuples_"+fwd_rec+"_"+run_N_str+".root");
     }
     if (type=="simul"){
-        input_tuple->Add(type+"/"+Target+"/ntuples_dc_"+run_N_str+".root");
-        input_tuple_mc->Add(type+"/"+Target+"/ntuples_dc_"+run_N_str+".root");
+        input_tuple->Add(type+"/"+Target+"/ntuples_"+fwd_rec+"_"+run_N_str+".root");
+        input_tuple_mc->Add(type+"/"+Target+"/ntuples_"+fwd_rec+"_"+run_N_str+".root");
     }
 
     //process the Tchain to make plots and output tuples

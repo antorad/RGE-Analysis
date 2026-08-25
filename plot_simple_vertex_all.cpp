@@ -3,7 +3,7 @@
 void plot_simple_vertex_all(){
     gStyle->SetOptStat(0);
     //output directory
-    TString output_location = "output/data";
+    TString output_location = "output_"+fwd_rec+"/data";
 
     //get TH1Fs from root files created with calculate_mr
     //input files
@@ -55,7 +55,7 @@ void plot_simple_vertex_all(){
     legend->Draw("same");
 
     //Save final plot as pdf
-    canvas->SaveAs("output/data/e_v_z.pdf");
+    canvas->SaveAs("output_"+fwd_rec+"/data/e_v_z.pdf");
 
     TCanvas *canvas_sector= new TCanvas("canvas_sector","canvas_sector",1000,600);
     canvas_sector->Divide(3,2);
@@ -75,5 +75,5 @@ void plot_simple_vertex_all(){
             vline[i][j]->Draw();
         }
     }
-    canvas_sector->SaveAs("output/data/e_v_z_sector.pdf");
+    canvas_sector->SaveAs("output_"+fwd_rec+"/data/e_v_z_sector.pdf");
 }

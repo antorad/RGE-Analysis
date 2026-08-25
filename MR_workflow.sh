@@ -3,7 +3,6 @@
 TARGET=$1
 
 WORKFLOW_BASE="rge_data_MR"
-BANKS="dc"
 
 WORKFLOW_NAME="${WORKFLOW_BASE}_${BANKS}_${TARGET}"
 
@@ -19,7 +18,7 @@ while read -r RUN_NUMBER; do
         -ram 1g \
         -disk 1g \
         -shell /bin/bash \
-        "cd /work/clas12/rg-e/antorad/RGE-Analysis/ && ./run_all_wf.sh -b $BANKS -r $RUN_NUMBER -t $TARGET" 
+        "cd /work/clas12/rg-e/antorad/RGE-Analysis/ && ./run_all_wf.sh -r $RUN_NUMBER -t $TARGET" 
 done < runs/${TARGET}_runs.txt
 
 # Run workflow

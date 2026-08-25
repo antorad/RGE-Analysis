@@ -520,12 +520,12 @@ void simple_plots(const char* inputFileName, TString Target, TString type="data"
 		TString run_N_str=TString(buffer);
         if (type=="data"){
         	cout<<"Adding run: "<<line<<endl;
-        	input_tuple->Add(type+"/ntuples_dc_"+run_N_str+".root");
+        	input_tuple->Add(type+"/ntuples_"+fwd_rec+"_"+run_N_str+".root");
         }
         if (type=="simul"){
         	cout<<"Addind simul job: "<<line<<endl;
-        	input_tuple->Add(type+"/"+Target+"/ntuples_dc_"+run_N_str+".root");
-        	input_tuple_mc->Add(type+"/"+Target+"/ntuples_dc_"+run_N_str+".root");
+        	input_tuple->Add(type+"/"+Target+"/ntuples_"+fwd_rec+"_"+run_N_str+".root");
+        	input_tuple_mc->Add(type+"/"+Target+"/ntuples_"+fwd_rec+"_"+run_N_str+".root");
         }
     }
 
@@ -533,7 +533,7 @@ void simple_plots(const char* inputFileName, TString Target, TString type="data"
     inputFile.close();
 
     //process the Tchain to make plots and output tuples
-    TString output_location = "output/"+type+"/"+Target+"/";
+    TString output_location = "output_"+fwd_rec+"/"+type+"/"+Target+"/";
     gSystem->Exec("mkdir -vp "+output_location);
     cout<<"Output location: "<<output_location<<endl;
 
@@ -566,18 +566,18 @@ void simple_plots(int run_N=000000, TString Target="unkw", TString type="data"){
 
 	//Output directory
 	TString output_location;
-	if 		(run_location=="own_pc"){output_location = "output/"+torus_pol+"/"+type+"/"+Target+"/"+run_N_str+"/";}
-	else if (run_location=="farm")  {output_location = "/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass1/"+torus_pol+"/dc/"+Target+"/"+run_N_str+"/";}
+	if 		(run_location=="own_pc"){output_location = "output_"+fwd_rec+"/"+torus_pol+"/"+type+"/"+Target+"/"+run_N_str+"/";}
+	else if (run_location=="farm")  {output_location = "/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass1/"+torus_pol+"/"+fwd_rec+"/"+Target+"/"+run_N_str+"/";}
 	gSystem->Exec("mkdir -vp "+output_location);
 	cout<<"Output location: "<<output_location<<endl;
 
     if (type=="data"){
-    	if 		(run_location=="own_pc"){input_tuple->Add(type+"/ntuples_dc_"+run_N_str+".root");}
-    	else if (run_location=="farm")  {input_tuple->Add("/volatile/clas12/antorad/rge/data/pass1/"+torus_pol+"/"+Target+"_D2/dc/ntuple_files/ntuples_dc_"+run_N_str+".root");}
+    	if 		(run_location=="own_pc"){input_tuple->Add(type+"/ntuples_"+fwd_rec+"_"+run_N_str+".root");}
+    	else if (run_location=="farm")  {input_tuple->Add("/volatile/clas12/antorad/rge/data/pass1/"+torus_pol+"/"+Target+"_D2/"+fwd_rec+"/ntuple_files/ntuples_"+fwd_rec+"_"+run_N_str+".root");}
  	}
     if (type=="simul"){
-    	input_tuple->Add(type+"/"+Target+"/ntuples_dc_"+run_N_str+".root");
-    	input_tuple_mc->Add(type+"/"+Target+"/ntuples_dc_"+run_N_str+".root");
+    	input_tuple->Add(type+"/"+Target+"/ntuples_"+fwd_rec+"_"+run_N_str+".root");
+    	input_tuple_mc->Add(type+"/"+Target+"/ntuples_"+fwd_rec+"_"+run_N_str+".root");
     }
 
     //process the Tchain to make plots and output tuples

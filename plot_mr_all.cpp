@@ -49,7 +49,7 @@ TCanvas plot_same_canvas_inb(TH1D* h_mr[5]){
     legend->Draw("same");
 
     //Save final plot as pdf
-    canvas->SaveAs("output/"+torus_pol+"/AC_MR/mr_"+hadron+"_"+mainVar+".pdf");
+    canvas->SaveAs("output_"+fwd_rec+"/"+torus_pol+"/AC_MR/mr_"+hadron+"_"+mainVar+".pdf");
     return canvas;
 }
 
@@ -90,7 +90,7 @@ TCanvas plot_same_canvas_out(TH1D* h_mr[2]){
     legend->Draw("same");
 
     //Save final plot as pdf
-    canvas->SaveAs("output/"+torus_pol+"/AC_MR/mr_"+hadron+"_"+mainVar+".pdf");
+    canvas->SaveAs("output_"+fwd_rec+"/"+torus_pol+"/AC_MR/mr_"+hadron+"_"+mainVar+".pdf");
     return canvas;
 }
 
@@ -99,7 +99,7 @@ void plot_mr_all(int Hadron_pid=211, TString Var="Zh"){
     mainVar=Var;
 
     //output directory
-    TString output_location = "output/"+torus_pol;
+    TString output_location = "output_"+fwd_rec+"/"+torus_pol;
 
     //hadron selection
     if (Hadron_pid==211){hadron="pion";}

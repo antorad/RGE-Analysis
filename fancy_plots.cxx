@@ -4,10 +4,10 @@ void fancy_plots(TString Target="Pb", int Hadron_pid=211, TString type="data"){
     ROOT::EnableImplicitMT();
     if (type=="data"){
         //output directory
-        TString output_location = "output/"+Target+"/";
+        TString output_location = "output_"+fwd_rec+"/"+Target+"/";
 
         //get TNtuple input created from simple_plots
-        TFile *input = new TFile("output/"+Target+"/out_clas12.root","READ");
+        TFile *input = new TFile("output_"+fwd_rec+"/"+Target+"/out_clas12.root","READ");
 
         //Get histograms to make the pretty
         TCanvas *canvas = new TCanvas("canvas","canvas",1000,600);
@@ -57,13 +57,13 @@ void fancy_plots(TString Target="Pb", int Hadron_pid=211, TString type="data"){
 
     if (type=="simul"){
         //output directory
-        TString output_location = "output/simul/"+Target+"/";
+        TString output_location = "output_"+fwd_rec+"/simul/"+Target+"/";
 
         //get TNtuple input created from simple_plots
-        TFile *input_liq = new TFile("output/simul/"+Target+"/out_clas12.root","READ");
+        TFile *input_liq = new TFile("output_"+fwd_rec+"/simul/"+Target+"/out_clas12.root","READ");
 
         //get TNtuple input created from simple_plots
-        TFile *input_sol = new TFile("output/simul/D2/out_clas12.root","READ");
+        TFile *input_sol = new TFile("output_"+fwd_rec+"/simul/D2/out_clas12.root","READ");
 
         //Get histograms to make the pretty
         TCanvas *canvas = new TCanvas("canvas","canvas",1000,600);

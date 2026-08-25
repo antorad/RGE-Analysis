@@ -5,21 +5,12 @@
 #It calculates non corrected 1D MR and then plot all them for comparison.
 
 # Parse command-line arguments
-while [[ "$#" -gt 0 ]]; do
-    case "$1" in
-        -pol)
-            TORUS_POL="$2"
-            shift 2
-            ;;
-        -pid)
-            PID="$2"
-            shift 2
-            ;;
-        *)
-            echo "Unknown option: $1"
-            exit 1
-            ;;
-    esac
+while getopts "m:p:" opt; do
+  case $opt in
+    m) TORUS_POL=$OPTARG;;
+    p) PID=$OPTARG;;
+    \?) echo "Invalid option: -$OPTARG" >&2;;
+  esac
 done
 
 # Array of variable to compare between targets

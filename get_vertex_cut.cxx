@@ -18,7 +18,7 @@ void get_vertex_cut(TString Target="C", TString type="data"){
 	Float_t Nsigmas = 2.5;
 
     //get electron TH1 input created from simple_plots
-    TFile *input = new TFile("output/"+type+"/"+Target+"/out_clas12.root","READ");
+    TFile *input = new TFile("output_"+fwd_rec+"/"+type+"/"+Target+"/out_clas12.root","READ");
     TH1F* v_z_histo = (TH1F*)input->Get("e_v_z");
 
 	//liquid target

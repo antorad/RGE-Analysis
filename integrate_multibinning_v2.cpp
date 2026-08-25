@@ -58,18 +58,18 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
 
     //DATA
     //Get hadron and electron histograms from root file created with create_multibinning
-    TFile *input_data = new TFile("output/"+torus_pol+"/data/"+Target+"/data_binned_"+hadron+".root","READ");
+    TFile *input_data = new TFile("output_"+fwd_rec+"/"+torus_pol+"/data/"+Target+"/data_binned_"+hadron+".root","READ");
 
 /*
     //ACCEPTED
     //hadrons
-    TFile *input_acc_sol = new TFile("output/simul/"+Target+"/data_binned_"+hadron+".root","READ");
-    TFile *input_acc_liq = new TFile("output/simul/D2/data_binned_"+hadron+".root","READ");
+    TFile *input_acc_sol = new TFile("output_"+fwd_rec+"/simul/"+Target+"/data_binned_"+hadron+".root","READ");
+    TFile *input_acc_liq = new TFile("output_"+fwd_rec+"/simul/D2/data_binned_"+hadron+".root","READ");
 
     //THROWN
     //hadrons
-    TFile *input_thr_sol = new TFile("output/simul/"+Target+"/thrown/data_binned_"+hadron+".root","READ");
-    TFile *input_thr_liq = new TFile("output/simul/D2/thrown/data_binned_"+hadron+".root","READ");
+    TFile *input_thr_sol = new TFile("output_"+fwd_rec+"/simul/"+Target+"/thrown/data_binned_"+hadron+".root","READ");
+    TFile *input_thr_liq = new TFile("output_"+fwd_rec+"/simul/D2/thrown/data_binned_"+hadron+".root","READ");
 */
     
 //ONLY FOR TESTING, USING DATA FILES AS SIMULATIONS
@@ -77,18 +77,18 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
 
     //ACCEPTED
     //hadrons
-    TFile *input_acc_sol = new TFile("output/"+torus_pol+"/data/"+Target+"/data_binned_"+hadron+".root","READ");
-    TFile *input_acc_liq = new TFile("output/"+torus_pol+"/data/"+Target+"/data_binned_"+hadron+".root","READ");
+    TFile *input_acc_sol = new TFile("output_"+fwd_rec+"/"+torus_pol+"/data/"+Target+"/data_binned_"+hadron+".root","READ");
+    TFile *input_acc_liq = new TFile("output_"+fwd_rec+"/"+torus_pol+"/data/"+Target+"/data_binned_"+hadron+".root","READ");
 
     //THROWN
     //hadrons
-    TFile *input_thr_sol = new TFile("output/"+torus_pol+"/data/"+Target+"/data_binned_"+hadron+".root","READ");
-    TFile *input_thr_liq = new TFile("output/"+torus_pol+"/data/"+Target+"/data_binned_"+hadron+".root","READ");
+    TFile *input_thr_sol = new TFile("output_"+fwd_rec+"/"+torus_pol+"/data/"+Target+"/data_binned_"+hadron+".root","READ");
+    TFile *input_thr_liq = new TFile("output_"+fwd_rec+"/"+torus_pol+"/data/"+Target+"/data_binned_"+hadron+".root","READ");
 
 //END OF BLOCK TO BE DELETED WHEN SIMUALTIONS ARE COMPLETED
 
     //OUTPUT file
-    TString output_dir = "output/"+torus_pol+"/AC_MR/"+Target;
+    TString output_dir = "output_"+fwd_rec+"/"+torus_pol+"/AC_MR/"+Target;
     std::string command = std::string("mkdir -p ") + output_dir.Data();
     gSystem->Exec(command.c_str());
     TFile *output = new TFile(output_dir+"/mr_"+mainVar+"_"+hadron+".root","RECREATE");

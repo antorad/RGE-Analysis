@@ -1,15 +1,17 @@
 #!/bin/bash
 
-# Check polarity
-if [ -z "$1" ]; then
-  echo "Usage: $0 <polarity: inb or out>"
-  exit 1
-fi
-TORUS_POL=$1
+# Parse command-line arguments
+while getopts "m:b:" opt; do
+  case $opt in
+    m) TORUS_POL=$OPTARG;;
+    b) FWD_REC=$OPTARG;;
+    \?) echo "Invalid option: -$OPTARG" >&2;;
+  esac
+done
 
 #Second part to run interactively in farm
-INPUT_DIR="/volatile/clas12/antorad/rge/MR_analysis/data/pass1/$TORUS_POL/dc"
-OUTPUT_DIR="/work/clas12/rg-e/antorad/RGE-Analysis/output/$TORUS_POL/data"
+INPUT_DIR="/volatile/clas12/antorad/rge/MR_analysis/data/pass1/$TORUS_POL/$FWD_REC"
+OUTPUT_DIR="/work/clas12/rg-e/antorad/RGE-Analysis/output_$FWD_REC/$TORUS_POL/data"
 #torus: inbending or outbendig
 
 #out_clas12

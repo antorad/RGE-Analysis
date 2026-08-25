@@ -5,21 +5,13 @@
 #It divides the events in TH2 histos in a 5D binning.
 
 # Parse command-line arguments
-while [[ "$#" -gt 0 ]]; do
-    case "$1" in
-        -pol)
-            TORUS_POL="$2"
-            shift 2
-            ;;
-        -pid)
-            PID="$2"
-            shift 2
-            ;;
-        *)
-            echo "Unknown option: $1"
-            exit 1
-            ;;
-    esac
+while getopts "p:m:b:" opt; do
+  case $opt in
+    m) TORUS_POL=$OPTARG;;
+    p) PID=$OPTARG;;
+    b) FWD_REC=$OPTARG;;
+    \?) echo "Invalid option: -$OPTARG" >&2;;
+  esac
 done
 
 if [[ $TORUS_POL == "inb" ]]; then
@@ -39,17 +31,17 @@ if [[ $TORUS_POL == "inb" ]]; then
     gnome-terminal --wait -- bash -c "root -l -q 'make_multibinning_v3.cpp(20315,\"Pb\", $PID, \"data\")'" &
     wait
 
-    hadd -T -f output/$TORUS_POL/data/C/data_binned_pion.root  output/$TORUS_POL/data/C/*/data_binned_pion.root
-    hadd -T -f output/$TORUS_POL/data/Al/data_binned_pion.root output/$TORUS_POL/data/Al/*/data_binned_pion.root
-    hadd -T -f output/$TORUS_POL/data/Cu/data_binned_pion.root output/$TORUS_POL/data/Cu/*/data_binned_pion.root
-    hadd -T -f output/$TORUS_POL/data/Sn/data_binned_pion.root output/$TORUS_POL/data/Sn/*/data_binned_pion.root
-    hadd -T -f output/$TORUS_POL/data/Pb/data_binned_pion.root output/$TORUS_POL/data/Pb/*/data_binned_pion.root
+    hadd -T -f output_$FWD_REC/$TORUS_POL/data/C/data_binned_pion.root  output_$FWD_REC/$TORUS_POL/data/C/*/data_binned_pion.root
+    hadd -T -f output_$FWD_REC/$TORUS_POL/data/Al/data_binned_pion.root output_$FWD_REC/$TORUS_POL/data/Al/*/data_binned_pion.root
+    hadd -T -f output_$FWD_REC/$TORUS_POL/data/Cu/data_binned_pion.root output_$FWD_REC/$TORUS_POL/data/Cu/*/data_binned_pion.root
+    hadd -T -f output_$FWD_REC/$TORUS_POL/data/Sn/data_binned_pion.root output_$FWD_REC/$TORUS_POL/data/Sn/*/data_binned_pion.root
+    hadd -T -f output_$FWD_REC/$TORUS_POL/data/Pb/data_binned_pion.root output_$FWD_REC/$TORUS_POL/data/Pb/*/data_binned_pion.root
 
-    hadd -T -f output/$TORUS_POL/data/C/data_binned_pion_minus.root  output/$TORUS_POL/data/C/*/data_binned_pion_minus.root
-    hadd -T -f output/$TORUS_POL/data/Al/data_binned_pion_minus.root output/$TORUS_POL/data/Al/*/data_binned_pion_minus.root
-    hadd -T -f output/$TORUS_POL/data/Cu/data_binned_pion_minus.root output/$TORUS_POL/data/Cu/*/data_binned_pion_minus.root
-    hadd -T -f output/$TORUS_POL/data/Sn/data_binned_pion_minus.root output/$TORUS_POL/data/Sn/*/data_binned_pion_minus.root
-    hadd -T -f output/$TORUS_POL/data/Pb/data_binned_pion_minus.root output/$TORUS_POL/data/Pb/*/data_binned_pion_minus.root
+    hadd -T -f output_$FWD_REC/$TORUS_POL/data/C/data_binned_pion_minus.root  output_$FWD_REC/$TORUS_POL/data/C/*/data_binned_pion_minus.root
+    hadd -T -f output_$FWD_REC/$TORUS_POL/data/Al/data_binned_pion_minus.root output_$FWD_REC/$TORUS_POL/data/Al/*/data_binned_pion_minus.root
+    hadd -T -f output_$FWD_REC/$TORUS_POL/data/Cu/data_binned_pion_minus.root output_$FWD_REC/$TORUS_POL/data/Cu/*/data_binned_pion_minus.root
+    hadd -T -f output_$FWD_REC/$TORUS_POL/data/Sn/data_binned_pion_minus.root output_$FWD_REC/$TORUS_POL/data/Sn/*/data_binned_pion_minus.root
+    hadd -T -f output_$FWD_REC/$TORUS_POL/data/Pb/data_binned_pion_minus.root output_$FWD_REC/$TORUS_POL/data/Pb/*/data_binned_pion_minus.root
 
 elif [[ $TORUS_POL == "out" ]]; then
     gnome-terminal --wait -- bash -c "root -l -q 'make_multibinning_v3.cpp(20517,\"C\",  $PID, \"data\")'" &
@@ -59,11 +51,11 @@ elif [[ $TORUS_POL == "out" ]]; then
     gnome-terminal --wait -- bash -c "root -l -q 'make_multibinning_v3.cpp(20523,\"Pb\", $PID, \"data\")'" &
     wait
 
-    hadd -T -f output/$TORUS_POL/data/C/data_binned_pion.root  output/$TORUS_POL/data/C/*/data_binned_pion.root
-    hadd -T -f output/$TORUS_POL/data/Pb/data_binned_pion.root output/$TORUS_POL/data/Pb/*/data_binned_pion.root
+    hadd -T -f output_$FWD_REC/$TORUS_POL/data/C/data_binned_pion.root  output_$FWD_REC/$TORUS_POL/data/C/*/data_binned_pion.root
+    hadd -T -f output_$FWD_REC/$TORUS_POL/data/Pb/data_binned_pion.root output_$FWD_REC/$TORUS_POL/data/Pb/*/data_binned_pion.root
 
-    hadd -T -f output/$TORUS_POL/data/C/data_binned_pion_minus.root  output/$TORUS_POL/data/C/*/data_binned_pion_minus.root
-    hadd -T -f output/$TORUS_POL/data/Pb/data_binned_pion_minus.root output/$TORUS_POL/data/Pb/*/data_binned_pion_minus.root
+    hadd -T -f output_$FWD_REC/$TORUS_POL/data/C/data_binned_pion_minus.root  output_$FWD_REC/$TORUS_POL/data/C/*/data_binned_pion_minus.root
+    hadd -T -f output_$FWD_REC/$TORUS_POL/data/Pb/data_binned_pion_minus.root output_$FWD_REC/$TORUS_POL/data/Pb/*/data_binned_pion_minus.root
 fi
 
 #For now C and D2 only. When simulations are done, I'll add the rest of targets

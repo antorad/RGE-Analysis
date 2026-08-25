@@ -4,24 +4,17 @@ echo "--- Running: run_all_wf ---"
 
 # Environment setup
 module use /scigroup/cvmfs/hallb/clas12/sw/modulefiles
-module load clas12
+module load clas12/5.7
 export ROOT=/u/scigroup/cvmfs/hallb/clas12/sw/almalinux9-gcc11/local/root/6.36.04/
 
 # Parse command-line arguments
-while getopts "b:r:t:" opt; do
+while getopts "r:t:" opt; do
   case $opt in
-    b) BANKS=$OPTARG;;
     r) RUN=$OPTARG;;
     t) TARGET=$OPTARG;;
     \?) echo "Invalid option: -$OPTARG" >&2;;
   esac
 done
-
-# Ensure both arguments are provided
-if [ -z "$RUN" ] || [ -z "$TARGET" ]; then
-    echo "Usage: $0 -b <banks> -r <run_n> -t <target>"
-    exit 1
-fi
 
 #First part to run in cluster (in job)
 #simple plots

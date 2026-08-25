@@ -4,13 +4,14 @@
 #This script runs plot_mr_all for the specified paraticle
 #It creates plots taht compare the MR for each target.
 
-# Check if a PID argument is provided
-if [ -z "$1" ]; then
-  echo "Usage: $0 <pid>"
-  exit 1
-fi
+# Parse command-line arguments
+while getopts "p:" opt; do
+  case $opt in
+    p) PID=$OPTARG;;
+    \?) echo "Invalid option: -$OPTARG" >&2;;
+  esac
+done
 
-PID=$1
 VARS_ALL=("Zh" "Pt2" "Phi_PQ" "Nu" "Q2")
 VARS_BIN=("Zh" "Pt2" "Phi_PQ")
 

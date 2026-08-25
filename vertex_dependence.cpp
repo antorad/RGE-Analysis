@@ -8,13 +8,13 @@ void vertex_dependence(int run_N=000000, TString Target="C", TString type="data"
 
     //output directory
     TString output_location;
-    if      (run_location=="own_pc"){output_location="output/"+type+"/"+Target+"/"+run_N_str;}
-    else if (run_location=="farm"){output_location="/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass1/dc/"+Target+"/"+run_N_str;}
+    if      (run_location=="own_pc"){output_location="output_"+fwd_rec+"/"+type+"/"+Target+"/"+run_N_str;}
+    else if (run_location=="farm"){output_location="/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass1/"+fwd_rec+"/"+Target+"/"+run_N_str;}
 
     //input directory
     TString input_location;
-    if      (run_location=="own_pc"){input_location="output/"+type+"/"+Target+"/"+run_N_str;}
-    else if (run_location=="farm"){input_location="/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass1/dc/"+Target+"/"+run_N_str;}
+    if      (run_location=="own_pc"){input_location="output_"+fwd_rec+"/"+type+"/"+Target+"/"+run_N_str;}
+    else if (run_location=="farm"){input_location="/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass1/"+fwd_rec+"/"+Target+"/"+run_N_str;}
 
     //get input electron tuple created with simple_plots
     TFile *input = new TFile(input_location+"/out_clas12.root","READ");
