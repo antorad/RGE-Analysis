@@ -104,9 +104,9 @@ void draw_sector_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, floa
 		histo[i-1] = (TH1F*)gDirectory->GetList()->FindObject(Form("histo%i",i));
 		histo[i-1]->GetXaxis()->SetTitle(xtitle);
 		histo[i-1]->GetYaxis()->SetTitle(ytitle);
-		histo[i-1]->SetTitle(xtitle+Form(" Sector %i",i-1));
+		histo[i-1]->SetTitle(xtitle+Form(" Sector %i",i));
 		histo[i-1]->Draw("COLZ");
-		histo[i-1]->Write(output+Form("_%i",i-1));
+		histo[i-1]->Write(output+Form("_%i",i));
 	}
 	canvas->SaveAs(location+output+".pdf");
 	delete canvas;
@@ -364,7 +364,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 				output_location, output);
 
 	//phiPQ
-	draw_plot(pion_tuple, "", "phi_PQ",360,-180,180, "#phi_PQ [deg]", "dN/d#phi_PQ", "pi_phi_PQ",
+	draw_plot(pion_tuple, "", "phi_PQ",360,-3.15,3.15, "#phi_PQ [deg]", "dN/d#phi_PQ", "pi_phi_PQ",
 				output_location, output);
 
 	//Pt2 vz Zh
