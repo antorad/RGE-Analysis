@@ -263,16 +263,25 @@ void processChain(TChain* input_tuple, TString output_location) {
 			hadron_vars[23] = D_T;
 
 			//all hadrons
-			if (pid!=11 && pid!=-11 && status<3000 && pid!=22){hadron_tuple->Fill(hadron_vars);}
+			if (pid!=11 && pid!=-11 && status<3000 && (detector=="fd" || detector=="all") && pid!=22){hadron_tuple->Fill(hadron_vars);}
+
+			if (pid!=11 && pid!=-11 && status>3000 && (detector=="cd" || detector=="all") && pid!=22){hadron_tuple->Fill(hadron_vars);}
 
 			////positive pions
-			if (pid==211 && status<3000 && valid_pion(p, D_T)
+			if (pid==211 && status<3000  && (detector=="fd" || detector=="all") && valid_pion(p, D_T)
 				&& DC_R1_fc_pi<DC_R1_edge && DC_R2_fc_pi<DC_R2_edge && DC_R3_fc_pi<DC_R3_edge){
 					pion_tuple->Fill(hadron_vars);}
 
+			if (pid==211 && status>3000 && (detector=="cd" || detector=="all")){
+					pion_tuple->Fill(hadron_vars);}
+
 			//negative pions
-			else if (pid==-211 && status<3000 && valid_pion(p, D_T)
+			if (pid==-211 && status<3000 && (detector=="fd" || detector=="all") && valid_pion(p, D_T)
 				&& DC_R1_fc_pi<DC_R1_edge && DC_R2_fc_pi<DC_R2_edge && DC_R3_fc_pi<DC_R3_edge){
+					pion_minus_tuple->Fill(hadron_vars);}
+
+			//negative pions
+			if (pid==-211 && status>3000 && (detector=="cd" || detector=="all")){
 					pion_minus_tuple->Fill(hadron_vars);}
 
 			//else if (pid==2212 && status<3000){proton_tuple->Fill(hadron_vars);}
@@ -566,8 +575,8 @@ void simple_plots(int run_N=000000, TString Target="unkw", TString type="data"){
 
 	//Output directory
 	TString output_location;
-	if 		(run_location=="own_pc"){output_location = "output_"+fwd_rec+"/"+torus_pol+"/"+type+"/"+Target+"/"+run_N_str+"/";}
-	else if (run_location=="farm")  {output_location = "/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass1/"+torus_pol+"/"+fwd_rec+"/"+Target+"/"+run_N_str+"/";}
+	if 		(run_location=="own_pc"){output_location = "output_"+fwd_rec+"/"+torus_pol+"/"+type+"/"+detector+"/"+Target+"/"+run_N_str+"/";}
+	else if (run_location=="farm")  {output_location = "/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass1/"+torus_pol+"/"+fwd_rec+"/"+detector+"/"+Target+"/"+run_N_str+"/";}
 	gSystem->Exec("mkdir -vp "+output_location);
 	cout<<"Output location: "<<output_location<<endl;
 

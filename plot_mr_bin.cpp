@@ -125,7 +125,7 @@ TCanvas multiplot_inb(TFile* input_files[5]){
     if (hadron=="pion_minus"){latex.DrawLatexNDC(left_margin - 0.03, 0.8, "#frac{N_{A}#pi^{-}}{N_{D2}#pi^{-}}#frac{N_{D2}e^{-}}{N_{A}e^{-}}");}
 
     //Save plot as pdf
-    canvas->SaveAs("output_"+fwd_rec+"/"+torus_pol+"/AC_MR/mr_binbybin_"+hadron+"_"+mainVar+".pdf");
+    canvas->SaveAs("output_"+fwd_rec+"/"+torus_pol+"/AC_MR/"+detector+"/mr_binbybin_"+hadron+"_"+mainVar+".pdf");
     return canvas;
 }
 
@@ -242,7 +242,7 @@ TCanvas multiplot_out(TFile* input_files[2]){
     if (hadron=="pion_minus"){latex.DrawLatexNDC(left_margin - 0.03, 0.8, "#frac{N_{A}#pi^{-}}{N_{D2}#pi^{-}}#frac{N_{D2}e^{-}}{N_{A}e^{-}}");}
 
     //Save plot as pdf
-    canvas->SaveAs("output_"+fwd_rec+"/"+torus_pol+"/AC_MR/mr_binbybin_"+hadron+"_"+mainVar+".pdf");
+    canvas->SaveAs("output_"+fwd_rec+"/"+torus_pol+"/AC_MR/"+detector+"/mr_binbybin_"+hadron+"_"+mainVar+".pdf");
     return canvas;
 }
 
@@ -251,7 +251,7 @@ void plot_mr_bin(int Hadron_pid=211, TString var="Zh"){
     mainVar=var;
 
     //output directory
-    TString output_location = "output_"+fwd_rec+"/"+torus_pol+"/AC_MR/";
+    TString output_location = "output_"+fwd_rec+"/"+torus_pol+"/AC_MR/"+detector+"/";
 
     //hadron selection
     if (Hadron_pid==211){hadron="pion";}

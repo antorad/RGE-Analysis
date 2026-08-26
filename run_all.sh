@@ -1,16 +1,17 @@
 #!/bin/bash
 
 # Parse command-line arguments
-while getopts "m:b:" opt; do
+while getopts "m:b:d:" opt; do
   case $opt in
     m) TORUS_POL=$OPTARG;;
     b) FWD_REC=$OPTARG;;
+    d) DETECTOR=$OPTARG;;
     \?) echo "Invalid option: -$OPTARG" >&2;;
   esac
 done
 
 #simple plots
-./run_simple_plots.sh -m $TORUS_POL -b $FWD_REC
+./run_simple_plots.sh -m $TORUS_POL -b $FWD_REC -d $DETECTOR
 
 #simple MR
 ./run_simple_mr.sh -p 211 -m $TORUS_POL
@@ -20,8 +21,8 @@ done
 #./run_mr_ac_1d.sh 211
 
 #make multibbining
-./run_make_multibinning.sh -p 211 -m $TORUS_POL -b $FWD_REC
-./run_make_multibinning.sh -p -211 -m $TORUS_POL -b $FWD_REC
+./run_make_multibinning.sh -p 211 -m $TORUS_POL -b $FWD_REC -d $DETECTOR
+./run_make_multibinning.sh -p -211 -m $TORUS_POL -b $FWD_REC -d $DETECTOR
 
 #integrate multibinning
 ./run_integrate_multibinning.sh -t C -p 211

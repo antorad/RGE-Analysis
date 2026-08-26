@@ -26,14 +26,14 @@ void make_multibinning_v3(int run_N=000000, TString Target="C", int Hadron_pid=2
 
     //Output root file for histograms
     TString output_location;
-    if      (run_location=="own_pc"){output_location="output_"+fwd_rec+"/"+torus_pol+"/"+subdir+"/"+Target+"/"+run_N_str+thrown_dir;}
-    else if (run_location=="farm"){output_location="/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass1/"+torus_pol+"/"+fwd_rec+"/"+Target+"/"+run_N_str;}
+    if      (run_location=="own_pc"){output_location="output_"+fwd_rec+"/"+torus_pol+"/"+subdir+"/"+detector+"/"+Target+"/"+run_N_str+thrown_dir;}
+    else if (run_location=="farm"){output_location="/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass1/"+torus_pol+"/"+fwd_rec+"/"+detector+"/"+Target+"/"+run_N_str;}
     TFile *output = new TFile(output_location+"/data_binned_"+hadron+".root","RECREATE");
 
     //Get TNtuple input created from simple_plots
     TString input_location;
-    if      (run_location=="own_pc"){input_location="output_"+fwd_rec+"/"+torus_pol+"/"+subdir+"/"+Target+"/"+run_N_str+thrown_dir;}
-    else if (run_location=="farm"){input_location="/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass1/"+torus_pol+"/"+fwd_rec+"/"+Target+"/"+run_N_str;}
+    if      (run_location=="own_pc"){input_location="output_"+fwd_rec+"/"+torus_pol+"/"+subdir+"/"+detector+"/"+Target+"/"+run_N_str+thrown_dir;}
+    else if (run_location=="farm"){input_location="/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass1/"+torus_pol+"/"+fwd_rec+"/"+detector+"/"+Target+"/"+run_N_str;}
     TFile *input = new TFile(input_location+"/out_clas12.root","READ");
     TNtuple* h_tuple = (TNtuple*)input->Get(hadron+"_ntuple");
 

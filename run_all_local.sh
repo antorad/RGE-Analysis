@@ -1,17 +1,18 @@
 #!/bin/bash
 
 # Parse command-line arguments
-while getopts "m:b:" opt; do
+while getopts "m:b:d:" opt; do
   case $opt in
     m) TORUS_POL=$OPTARG;;
     b) FWD_REC=$OPTARG;;
+    d) DETECTOR=$OPTARG;;
     \?) echo "Invalid option: -$OPTARG" >&2;;
   esac
 done
 
 #Second part to run interactively in farm
-INPUT_DIR="/volatile/clas12/antorad/rge/MR_analysis/data/pass1/$TORUS_POL/$FWD_REC"
-OUTPUT_DIR="/work/clas12/rg-e/antorad/RGE-Analysis/output_$FWD_REC/$TORUS_POL/data"
+INPUT_DIR="/volatile/clas12/antorad/rge/MR_analysis/data/pass1/$TORUS_POL/$FWD_REC/$DETECTOR"
+OUTPUT_DIR="/work/clas12/rg-e/antorad/RGE-Analysis/output_$FWD_REC/$TORUS_POL/data/$DETECTOR"
 #torus: inbending or outbendig
 
 #out_clas12

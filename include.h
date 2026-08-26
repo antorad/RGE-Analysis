@@ -1,7 +1,8 @@
 //Variables to modify before running
 TString run_location = "own_pc";    //LOCATION ("own_pc" or "farm")
 TString torus_pol = "inb";          //TORUS ("inb" or "out")
-TString fwd_rec ="dc_fmt";              //BANKS ("dc" or "dc_fmt")
+TString fwd_rec ="dc_fmt";          //BANKS ("dc" or "dc_fmt")
+TString detector ="fd";            //DETECTORS ("fd", "cd" or "all")
 
 //Binning (Check values later, these are testing for now)
 const int N_Q2=5;

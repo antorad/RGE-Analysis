@@ -1,10 +1,11 @@
 #!/bin/bash
 
 # Parse command-line arguments
-while getopts "m:b:" opt; do
+while getopts "m:b:d:" opt; do
   case $opt in
     m) TORUS_POL=$OPTARG;;
     b) FWD_REC=$OPTARG;;
+    d) DETECTOR=$OPTARG;;
     \?) echo "Invalid option: -$OPTARG" >&2;;
   esac
 done
@@ -35,11 +36,11 @@ if [[ $TORUS_POL == "inb" ]]; then
   #gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx(20094, \"C\", \"data\")'"
   wait
 
-  hadd -T -f output_$FWD_REC/$TORUS_POL/data/C/out_clas12.root  output_$FWD_REC/$TORUS_POL/data/C/*/out_clas12.root
-  hadd -T -f output_$FWD_REC/$TORUS_POL/data/Al/out_clas12.root output_$FWD_REC/$TORUS_POL/data/Al/*/out_clas12.root
-  hadd -T -f output_$FWD_REC/$TORUS_POL/data/Cu/out_clas12.root output_$FWD_REC/$TORUS_POL/data/Cu/*/out_clas12.root
-  hadd -T -f output_$FWD_REC/$TORUS_POL/data/Sn/out_clas12.root output_$FWD_REC/$TORUS_POL/data/Sn/*/out_clas12.root
-  hadd -T -f output_$FWD_REC/$TORUS_POL/data/Pb/out_clas12.root output_$FWD_REC/$TORUS_POL/data/Pb/*/out_clas12.root
+  hadd -T -f output_$FWD_REC/$TORUS_POL/data/$DETECTOR/C/out_clas12.root  output_$FWD_REC/$TORUS_POL/data/$DETECTOR/C/*/out_clas12.root
+  hadd -T -f output_$FWD_REC/$TORUS_POL/data/$DETECTOR/Al/out_clas12.root output_$FWD_REC/$TORUS_POL/data/$DETECTOR/Al/*/out_clas12.root
+  hadd -T -f output_$FWD_REC/$TORUS_POL/data/$DETECTOR/Cu/out_clas12.root output_$FWD_REC/$TORUS_POL/data/$DETECTOR/Cu/*/out_clas12.root
+  hadd -T -f output_$FWD_REC/$TORUS_POL/data/$DETECTOR/Sn/out_clas12.root output_$FWD_REC/$TORUS_POL/data/$DETECTOR/Sn/*/out_clas12.root
+  hadd -T -f output_$FWD_REC/$TORUS_POL/data/$DETECTOR/Pb/out_clas12.root output_$FWD_REC/$TORUS_POL/data/$DETECTOR/Pb/*/out_clas12.root
 
 elif [[ $TORUS_POL == "out" ]]; then
   gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx(20517, \"C\", \"data\")'" &
@@ -49,8 +50,8 @@ elif [[ $TORUS_POL == "out" ]]; then
   gnome-terminal --wait -- bash -c "root -l -q 'simple_plots.cxx(20523, \"Pb\", \"data\")'" &
   wait
 
-  hadd -T -f output_$FWD_REC/$TORUS_POL/data/C/out_clas12.root  output_$FWD_REC/$TORUS_POL/data/C/*/out_clas12.root
-  hadd -T -f output_$FWD_REC/$TORUS_POL/data/Pb/out_clas12.root output_$FWD_REC/$TORUS_POL/data/Pb/*/out_clas12.root
+  hadd -T -f output_$FWD_REC/$TORUS_POL/data/$DETECTOR/C/out_clas12.root  output_$FWD_REC/$TORUS_POL/data/$DETECTOR/C/*/out_clas12.root
+  hadd -T -f output_$FWD_REC/$TORUS_POL/data/$DETECTOR/Pb/out_clas12.root output_$FWD_REC/$TORUS_POL/data/$DETECTOR/Pb/*/out_clas12.root
 fi
 
 echo "run_simple plots finished."

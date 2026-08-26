@@ -236,13 +236,13 @@ void simple_mr(TString Target="C", int Hadron_pid=211, TString type="data"){
         return;}
 
     //output root file for histograms
-    TString output_location = "output_"+fwd_rec+"/"+torus_pol+"/"+subdir+"/"+Target+thrown_dir+"/";
+    TString output_location = "output_"+fwd_rec+"/"+torus_pol+"/"+subdir+"/"+detector+"/"+Target+thrown_dir+"/";
     TFile *output = new TFile(output_location+"mr_clas12.root","UPDATE");
 
     //Run the calculation for each variable
     if (type == "data"){
         //get input with histos created from simple_plots
-        TFile *input = new TFile("output_"+fwd_rec+"/"+torus_pol+"/"+subdir+"/"+Target+"/out_clas12.root","READ");
+        TFile *input = new TFile("output_"+fwd_rec+"/"+torus_pol+"/"+subdir+"/"+detector+"/"+Target+"/out_clas12.root","READ");
 
         m_ratio("z_h" , 10, Zh_bins[0], Zh_bins[N_Zh], hadron, input, output_location, output);
         m_ratio("nu"  , 10, Nu_bins[0], Nu_bins[N_Nu], hadron, input, output_location, output);
@@ -252,14 +252,14 @@ void simple_mr(TString Target="C", int Hadron_pid=211, TString type="data"){
     }
 
     if (type=="acc" || type=="thrown"){
-        //TFile *input_sol = new TFile("output_"+fwd_rec+"/"+subdir+"/"+Target+thrown_dir+"/out_clas12.root","READ");
+        //TFile *input_sol = new TFile("output_"+fwd_rec+"/"+subdir+"/"+detector+"/"+Target+thrown_dir+"/out_clas12.root","READ");
         //TFile *input_liq = new TFile("output_"+fwd_rec+"/"+subdir+"/D2"+thrown_dir+"/out_clas12.root","READ");
 
         //TNtuple* hadron_tuple_sol = (TNtuple*)input_sol->Get(hadron+"_ntuple");
         //TNtuple* hadron_tuple_liq = (TNtuple*)input_liq->Get(hadron+"_ntuple");
         TChain* hadron_tuple_sol = new TChain(hadron+"_ntuple");
         TChain* hadron_tuple_liq = new TChain(hadron+"_ntuple");
-        hadron_tuple_sol->Add("output_"+fwd_rec+"/"+subdir+"/"+Target+thrown_dir+"/out_clas12.root");
+        hadron_tuple_sol->Add("output_"+fwd_rec+"/"+subdir+"/"+detector+"/"+Target+thrown_dir+"/out_clas12.root");
         hadron_tuple_liq->Add("output_"+fwd_rec+"/"+subdir+"/D2"+thrown_dir+"/out_clas12.root");
 
         //TNtuple* elec_tuple_sol = (TNtuple*)input_sol->Get("elec_tuple");
@@ -267,7 +267,7 @@ void simple_mr(TString Target="C", int Hadron_pid=211, TString type="data"){
 
         TChain* elec_tuple_sol = new TChain("elec_tuple");
         TChain* elec_tuple_liq = new TChain("elec_tuple");
-        elec_tuple_sol->Add("output_"+fwd_rec+"/"+subdir+"/"+Target+thrown_dir+"/out_clas12.root");
+        elec_tuple_sol->Add("output_"+fwd_rec+"/"+subdir+"/"+detector+"/"+Target+thrown_dir+"/out_clas12.root");
         elec_tuple_liq->Add("output_"+fwd_rec+"/"+subdir+"/D2"+thrown_dir+"/out_clas12.root");
 
         m_ratio_simul("z_h", 10, 0., 1., hadron, hadron_tuple_sol, elec_tuple_sol, hadron_tuple_liq, elec_tuple_liq, output_location, output);
