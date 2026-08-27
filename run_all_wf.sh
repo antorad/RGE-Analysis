@@ -18,10 +18,10 @@ done
 
 #First part to run in cluster (in job)
 #simple plots
-root -l -q 'simple_plots.cxx('$RUN', "'$TARGET'" , "data")'
+root -l -q -b 'simple_plots.cxx('$RUN', "'$TARGET'" , "data")'
 
 #make multibining
-root -l -q 'make_multibinning_v3.cpp('$RUN', "'$TARGET'" , 211, "data")'
+root -l -q -b 'make_multibinning_v3.cpp('$RUN', "'$TARGET'" , 211, "data")'
 
 #make multibining
-root -l -q 'make_multibinning_v3.cpp('$RUN', "'$TARGET'" , -211, "data")'
+root -l -q -b 'make_multibinning_v3.cpp('$RUN', "'$TARGET'" , -211, "data")'

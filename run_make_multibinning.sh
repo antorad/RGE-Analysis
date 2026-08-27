@@ -16,20 +16,20 @@ while getopts "p:m:b:d:" opt; do
 done
 
 if [[ $TORUS_POL == "inb" ]]; then
-    gnome-terminal --wait -- bash -c "root -l -q 'make_multibinning_v3.cpp(20156,\"C\",  $PID, \"data\")'" &
-    gnome-terminal --wait -- bash -c "root -l -q 'make_multibinning_v3.cpp(20161,\"C\",  $PID, \"data\")'" &
+    gnome-terminal --wait -- bash -c "root -l -q -b 'make_multibinning_v3.cpp(20156,\"C\",  $PID, \"data\")'" &
+    gnome-terminal --wait -- bash -c "root -l -q -b 'make_multibinning_v3.cpp(20161,\"C\",  $PID, \"data\")'" &
     wait
-    gnome-terminal --wait -- bash -c "root -l -q 'make_multibinning_v3.cpp(20437,\"Al\", $PID, \"data\")'" &
-    gnome-terminal --wait -- bash -c "root -l -q 'make_multibinning_v3.cpp(20482,\"Al\", $PID, \"data\")'" &
+    gnome-terminal --wait -- bash -c "root -l -q -b 'make_multibinning_v3.cpp(20437,\"Al\", $PID, \"data\")'" &
+    gnome-terminal --wait -- bash -c "root -l -q -b 'make_multibinning_v3.cpp(20482,\"Al\", $PID, \"data\")'" &
     wait
-    gnome-terminal --wait -- bash -c "root -l -q 'make_multibinning_v3.cpp(20178,\"Cu\", $PID, \"data\")'" &
-    gnome-terminal --wait -- bash -c "root -l -q 'make_multibinning_v3.cpp(20205,\"Cu\", $PID, \"data\")'" &
+    gnome-terminal --wait -- bash -c "root -l -q -b 'make_multibinning_v3.cpp(20178,\"Cu\", $PID, \"data\")'" &
+    gnome-terminal --wait -- bash -c "root -l -q -b 'make_multibinning_v3.cpp(20205,\"Cu\", $PID, \"data\")'" &
     wait
-    gnome-terminal --wait -- bash -c "root -l -q 'make_multibinning_v3.cpp(20344,\"Sn\", $PID, \"data\")'" &
-    gnome-terminal --wait -- bash -c "root -l -q 'make_multibinning_v3.cpp(20383,\"Sn\", $PID, \"data\")'" &
+    gnome-terminal --wait -- bash -c "root -l -q -b 'make_multibinning_v3.cpp(20344,\"Sn\", $PID, \"data\")'" &
+    gnome-terminal --wait -- bash -c "root -l -q -b 'make_multibinning_v3.cpp(20383,\"Sn\", $PID, \"data\")'" &
     wait
-    gnome-terminal --wait -- bash -c "root -l -q 'make_multibinning_v3.cpp(20265,\"Pb\", $PID, \"data\")'" &
-    gnome-terminal --wait -- bash -c "root -l -q 'make_multibinning_v3.cpp(20315,\"Pb\", $PID, \"data\")'" &
+    gnome-terminal --wait -- bash -c "root -l -q -b 'make_multibinning_v3.cpp(20265,\"Pb\", $PID, \"data\")'" &
+    gnome-terminal --wait -- bash -c "root -l -q -b 'make_multibinning_v3.cpp(20315,\"Pb\", $PID, \"data\")'" &
     wait
 
     hadd -T -f output_$FWD_REC/$TORUS_POL/data/$DETECTOR/C/data_binned_pion.root  output_$FWD_REC/$TORUS_POL/data/$DETECTOR/C/*/data_binned_pion.root
@@ -45,11 +45,11 @@ if [[ $TORUS_POL == "inb" ]]; then
     hadd -T -f output_$FWD_REC/$TORUS_POL/data/$DETECTOR/Pb/data_binned_pion_minus.root output_$FWD_REC/$TORUS_POL/data/$DETECTOR/Pb/*/data_binned_pion_minus.root
 
 elif [[ $TORUS_POL == "out" ]]; then
-    gnome-terminal --wait -- bash -c "root -l -q 'make_multibinning_v3.cpp(20517,\"C\",  $PID, \"data\")'" &
-    gnome-terminal --wait -- bash -c "root -l -q 'make_multibinning_v3.cpp(20519,\"C\",  $PID, \"data\")'" &
+    gnome-terminal --wait -- bash -c "root -l -q -b 'make_multibinning_v3.cpp(20517,\"C\",  $PID, \"data\")'" &
+    gnome-terminal --wait -- bash -c "root -l -q -b 'make_multibinning_v3.cpp(20519,\"C\",  $PID, \"data\")'" &
     wait
-    gnome-terminal --wait -- bash -c "root -l -q 'make_multibinning_v3.cpp(20521,\"Pb\", $PID, \"data\")'" &
-    gnome-terminal --wait -- bash -c "root -l -q 'make_multibinning_v3.cpp(20523,\"Pb\", $PID, \"data\")'" &
+    gnome-terminal --wait -- bash -c "root -l -q -b 'make_multibinning_v3.cpp(20521,\"Pb\", $PID, \"data\")'" &
+    gnome-terminal --wait -- bash -c "root -l -q -b 'make_multibinning_v3.cpp(20523,\"Pb\", $PID, \"data\")'" &
     wait
 
     hadd -T -f output_$FWD_REC/$TORUS_POL/data/$DETECTOR/C/data_binned_pion.root  output_$FWD_REC/$TORUS_POL/data/$DETECTOR/C/*/data_binned_pion.root
