@@ -85,28 +85,28 @@ cp $INPUT_DIR/Pb/data_binned_pion_minus.root $OUTPUT_DIR/Pb/
 
 #simple MR
 echo "Running simple_mr"
-./run_simple_mr.sh -pid 211 -pol $TORUS_POL
-./run_simple_mr.sh -pid -211 -pol $TORUS_POL
+./run_simple_mr.sh -p 211 -m $TORUS_POL
+./run_simple_mr.sh -p -211 -m $TORUS_POL
 
 #integrate multibinning
 echo "Running integrate_multibinning"
-./run_integrate_multibinning.sh -tar C -pid 211
+./run_integrate_multibinning.sh -t C -p 211
 if [[ $TORUS_POL == "inb" ]]; then
-./run_integrate_multibinning.sh -tar Al -pid 211
-./run_integrate_multibinning.sh -tar Cu -pid 211
-./run_integrate_multibinning.sh -tar Sn -pid 211
+./run_integrate_multibinning.sh -t Al -p 211
+./run_integrate_multibinning.sh -t Cu -p 211
+./run_integrate_multibinning.sh -t Sn -p 211
 fi
-./run_integrate_multibinning.sh -tar Pb -pid 211
+./run_integrate_multibinning.sh -t Pb -p 211
 
-./run_integrate_multibinning.sh -tar C -pid -211
+./run_integrate_multibinning.sh -t C -p -211
 if [[ $TORUS_POL == "inb" ]]; then
-./run_integrate_multibinning.sh -tar Al -pid -211
-./run_integrate_multibinning.sh -tar Cu -pid -211
-./run_integrate_multibinning.sh -tar Sn -pid -211
+./run_integrate_multibinning.sh -t Al -p -211
+./run_integrate_multibinning.sh -t Cu -p -211
+./run_integrate_multibinning.sh -t Sn -p -211
 fi
-./run_integrate_multibinning.sh -tar Pb -pid -211
+./run_integrate_multibinning.sh -t Pb -p -211
 
 #plots
 echo "Running plots_all_mr"
-./run_plots_all_mr.sh 211
-./run_plots_all_mr.sh -211
+./run_plots_all_mr.sh -p 211
+./run_plots_all_mr.sh -p -211
