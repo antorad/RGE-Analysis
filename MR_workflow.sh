@@ -3,6 +3,7 @@
 TARGET=$1
 
 WORKFLOW_BASE="rge_data_MR"
+BANKS="dc_fmt"
 
 WORKFLOW_NAME="${WORKFLOW_BASE}_${BANKS}_${TARGET}"
 
