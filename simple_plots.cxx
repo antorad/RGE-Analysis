@@ -487,52 +487,73 @@ void processChain(TChain* input_tuple, TString output_location) {
 	draw_plot(pion_minus_tuple, "targ_type==2", "vz_elec-vz",100,-10,10, "V_{z e} - V_{z #pi} [cm]", "dN/dV_{z}", "pim_vz_diff_sol",
 				output_location, output);
 
-	//z vertex difference vs theta e- in liq target (e-pi)
+	//z vertex difference vs theta (e-pi)
+	draw_plot_2D(pion_minus_tuple, "", "theta:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 100, 0, 2.5,"#theta", "pim_vz_diffxtheta", output_location, output);
+	//z vertex difference vs theta in liq target (e-pi)
 	draw_plot_2D(pion_minus_tuple, "targ_type==1", "theta:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
 					 100, 0, 2.5,"#theta", "pim_vz_diffxtheta_liq", output_location, output);
-	//z vertex difference vs theta e- in sol target (e-pi)
+	//z vertex difference vs theta in sol target (e-pi)
 	draw_plot_2D(pion_minus_tuple, "targ_type==2", "theta:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
 					 100, 0, 2.5,"#theta", "pim_vz_diffxtheta_sol", output_location, output);
 
-	//z vertex difference vs phi e- in liq target (e-pi)
+	//z vertex difference vs phi (e-pi)
+	draw_plot_2D(pion_minus_tuple, "", "phi:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 100, -180, 180,"#phi", "pim_vz_diffxphi", output_location, output);
+	//z vertex difference vs phi in liq target (e-pi)
 	draw_plot_2D(pion_minus_tuple, "targ_type==1", "phi:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
 					 100, -180, 180,"#phi", "pim_vz_diffxphi_liq", output_location, output);
-	//z vertex difference vs phi e- in sol target (e-pi)
+	//z vertex difference vs phi in sol target (e-pi)
 	draw_plot_2D(pion_minus_tuple, "targ_type==2", "phi:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
 					 100, -180, 180,"#phi", "pim_vz_diffxphi_sol", output_location, output);
 
-	//z vertex difference vs NDF e- in liq target (e-pi)
+	//z vertex difference vs p (e-pi)
+	draw_plot_2D(pion_minus_tuple, "", "p:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 100, 0, 3,"p", "pim_vz_diffxp", output_location, output);
+	//z vertex difference vs p e- in liq target (e-pi)
 	draw_plot_2D(pion_minus_tuple, "targ_type==1", "p:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
 					 100, 0, 3,"p", "pim_vz_diffxp_liq", output_location, output);
-	//z vertex difference vs theta e- in sol target (e-pi)
+	//z vertex difference vs p e- in sol target (e-pi)
 	draw_plot_2D(pion_minus_tuple, "targ_type==2", "p:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
 					 100, 0, 3,"p", "pim_vz_diffxp_sol", output_location, output);
 
-	//z vertex difference vs NDF e- in liq target (e-pi)
+	//z vertex difference vs NDF (e-pi)
+	draw_plot_2D(pion_minus_tuple, "", "NDF:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 8, 0.5, 8.5,"NDF", "pim_vz_diffxndf", output_location, output);
+	//z vertex difference vs NDF in liq target (e-pi)
 	draw_plot_2D(pion_minus_tuple, "targ_type==1", "NDF:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
 					 8, 0.5, 8.5,"NDF", "pim_vz_diffxndf_liq", output_location, output);
-	//z vertex difference vs theta e- in sol target (e-pi)
+	//z vertex difference vs NDF in sol target (e-pi)
 	draw_plot_2D(pion_minus_tuple, "targ_type==2", "NDF:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
 					 8, 0.5, 8.5,"NDF", "pim_vz_diffxndf_sol", output_location, output);
 
-	//z vertex difference vs NDF e- in liq target (e-pi)
+	//z vertex difference vs chi2/NDF (e-pi)
+	draw_plot_2D(pion_minus_tuple, "", "(chi2/NDF):(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 100, 0, 50,"chi2/NDF", "pim_vz_diffxchi2ndf", output_location, output);
+	//z vertex difference vs chi2/NDF in liq target (e-pi)
 	draw_plot_2D(pion_minus_tuple, "targ_type==1", "(chi2/NDF):(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
 					 100, 0, 50,"chi2/NDF", "pim_vz_diffxchi2ndf_liq", output_location, output);
-	//z vertex difference vs theta e- in sol target (e-pi)
+	//z vertex difference vs chi2/NDF in sol target (e-pi)
 	draw_plot_2D(pion_minus_tuple, "targ_type==2", "(chi2/NDF):(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
 					 100, 0, 50,"chi2/NDF", "pim_vz_diffxchi2ndf_sol", output_location, output);
 
-	//z vertex difference vs vt e- in liq target (e-pi)
+	//z vertex difference vs vt(e-pi)
+	draw_plot_2D(pion_minus_tuple, "", "vt:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 100, 85, 105,"vt [ns]", "pim_vz_diffxvt", output_location, output);
+	//z vertex difference vs vt in liq target (e-pi)
 	draw_plot_2D(pion_minus_tuple, "targ_type==1", "vt:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
 					 100, 85, 105,"vt [ns]", "pim_vz_diffxvt_liq", output_location, output);
-	//z vertex difference vs vt e- in sol target (e-pi)
+	//z vertex difference vs vt in sol target (e-pi)
 	draw_plot_2D(pion_minus_tuple, "targ_type==2", "vt:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
 					 100, 85, 105,"vt [ns]", "pim_vz_diffxvt_sol", output_location, output);
 
-	//z vertex difference vs vt difference e- in liq target (e-pi)
+	//z vertex difference vs vt difference (e-pi)
+	draw_plot_2D(pion_minus_tuple, "", "(vt_elec-vt):(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 100, -0.5, 0.5,"V_{t e} - V_{t #pi} [ns]", "pim_vz_diffxvt_diff", output_location, output);
+	//z vertex difference vs vt difference in liq target (e-pi)
 	draw_plot_2D(pion_minus_tuple, "targ_type==1", "(vt_elec-vt):(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
 					 100, -0.5, 0.5,"V_{t e} - V_{t #pi} [ns]", "pim_vz_diffxvt_diff_liq", output_location, output);
-	//z vertex difference vs vt difference e- in sol target (e-pi)
+	//z vertex difference vs vt difference in sol target (e-pi)
 	draw_plot_2D(pion_minus_tuple, "targ_type==2", "(vt_elec-vt):(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
 					 100, -0.5, 0.5,"V_{t e} - V_{t #pi} [ns]", "pim_vz_diffxvt_diff_sol", output_location, output);
 
