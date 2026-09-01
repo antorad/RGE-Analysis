@@ -130,3 +130,27 @@ float D2_sigma_simul = 0.823047;
 float D2_vz_min_simul = -8.52795;
 float D2_vz_max_simul = -4.41272;
 
+// Liquid data
+float D2_mean_data = -6.58276;
+float D2_sigma_data = 0.840015;
+float D2_vz_min_data = -8.6828;
+float D2_vz_max_data = -4.48272;
+
+// Solid data
+float C_mean_data = -1.49765;
+float C_sigma_data = 0.391996;
+float C_vz_min_data = -2.47764;
+float C_vz_max_data = -0.517665;
+
+// Liquid data
+float D2_mean_data = -6.58276;
+float D2_sigma_data = 0.840015;
+float D2_vz_min_data = -8.6828;
+float D2_vz_max_data = -4.48272;
+
+// Solid data
+float C_mean_data = -1.49765;
+float C_sigma_data = 0.391996;
+float C_vz_min_data = -2.47764;
+float C_vz_max_data = -0.517665;
+

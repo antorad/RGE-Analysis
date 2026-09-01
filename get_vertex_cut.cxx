@@ -10,6 +10,7 @@
 #include <string>
 #include <cmath>
 #include <fstream>
+#include "include.h"
 
 using namespace std;
 
@@ -18,8 +19,8 @@ void get_vertex_cut(TString Target="C", TString type="data"){
 	Float_t Nsigmas = 2.5;
 
     //get electron TH1 input created from simple_plots
-    TFile *input = new TFile("output_"+fwd_rec+"/"+type+"/"+Target+"/out_clas12.root","READ");
-    TH1F* v_z_histo = (TH1F*)input->Get("e_v_z");
+    TFile *input = new TFile("output_"+fwd_rec+"/"+torus_pol+"/"+type+"/"+detector+"/"+Target+"/out_clas12.root","READ");
+    TH1F* v_z_histo = (TH1F*)input->Get("e_vz");
 
 	//liquid target
     TF1* f_d2 = new TF1("f_d2", "gaus", -9, -4);
@@ -63,6 +64,8 @@ void get_vertex_cut(TString Target="C", TString type="data"){
 	v_z_histo->Draw();
 	liq_fill->Draw("same");
 	sol_fill->Draw("same");
+	f_sol->Draw("same");
+	f_d2->Draw("same");
 
 	//export fit values
 	std::ofstream out("vertex_cuts.txt", ios::app);
