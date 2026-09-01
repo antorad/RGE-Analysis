@@ -140,17 +140,20 @@ void processChain(TChain* input_tuple, TString output_location) {
 	gSystem->Exec(command.c_str());
 	TFile *output = new TFile(output_location+"out_clas12.root","RECREATE");
 
-	Float_t pid, Q2, nu, vz, z_h, p, p_T2, p_L2, E_total, E_ECIN, E_PCAL, E_ECOU, event_num, vz_elec, phi, x_bjorken, y_bjorken, W2, charge, beta, sector, phi_PQ, theta, vx, vy, status, PCAL_V, PCAL_W, DC_R1_edge, DC_R2_edge, DC_R3_edge, targ_type, path_tof, time_tof, start_time, D_T; 
+	Float_t pid, NDF, chi2, Q2, nu, vz, vt, z_h, p, p_T2, p_L2, E_total, E_ECIN, E_PCAL, E_ECOU, event_num, vz_elec, vt_elec, phi, x_bjorken, y_bjorken, W2, charge, beta, sector, phi_PQ, theta, vx, vy, status, PCAL_V, PCAL_W, DC_R1_edge, DC_R2_edge, DC_R3_edge, targ_type, path_tof, time_tof, start_time, D_T; 
 	Float_t rad2deg = 57.2958;
 
 	cout<<"Reading input tuple"<<endl;
 	//------Read branches with variables needed for cuts and plots------
 	input_tuple->SetBranchAddress("pid",&pid);
+	input_tuple->SetBranchAddress("NDF",&NDF);
+	input_tuple->SetBranchAddress("chi2",&chi2);
 	input_tuple->SetBranchAddress("Q2",&Q2);
 	input_tuple->SetBranchAddress("nu",&nu);
 	input_tuple->SetBranchAddress("vx",&vx);
 	input_tuple->SetBranchAddress("vy",&vy);
 	input_tuple->SetBranchAddress("vz",&vz);
+	input_tuple->SetBranchAddress("vt",&vt);
 	input_tuple->SetBranchAddress("z_h",&z_h);
 	input_tuple->SetBranchAddress("p",&p);
 	input_tuple->SetBranchAddress("p_T2",&p_T2);
@@ -179,10 +182,10 @@ void processChain(TChain* input_tuple, TString output_location) {
 	input_tuple->SetBranchAddress("start_time",&start_time);
 
 	//------output ntuples------
-	Float_t hadron_vars[24];
-	Float_t elec_vars[18];
-	const char* hadron_varslist = "pid:Q2:nu:vz:vx:vy:p:p_T2:p_L2:E_total:E_ECIN:E_ECOU:z_h:vz_elec:x_bjorken:y_bjorken:W2:beta:phi:sector:phi_PQ:theta:targ_type:D_T";
-	const char* elec_varslist = "pid:Q2:nu:vz:vx:vy:p:E_total:E_ECIN:E_ECOU:x_bjorken:y_bjorken:W2:beta:phi:sector:theta:targ_type";
+	Float_t hadron_vars[28];
+	Float_t elec_vars[21];
+	const char* hadron_varslist = "pid:NDF:chi2:Q2:nu:vz:vx:vy:vt:p:p_T2:p_L2:E_total:E_ECIN:E_ECOU:z_h:vz_elec:vt_elec:x_bjorken:y_bjorken:W2:beta:phi:sector:phi_PQ:theta:targ_type:D_T";
+	const char* elec_varslist = "pid:NDF:chi2:Q2:nu:vz:vx:vy:vt:p:E_total:E_ECIN:E_ECOU:x_bjorken:y_bjorken:W2:beta:phi:sector:theta:targ_type";
 	TNtuple *pion_tuple = new TNtuple("pion_ntuple","pions",hadron_varslist);
 	TNtuple *hadron_tuple = new TNtuple("hadron_ntuple","hadrons",hadron_varslist);
 	TNtuple *pion_minus_tuple = new TNtuple("pion_minus_ntuple","positives",hadron_varslist);
@@ -190,6 +193,7 @@ void processChain(TChain* input_tuple, TString output_location) {
 	TNtuple *elec_tuple = new TNtuple("elec_tuple","electrons",elec_varslist);
 
 	vz_elec = -99;
+	vt_elec = -99;
 	bool valid_electron = false;
 
     cout<<"Starting processing loop "<<endl;
@@ -212,55 +216,63 @@ void processChain(TChain* input_tuple, TString output_location) {
 			) {
 			targ_type = vertex_sel(sector, vz);
 			elec_vars[0]  = pid;
-			elec_vars[1]  = Q2;
-			elec_vars[2]  = nu;
-			elec_vars[3]  = vz;
-			elec_vars[4]  = vx;
-			elec_vars[5]  = vy;
-			elec_vars[6]  = p;
-			elec_vars[7]  = E_total;
-			elec_vars[8]  = E_ECIN;
-			elec_vars[9]  = E_ECOU;
-			elec_vars[10] = x_bjorken;
-			elec_vars[11] = y_bjorken;
-			elec_vars[12] = W2;
-			elec_vars[13] = beta;
-			elec_vars[14] = phi*rad2deg;
-			elec_vars[15] = sector;
-			elec_vars[16] = theta;
-			elec_vars[17] = targ_type;
+			elec_vars[1]  = NDF;
+			elec_vars[2]  = chi2;
+			elec_vars[3]  = Q2;
+			elec_vars[4]  = nu;
+			elec_vars[5]  = vz;
+			elec_vars[6]  = vx;
+			elec_vars[7]  = vy;
+			elec_vars[8]  = vt;
+			elec_vars[9]  = p;
+			elec_vars[10]  = E_total;
+			elec_vars[11]  = E_ECIN;
+			elec_vars[12]  = E_ECOU;
+			elec_vars[13] = x_bjorken;
+			elec_vars[14] = y_bjorken;
+			elec_vars[15] = W2;
+			elec_vars[16] = beta;
+			elec_vars[17] = phi*rad2deg;
+			elec_vars[18] = sector;
+			elec_vars[19] = theta;
+			elec_vars[20] = targ_type;
 			elec_tuple->Fill(elec_vars);
 			vz_elec = vz;
+			vt_elec = vt;
 			valid_electron = true;
 		}
 
 		// Check if the particle is not an electron.
 		else if (valid_electron){
 			hadron_vars[0]  = pid;
-			hadron_vars[1]  = Q2;
-			hadron_vars[2]  = nu;
-			hadron_vars[3]  = vz;
-			hadron_vars[4]  = vx;
-			hadron_vars[5]  = vy;
-			hadron_vars[6]  = p;
-			hadron_vars[7]  = p_T2;
-			hadron_vars[8]  = p_L2;
-			hadron_vars[9]  = E_total;
-			hadron_vars[10] = E_ECIN;
-			hadron_vars[11] = E_ECOU;
-			hadron_vars[12] = z_h;
-			hadron_vars[13] = vz_elec;
-			hadron_vars[14] = x_bjorken;
-			hadron_vars[15] = y_bjorken;
-			hadron_vars[16] = W2;
-			hadron_vars[17] = beta;
-			hadron_vars[18] = phi*rad2deg;
-			hadron_vars[19] = sector;
-			hadron_vars[20] = phi_PQ;
-			hadron_vars[21] = theta;
-			hadron_vars[22] = targ_type;
+			hadron_vars[1]  = NDF;
+			hadron_vars[2]  = chi2;
+			hadron_vars[3]  = Q2;
+			hadron_vars[4]  = nu;
+			hadron_vars[5]  = vz;
+			hadron_vars[6]  = vx;
+			hadron_vars[7]  = vy;
+			hadron_vars[8]  = vt;
+			hadron_vars[9]  = p;
+			hadron_vars[10]  = p_T2;
+			hadron_vars[11]  = p_L2;
+			hadron_vars[12]  = E_total;
+			hadron_vars[13] = E_ECIN;
+			hadron_vars[14] = E_ECOU;
+			hadron_vars[15] = z_h;
+			hadron_vars[16] = vz_elec;
+			hadron_vars[17] = vt_elec;
+			hadron_vars[18] = x_bjorken;
+			hadron_vars[19] = y_bjorken;
+			hadron_vars[20] = W2;
+			hadron_vars[21] = beta;
+			hadron_vars[22] = phi*rad2deg;
+			hadron_vars[23] = sector;
+			hadron_vars[24] = phi_PQ;
+			hadron_vars[25] = theta;
+			hadron_vars[26] = targ_type;
 			D_T = get_pion_D_T(p, path_tof, start_time, time_tof);
-			hadron_vars[23] = D_T;
+			hadron_vars[27] = D_T;
 
 			//all hadrons
 			if (pid!=11 && pid!=-11 && status<3000 && (detector=="fd" || detector=="all") && pid!=22){hadron_tuple->Fill(hadron_vars);}
@@ -371,12 +383,41 @@ void processChain(TChain* input_tuple, TString output_location) {
 	//z vertex difference vs theta e- in sol target (e-pi)
 	draw_plot_2D(pion_tuple, "targ_type==2", "theta:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
 					 100, 0, 2.5,"#theta", "pi_vz_diffxtheta_sol", output_location, output);
-	//z vertex difference vs phi e- in liq target (e-pi)
-	draw_plot_2D(pion_tuple, "targ_type==1", "phi:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
-					 100, -180, 180,"#phi", "pi_vz_diffxphi_liq", output_location, output);
-	//z vertex difference vs phi e- in sol target (e-pi)
-	draw_plot_2D(pion_tuple, "targ_type==2", "phi:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
-					 100, -180, 180,"#phi", "pi_vz_diffxphi_sol", output_location, output);
+
+	//z vertex difference vs NDF e- in liq target (e-pi)
+	draw_plot_2D(pion_tuple, "targ_type==1", "p:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 100, 0, 3,"p", "pi_vz_diffxp_liq", output_location, output);
+	//z vertex difference vs theta e- in sol target (e-pi)
+	draw_plot_2D(pion_tuple, "targ_type==2", "p:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 100, 0, 3,"p", "pi_vz_diffxp_sol", output_location, output);
+
+	//z vertex difference vs NDF e- in liq target (e-pi)
+	draw_plot_2D(pion_tuple, "targ_type==1", "NDF:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 8, 0.5, 8.5,"NDF", "pi_vz_diffxndf_liq", output_location, output);
+	//z vertex difference vs theta e- in sol target (e-pi)
+	draw_plot_2D(pion_tuple, "targ_type==2", "NDF:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 8, 0.5, 8.5,"NDF", "pi_vz_diffxndf_sol", output_location, output);
+
+	//z vertex difference vs NDF e- in liq target (e-pi)
+	draw_plot_2D(pion_tuple, "targ_type==1", "(chi2/NDF):(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 100, 0, 50,"chi2/NDF", "pi_vz_diffxchi2ndf_liq", output_location, output);
+	//z vertex difference vs theta e- in sol target (e-pi)
+	draw_plot_2D(pion_tuple, "targ_type==2", "(chi2/NDF):(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 100, 0, 50,"chi2/NDF", "pi_vz_diffxchi2ndf_sol", output_location, output);
+
+	//z vertex difference vs vt e- in liq target (e-pi)
+	draw_plot_2D(pion_tuple, "targ_type==1", "vt:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 100, 85, 105,"vt [ns]", "pi_vz_diffxvt_liq", output_location, output);
+	//z vertex difference vs vt e- in sol target (e-pi)
+	draw_plot_2D(pion_tuple, "targ_type==2", "vt:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 100, 85, 105,"vt [ns]", "pi_vz_diffxvt_sol", output_location, output);
+
+	//z vertex difference vs vt difference e- in liq target (e-pi)
+	draw_plot_2D(pion_tuple, "targ_type==1", "(vt_elec-vt):(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 100, -0.5, 0.5,"V_{t e} - V_{t #pi} [ns]", "pi_vz_diffxvt_diff_liq", output_location, output);
+	//z vertex difference vs vt difference e- in sol target (e-pi)
+	draw_plot_2D(pion_tuple, "targ_type==2", "(vt_elec-vt):(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 100, -0.5, 0.5,"V_{t e} - V_{t #pi} [ns]", "pi_vz_diffxvt_diff_sol", output_location, output);
 
 	//z_h
 	draw_plot(pion_tuple, "", "z_h",180,0,1, "Z_{h}", "dN/dZ_{h}", "pi_zh",
@@ -428,6 +469,47 @@ void processChain(TChain* input_tuple, TString output_location) {
 	//z vertex difference vs phi e- in sol target (e-pi)
 	draw_plot_2D(pion_minus_tuple, "targ_type==2", "phi:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
 					 100, -180, 180,"#phi", "pim_vz_diffxphi_sol", output_location, output);
+	//z vertex difference vs  e- in liq target (e-pi)
+	draw_plot_2D(pion_minus_tuple, "targ_type==1", "phi:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 100, -180, 180,"#phi", "pim_vz_diffxphi_liq", output_location, output);
+	//z vertex difference vs  e- in sol target (e-pi)
+	draw_plot_2D(pion_minus_tuple, "targ_type==2", "phi:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 100, -180, 180,"#phi", "pim_vz_diffxphi_sol", output_location, output);
+
+	//z vertex difference vs NDF e- in liq target (e-pi)
+	draw_plot_2D(pion_minus_tuple, "targ_type==1", "p:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 100, 0, 3,"p", "pim_vz_diffxp_liq", output_location, output);
+	//z vertex difference vs theta e- in sol target (e-pi)
+	draw_plot_2D(pion_minus_tuple, "targ_type==2", "p:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 100, 0, 3,"p", "pim_vz_diffxp_sol", output_location, output);
+
+	//z vertex difference vs NDF e- in liq target (e-pi)
+	draw_plot_2D(pion_minus_tuple, "targ_type==1", "NDF:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 8, 0.5, 8.5,"NDF", "pim_vz_diffxndf_liq", output_location, output);
+	//z vertex difference vs theta e- in sol target (e-pi)
+	draw_plot_2D(pion_minus_tuple, "targ_type==2", "NDF:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 8, 0.5, 8.5,"NDF", "pim_vz_diffxndf_sol", output_location, output);
+
+	//z vertex difference vs NDF e- in liq target (e-pi)
+	draw_plot_2D(pion_minus_tuple, "targ_type==1", "(chi2/NDF):(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 100, 0, 50,"chi2/NDF", "pim_vz_diffxchi2ndf_liq", output_location, output);
+	//z vertex difference vs theta e- in sol target (e-pi)
+	draw_plot_2D(pion_minus_tuple, "targ_type==2", "(chi2/NDF):(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 100, 0, 50,"chi2/NDF", "pim_vz_diffxchi2ndf_sol", output_location, output);
+
+	//z vertex difference vs vt e- in liq target (e-pi)
+	draw_plot_2D(pion_minus_tuple, "targ_type==1", "vt:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 100, 85, 105,"vt [ns]", "pim_vz_diffxvt_liq", output_location, output);
+	//z vertex difference vs vt e- in sol target (e-pi)
+	draw_plot_2D(pion_minus_tuple, "targ_type==2", "vt:(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 100, 85, 105,"vt [ns]", "pim_vz_diffxvt_sol", output_location, output);
+
+	//z vertex difference vs vt difference e- in liq target (e-pi)
+	draw_plot_2D(pion_minus_tuple, "targ_type==1", "(vt_elec-vt):(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 100, -0.5, 0.5,"V_{t e} - V_{t #pi} [ns]", "pim_vz_diffxvt_diff_liq", output_location, output);
+	//z vertex difference vs vt difference e- in sol target (e-pi)
+	draw_plot_2D(pion_minus_tuple, "targ_type==2", "(vt_elec-vt):(vz_elec-vz)",100, -10, 10, "V_{z e} - V_{z #pi} [cm]",
+					 100, -0.5, 0.5,"V_{t e} - V_{t #pi} [ns]", "pim_vz_diffxvt_diff_sol", output_location, output);
 
 	//z_h
 	draw_plot(pion_minus_tuple, "", "z_h",100,0,1, "Z_{h}", "dN/dZ_{h}", "pim_zh",
