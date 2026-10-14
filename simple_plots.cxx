@@ -1332,14 +1332,13 @@ void simple_plots(int run_N=000000, TString Target="unkw", TString type="data"){
     //process the TNtuple to make plots and output tuples
 	processTuple(input_tuple, output_location);
 	cout<<"Data tuple done"<<endl;
+	delete input_tuple;
 
 	if (type=="simul") {
 		output_location=output_location+"thrown/";
 		processTuple(input_tuple_mc, output_location);
 		cout<<"MC tuple done"<<endl;
+		delete input_tuple_mc;
 	}
 
-	//delete all objects
-	delete input_tuple;
-	delete input_tuple_mc;
 }
