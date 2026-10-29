@@ -3,7 +3,7 @@
 void plot_simple_vertex_all(){
     gStyle->SetOptStat(0);
     //output directory
-    TString output_location = "output_"+fwd_rec+"/data";
+    TString output_location = "output_"+fwd_rec+"/"+torus_pol+"/data/"+detector;
 
     //get TH1Fs from root files created with calculate_mr
     //input files
@@ -27,14 +27,19 @@ void plot_simple_vertex_all(){
     //set colors
     mr_hist_C->SetMarkerColor(1);
     mr_hist_C->SetLineColor(1);
+    mr_hist_C->Scale(1./mr_hist_C->Integral());
     mr_hist_Al->SetMarkerColor(2);
     mr_hist_Al->SetLineColor(2);
+    mr_hist_Al->Scale(1./mr_hist_Al->Integral());
     mr_hist_Cu->SetMarkerColor(4);
     mr_hist_Cu->SetLineColor(4);
+    mr_hist_Cu->Scale(1./mr_hist_Cu->Integral());
     mr_hist_Sn->SetMarkerColor(209);
     mr_hist_Sn->SetLineColor(209);
+    mr_hist_Sn->Scale(1./mr_hist_Sn->Integral());
     mr_hist_Pb->SetMarkerColor(205);
     mr_hist_Pb->SetLineColor(205);
+    mr_hist_Pb->Scale(1./mr_hist_Pb->Integral());
 
     //draw plots without horizontal error bars
     mr_hist_C->Draw("same");
@@ -43,7 +48,7 @@ void plot_simple_vertex_all(){
     mr_hist_Sn->Draw("same");
     mr_hist_Pb->Draw("same");
 
-    mr_hist_C->GetYaxis()->SetRangeUser(0.,mr_hist_Pb->GetMaximum()*1.1);
+    mr_hist_C->GetYaxis()->SetRangeUser(0.,mr_hist_C->GetMaximum()*1.5);
 
     //Draw legens in the top right corner
     TLegend* legend = new TLegend(0.75, 0.75, 0.9, 0.9);
@@ -61,19 +66,19 @@ void plot_simple_vertex_all(){
     canvas_sector->Divide(3,2);
     TH1F *histo[6];
     TLine *vline[6][4];
-    for (int i = 0; i < 6; ++i){
-        canvas_sector->cd(i+1);
+    for (int i = 1; i < 7; ++i){
+        canvas_sector->cd(i);
         histo[i] = (TH1F*)input_C->Get(Form("e_vz_sector_%i",i));
         histo[i]->GetXaxis()->SetTitle("v_{z}");
         histo[i]->GetYaxis()->SetTitle("N_{e}");
-        histo[i]->SetTitle(Form("v_{z} Sector %i",i+1));
+        histo[i]->SetTitle(Form("v_{z} Sector %i",i));
         histo[i]->Draw("COLZ");
         histo[i]->Draw();
         for (int j=0; j<4; j++){
-            vline[i][j] = new TLine(vertex_cut[i][j],0, vertex_cut[i][j],histo[i]->GetMaximum());
+            vline[i][j] = new TLine(vertex_cut[0][i-1][j],0, vertex_cut[0][i-1][j],histo[i]->GetMaximum());
             vline[i][j]->SetLineColor(kRed);
             vline[i][j]->Draw();
         }
     }
-    canvas_sector->SaveAs("output_"+fwd_rec+"/data/e_v_z_sector.pdf");
+    canvas_sector->SaveAs("output_"+fwd_rec+"/"+torus_pol+"/data/"+detector+"/e_v_z_sector.pdf");
 }
