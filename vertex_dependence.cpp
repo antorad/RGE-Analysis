@@ -8,19 +8,19 @@ void vertex_dependence(int run_N=000000, TString Target="C", TString type="data"
 
     //output directory
     TString output_location;
-    if      (run_location=="own_pc"){output_location="output_"+fwd_rec+"/"+type+"/"+Target+"/"+run_N_str;}
+    if      (run_location=="own_pc"){output_location="output_"+fwd_rec+"/"+torus_pol+"/data/"+detector+"/"+Target+"/"+run_N_str;}
     else if (run_location=="farm"){output_location="/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass1/"+fwd_rec+"/"+Target+"/"+run_N_str;}
 
     //input directory
     TString input_location;
-    if      (run_location=="own_pc"){input_location="output_"+fwd_rec+"/"+type+"/"+Target+"/"+run_N_str;}
+    if      (run_location=="own_pc"){input_location="output_"+fwd_rec+"/"+torus_pol+"/data/"+detector+"/"+Target+"/"+run_N_str;}
     else if (run_location=="farm"){input_location="/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass1/"+fwd_rec+"/"+Target+"/"+run_N_str;}
 
     //get input electron tuple created with simple_plots
     TFile *input = new TFile(input_location+"/out_clas12.root","READ");
     TNtuple* e_tuple = (TNtuple*)input->Get("elec_tuple");
 
-    TFile *output = new TFile(output_location+"/vertex_dependance.root","RECREATE");
+    TFile *output = new TFile(output_location+"/vertex_dependence.root","RECREATE");
     output->cd();
 
     cout<<"Reading input"<<endl;
@@ -63,9 +63,9 @@ void vertex_dependence(int run_N=000000, TString Target="C", TString type="data"
         canvas[i]->cd();
         legend[i] = new TLegend(0.75, 0.50, 0.9, 0.9);
         for (int j=0; j<10; j++){
-            if (h_vertex[i][j]->Integral()>0){
+            if (h_vertex[i][j]->GetEntries()>1000){
                 h_vertex[i][j]->Scale(1.0/h_vertex[i][j]->Integral());
-                h_vertex[i][j]->GetYaxis()->SetRangeUser(0,0.03);
+                h_vertex[i][j]->GetYaxis()->SetRangeUser(0,0.035);
                 h_vertex[i][j]->GetYaxis()->SetTitle("Normalized count");
                 h_vertex[i][j]->GetXaxis()->SetTitle("v_{z}");
                 h_vertex[i][j]->SetLineColor(j*5+51);
@@ -79,5 +79,19 @@ void vertex_dependence(int run_N=000000, TString Target="C", TString type="data"
         legend[i]->Draw("same");
         canvas[i]->Write();
     }
+
+    //canvas x6
+    TCanvas* canvas_6 = new TCanvas("canvas_multi", "canvas_multi",1920,1080);
+    canvas_6->Divide(3,2);
+    for (int i = 0; i < 6; i++) {
+        canvas_6->cd(i+1);
+        for (int j = 0; j < 10; j++) {
+            if (h_vertex[i][j]->GetEntries()>1000){
+                h_vertex[i][j]->Draw("HIST SAME");
+            }
+        }
+    }
+    canvas_6->Write();
+    canvas_6->SaveAs("vertex_dependence_"+fwd_rec+".png");
     output->Close();
 }
