@@ -21,7 +21,7 @@ TCanvas multiplot_inb(TFile* input_files[5]){
     // --- Plot limits ---
     float xmin, xmax, ymin, ymax;
     if (mainVar=="Zh"){xmin = 0; xmax = 1; ymin = 0; ymax = 1.6;}
-    if (mainVar=="Pt2"){xmin = 0; xmax = 2.5; ymin = 0.5; ymax = 3.0;}
+    if (mainVar=="Pt2"){xmin = 0; xmax = Pt2_bins[N_Pt2]; ymin = 0; ymax = 3.0;}
     if (mainVar=="Phi_PQ"){xmin = -3.15; xmax = 3.15; ymin = 0; ymax = 2.0;}
 
     // --- Create pads and plots ---
@@ -147,7 +147,7 @@ TCanvas multiplot_out(TFile* input_files[2]){
     // --- Plot limits ---
     float xmin, xmax, ymin, ymax;
     if (mainVar=="Zh"){xmin = 0; xmax = 1; ymin = 0; ymax = 1.6;}
-    if (mainVar=="Pt2"){xmin = 0; xmax = 2.5; ymin = 0.5; ymax = 3.0;}
+    if (mainVar=="Pt2"){xmin = 0; xmax = Pt2_bins[N_Pt2]; ymin = 0; ymax = 3.0;}
     if (mainVar=="Phi_PQ"){xmin = -3.15; xmax = 3.15; ymin = 0; ymax = 2.0;}
 
     // --- Create pads and plots ---
