@@ -138,6 +138,26 @@ void draw_sector_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, floa
 		histo[i-1]->SetTitle(xtitle+Form(" Sector %i",i));
 		histo[i-1]->Draw("COLZ");
 		histo[i-1]->Write(output+Form("_%i",i));
+		if (TString(var)=="vz"){
+			float y_max = histo[i-1]->GetMaximum();
+			TLine *line_D2_l = new TLine(vertex_cut[tar_n][i][0], 0, vertex_cut[tar_n][i][0], y_max);
+			TLine *line_D2_r = new TLine(vertex_cut[tar_n][i][1], 0, vertex_cut[tar_n][i][1], y_max);
+			TLine *line_sol_l = new TLine(vertex_cut[tar_n][i][2], 0, vertex_cut[tar_n][i][2], y_max);
+			TLine *line_sol_r = new TLine(vertex_cut[tar_n][i][3], 0, vertex_cut[tar_n][i][3], y_max);
+
+			// Customize line appearance (optional)
+			line_D2_l->SetLineColor(kRed);
+			line_D2_r->SetLineColor(kRed);
+			line_sol_l->SetLineColor(kRed);
+			line_sol_r->SetLineColor(kRed);
+			//line->SetLineWidth(2);
+
+			// Draw the line on the current canvas/pad
+			line_D2_l->Draw();
+			line_D2_r->Draw();
+			line_sol_l->Draw();
+			line_sol_r->Draw();
+		}
 	}
 	canvas->SaveAs(location+output+".pdf");
 	delete canvas;
@@ -245,7 +265,7 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 		if  (pid==11 && status<=-2000 && status>-3000				//basic FD electron cut from CLAS12 event builder
 			&& Q2>Q2_min && W2>W2_min && y_bjorken<y_bjorken_max 	//DIS cuts
 			//&& p>p_min && p<p_max									//momentum cut
-			&& theta*rad2deg>theta_min								//theta cut
+			//&& theta*rad2deg>theta_min								//theta cut
 			&& PCAL_V>PCAL_V_fc && PCAL_W>PCAL_W_fc					//PCAL fiducial cuts
 			&& DC_R1_edge>DC_R1_fc_e && DC_R2_edge>DC_R1_fc_e && DC_R3_edge>DC_R3_fc_e //DC fiducial cuts
 			//sector based cuts
@@ -1163,12 +1183,12 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	draw_plot(proton_tuple, "D_Tp<0.5&&D_Tp>-0.5", "vz_elec-vz",100,-10,10, "V_{z e} - V_{z h} [cm]", "dN/dV_{z}", "p_vz_diff_DT_cut",
 				output_location, output);
 */
-	//Plots for MR
+	//Plots for 1D MR
 	//pi+
 	//d2
 	draw_plot(pion_tuple, "targ_type==1", "z_h",10,Zh_bins[0],Zh_bins[N_Zh], "Z_{h}", "dN/dZ_{h}",
 				"pion_z_h_d2", output_location, output);
-	draw_plot(pion_tuple, "targ_type==1", "p_T2",10,Pt2_bins[0],Pt2_bins[N_Pt2], "P_{T}^{2}", "dN/dP_{T}^{2}",
+	draw_plot(pion_tuple, "targ_type==1", "p_T2",10,Pt2_1d_bins[0],Pt2_1d_bins[N_Pt2], "P_{T}^{2}", "dN/dP_{T}^{2}",
 				"pion_p_T2_d2", output_location, output);
 	draw_plot(pion_tuple, "targ_type==1", "Q2",10,Q2_bins[0],Q2_bins[N_Q2], "Q^{2}", "dN/dQ^{2}" ,
 				"pion_Q2_d2", output_location, output);
@@ -1179,7 +1199,7 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	//solid
 	draw_plot(pion_tuple, "targ_type==2", "z_h",10,Zh_bins[0],Zh_bins[N_Zh], "Z_{h}", "dN/dZ_{h}",
 				"pion_z_h_solid", output_location, output);
-	draw_plot(pion_tuple, "targ_type==2", "p_T2",10,Pt2_bins[0],Pt2_bins[N_Pt2], "P_{T}^{2}", "dN/dP_{T}^{2}",
+	draw_plot(pion_tuple, "targ_type==2", "p_T2",10,Pt2_1d_bins[0],Pt2_1d_bins[N_Pt2], "P_{T}^{2}", "dN/dP_{T}^{2}",
 				"pion_p_T2_solid", output_location, output);
 	draw_plot(pion_tuple, "targ_type==2", "Q2",10,Q2_bins[0],Q2_bins[N_Q2], "Q^{2}", "dN/dQ^{2}" ,
 				"pion_Q2_solid", output_location, output);
@@ -1192,7 +1212,7 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	//d2
 	draw_plot(pion_minus_tuple, "targ_type==1", "z_h",10,Zh_bins[0],Zh_bins[N_Zh], "Z_{h}", "dN/dZ_{h}",
 				"pion_minus_z_h_d2", output_location, output);
-	draw_plot(pion_minus_tuple, "targ_type==1", "p_T2",10,Pt2_bins[0],Pt2_bins[N_Pt2], "P_{T}^{2}", "dN/dP_{T}^{2}",
+	draw_plot(pion_minus_tuple, "targ_type==1", "p_T2",10,Pt2_1d_bins[0],Pt2_1d_bins[N_Pt2], "P_{T}^{2}", "dN/dP_{T}^{2}",
 				"pion_minus_p_T2_d2", output_location, output);
 	draw_plot(pion_minus_tuple, "targ_type==1", "Q2",10,Q2_bins[0],Q2_bins[N_Q2], "Q^{2}", "dN/dQ^{2}" ,
 				"pion_minus_Q2_d2", output_location, output);
@@ -1203,7 +1223,7 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	//solid
 	draw_plot(pion_minus_tuple, "targ_type==2", "z_h",10,Zh_bins[0],Zh_bins[N_Zh], "Z_{h}", "dN/dZ_{h}",
 				"pion_minus_z_h_solid", output_location, output);
-	draw_plot(pion_minus_tuple, "targ_type==2", "p_T2",10,Pt2_bins[0],Pt2_bins[N_Pt2], "P_{T}^{2}", "dN/dP_{T}^{2}",
+	draw_plot(pion_minus_tuple, "targ_type==2", "p_T2",10,Pt2_1d_bins[0],Pt2_1d_bins[N_Pt2], "P_{T}^{2}", "dN/dP_{T}^{2}",
 				"pion_minus_p_T2_solid", output_location, output);
 	draw_plot(pion_minus_tuple, "targ_type==2", "Q2",10,Q2_bins[0],Q2_bins[N_Q2], "Q^{2}", "dN/dQ^{2}" ,
 				"pion_minus_Q2_solid", output_location, output);
@@ -1297,11 +1317,11 @@ void simple_plots(int run_N=000000, TString Target="unkw", TString type="data"){
 
 	cout<<"Running macro based on run number"<<endl;
 
-	if 		(Target=="C"){tar_n=1;}
-    else if (Target=="Al"){tar_n=2;}
-    else if (Target=="Cu"){tar_n=3;}
-    else if (Target=="Sn"){tar_n=4;}
-    else if (Target=="Pb"){tar_n=5;}
+	if 		(Target=="C"){tar_n=0;}
+    else if (Target=="Al"){tar_n=1;}
+    else if (Target=="Cu"){tar_n=2;}
+    else if (Target=="Sn"){tar_n=3;}
+    else if (Target=="Pb"){tar_n=4;}
 
 	//Transform input run number to Tstring with correct number of digits
 	TString run_N_str = TString::Format("%06d", run_N);;
