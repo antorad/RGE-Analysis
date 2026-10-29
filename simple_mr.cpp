@@ -246,7 +246,7 @@ void simple_mr(TString Target="C", int Hadron_pid=211, TString type="data"){
 
         m_ratio("z_h" , 10, Zh_bins[0], Zh_bins[N_Zh], hadron, input, output_location, output);
         m_ratio("nu"  , 10, Nu_bins[0], Nu_bins[N_Nu], hadron, input, output_location, output);
-        m_ratio("p_T2", 10, Pt2_bins[0],Pt2_bins[N_Pt2], hadron, input, output_location,output);
+        m_ratio("p_T2", 10, Pt2_1d_bins[0],Pt2_1d_bins[N_Pt2], hadron, input, output_location,output);
         m_ratio("Q2"  , 10, Q2_bins[0], Q2_bins[N_Q2], hadron, input, output_location,output);
         m_ratio("phi_PQ",10,Phi_bins[0], Phi_bins[N_Phi], hadron, input, output_location,output);
     }
