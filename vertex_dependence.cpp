@@ -33,7 +33,7 @@ void vertex_dependence(int run_N=000000, TString Target="C", TString type="data"
     e_tuple->SetBranchAddress("sector",&sector);
 
     // Histogram array [p][theta]
-    TH1F* h_vertex[6][10];
+    TH1F* h_vertex[6][5];
     TCanvas* canvas[6];
     TLegend* legend[6];
 
@@ -53,27 +53,27 @@ void vertex_dependence(int run_N=000000, TString Target="C", TString type="data"
         theta=theta*57.2958; //rad to deg
         //dermine which bin the event belongs to
         int p_bin = int(p-2.);
-        int th_bin = int((theta-8.)/2.);
-        if (theta<28&&theta>8&&p<8&&p>2){h_vertex[p_bin][th_bin]->Fill(vz);}
+        int th_bin = int((theta-10.)/5);
+        if (theta<35&&theta>10&&p<8&&p>2){h_vertex[p_bin][th_bin]->Fill(vz);}
     }
 
     //canvas
-    int th_min;
+    float th_min;
     for (int i=0; i<6; i++){
         canvas[i]->cd();
         legend[i] = new TLegend(0.75, 0.50, 0.9, 0.9);
-        for (int j=0; j<10; j++){
-            if (h_vertex[i][j]->GetEntries()>1000){
+        for (int j=0; j<5; j++){
+            if (h_vertex[i][j]->GetEntries()>500){
                 h_vertex[i][j]->Scale(1.0/h_vertex[i][j]->Integral());
                 h_vertex[i][j]->GetYaxis()->SetRangeUser(0,0.035);
                 h_vertex[i][j]->GetYaxis()->SetTitle("Normalized count");
                 h_vertex[i][j]->GetXaxis()->SetTitle("v_{z}");
-                h_vertex[i][j]->SetLineColor(j*5+51);
+                h_vertex[i][j]->SetLineColor(j*10+51);
                 h_vertex[i][j]->Write();
                 h_vertex[i][j]->SetTitle(Form("%i < p < %i GeV electrons", i+2, i+3));
                 h_vertex[i][j]->Draw("HIST same");
-                th_min=j*2+8;
-                legend[i]->AddEntry(h_vertex[i][j], Form("%i<#theta<%i",th_min, th_min+2));
+                th_min=j*5+10;
+                legend[i]->AddEntry(h_vertex[i][j], Form("%.0f<#theta<%.0f",th_min, th_min+5));
             }
         }
         legend[i]->Draw("same");
@@ -85,11 +85,12 @@ void vertex_dependence(int run_N=000000, TString Target="C", TString type="data"
     canvas_6->Divide(3,2);
     for (int i = 0; i < 6; i++) {
         canvas_6->cd(i+1);
-        for (int j = 0; j < 10; j++) {
+        for (int j = 0; j < 5; j++) {
             if (h_vertex[i][j]->GetEntries()>1000){
                 h_vertex[i][j]->Draw("HIST SAME");
             }
         }
+        legend[i]->Draw("same");
     }
     canvas_6->Write();
     canvas_6->SaveAs("vertex_dependence_"+fwd_rec+".png");
