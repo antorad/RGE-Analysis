@@ -4,7 +4,7 @@
 #This script runs integrate_multibinning fir a single target.
 #It calculate 5D MR, with and without acceptance correction, and integrate all bins into a final 1D plot.
 
-VARS=("Zh" "Pt2" "Phi_PQ" "Nu" "Q2")
+VARS=("z_h" "p_T2" "phi_PQ" "nu" "Q2")
 
 # Parse command-line arguments
 while getopts "t:p:" opt; do

@@ -1,16 +1,18 @@
+#include "include.h"
+
 void calculate_mr_ac(TString hadron, TString var, TFile* in_data, TFile* in_acc, TFile* in_thr, TFile* output){
 
-    //Get Z_h distributions and electron numbers from data
+    //Get distributions and electron numbers from data
     TH1F* h_solid_data    = (TH1F*)in_data->Get(hadron+"_"+var+"_solid");
     TH1F* h_d2_data       = (TH1F*)in_data->Get(hadron+"_"+var+"_d2");
     TH1F* elec_solid_data = (TH1F*)in_data->Get(hadron+"_"+var+"_elec_solid");
     TH1F* elec_d2_data    = (TH1F*)in_data->Get(hadron+"_"+var+"_elec_d2");
-    //Get Z_h distributions and electron numbers from acc
+    //Get distributions and electron numbers from acc
     TH1F* h_solid_acc    = (TH1F*)in_acc->Get(hadron+"_"+var+"_solid");
     TH1F* h_d2_acc       = (TH1F*)in_acc->Get(hadron+"_"+var+"_d2");
     TH1F* elec_solid_acc = (TH1F*)in_acc->Get(hadron+"_"+var+"_elec_solid");
     TH1F* elec_d2_acc    = (TH1F*)in_acc->Get(hadron+"_"+var+"_elec_d2");
-    //Get Z_h distributions and electron numbers from thrown
+    //Get distributions and electron numbers from thrown
     TH1F* h_solid_thrown    = (TH1F*)in_thr->Get(hadron+"_"+var+"_solid");
     TH1F* h_d2_thrown       = (TH1F*)in_thr->Get(hadron+"_"+var+"_d2");
     TH1F* elec_solid_thrown = (TH1F*)in_thr->Get(hadron+"_"+var+"_elec_solid");
@@ -89,17 +91,22 @@ void mr_ac_1d(TString Target="C", int Hadron_pid=211){
         return;}
 
     //Get mr files from data, acc and thrown
-    TFile *input_data 	= new TFile("output_"+fwd_rec+"/data/"+Target+"/mr_clas12.root","READ");
-    TFile *input_acc 	= new TFile("output_"+fwd_rec+"/simul/"+Target+"/mr_clas12.root","READ");
-    TFile *input_thrown = new TFile("output_"+fwd_rec+"/simul/"+Target+"/thrown/mr_clas12.root","READ");
+    TFile *input_data 	= new TFile("output_"+fwd_rec+"/"+torus_pol+"/data/"+detector+"/"+Target+"/mr_clas12.root","READ");
+    TFile *input_acc 	= new TFile("output_"+fwd_rec+"/"+torus_pol+"/acc/"+detector+"/"+Target+"/mr_clas12.root","READ");
+    TFile *input_thrown = new TFile("output_"+fwd_rec+"/"+torus_pol+"/thrown/"+detector+"/"+Target+"/mr_clas12.root","READ");
 
     //Output
-    TFile *output = new TFile("output_"+fwd_rec+"/AC_MR/"+Target+"/mr_1d_"+hadron+".root","RECREATE");
+    TString output_dir = "output_"+fwd_rec+"/"+torus_pol+"/AC_MR/"+detector+"/"+Target;
+    std::string command = std::string("mkdir -p ") + output_dir.Data();
+    gSystem->Exec(command.c_str());
+    TFile *output = new TFile(output_dir+"/mr_1d_"+hadron+".root","RECREATE");
 
     //Run MR with acceptance correction calculation
     output->cd();
     calculate_mr_ac(hadron, "z_h", input_data, input_acc, input_thrown, output);
     calculate_mr_ac(hadron, "nu", input_data, input_acc, input_thrown, output);
     calculate_mr_ac(hadron, "p_T2", input_data, input_acc, input_thrown, output);
+    calculate_mr_ac(hadron, "Q2", input_data, input_acc, input_thrown, output);
+    calculate_mr_ac(hadron, "phi_PQ", input_data, input_acc, input_thrown, output);
     output->Close();
 }

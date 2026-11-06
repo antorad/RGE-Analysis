@@ -3,7 +3,7 @@
 TString mainVar="";
 TString hadron="";
 
-TCanvas plot_same_canvas_inb(TH1D* h_mr[5]){
+TCanvas plot_same_canvas_inb(TH1D* h_mr[5], TString out_file_name){
     //canvas
     TCanvas *canvas= new TCanvas("canvas","canvas",1000,600);
     canvas->cd();
@@ -49,11 +49,12 @@ TCanvas plot_same_canvas_inb(TH1D* h_mr[5]){
     legend->Draw("same");
 
     //Save final plot as pdf
-    canvas->SaveAs("output_"+fwd_rec+"/"+torus_pol+"/data/"+detector+"/mr_"+hadron+"_"+mainVar+".pdf");
+    canvas->SaveAs(out_file_name+".pdf");
+    canvas->SaveAs(out_file_name+".png");
     return canvas;
 }
 
-TCanvas plot_same_canvas_out(TH1D* h_mr[2]){
+TCanvas plot_same_canvas_out(TH1D* h_mr[2], TString out_file_name){
     //canvas
     TCanvas *canvas= new TCanvas("canvas","canvas",1000,600);
     canvas->cd();
@@ -90,16 +91,19 @@ TCanvas plot_same_canvas_out(TH1D* h_mr[2]){
     legend->Draw("same");
 
     //Save final plot as pdf
-    canvas->SaveAs("output_"+fwd_rec+"/"+torus_pol+"/data"+detector+"/mr_"+hadron+"_"+mainVar+".pdf");
+    canvas->SaveAs(out_file_name+".pdf");
+    canvas->SaveAs(out_file_name+".png");
     return canvas;
 }
 
 void plot_simple_mr_all(int Hadron_pid=211, TString Var="z_h"){
     gStyle->SetOptStat(0);
+
     mainVar=Var;
 
     //output directory
-    TString output_location = "output_"+fwd_rec+"/"+torus_pol+"/data/"+detector;
+    TString output_location = "output_"+fwd_rec+"/"+torus_pol;
+    TString out_file_name;
 
     //hadron selection
     if (Hadron_pid==211){hadron="pion";}
@@ -123,16 +127,47 @@ void plot_simple_mr_all(int Hadron_pid=211, TString Var="z_h"){
     //Total MR comparison
     if (torus_pol=="inb"){
         for (int i = 0; i < 5; ++i){
-            input_files_inb[i] = new TFile(output_location+"/"+targets_inb[i]+"/mr_clas12.root","READ");
+            input_files_inb[i] = new TFile(output_location+"/data/"+detector+"/"+targets_inb[i]+"/mr_clas12.root","READ");
             h_mr_corr_inb[i] = (TH1D*)input_files_inb[i]->Get(hadron+"_"+mainVar+"_mratio");
         }
-        plot_same_canvas_inb(h_mr_corr_inb);
+        out_file_name = "output_"+fwd_rec+"/"+torus_pol+"/data/"+detector+"/mr_"+hadron+"_"+mainVar;
+        plot_same_canvas_inb(h_mr_corr_inb, out_file_name);
+
+        for (int i = 0; i < 5; ++i){
+            input_files_inb[i] = new TFile(output_location+"/AC_MR/"+detector+"/"+targets_inb[i]+"/mr_"+mainVar+"_"+hadron+".root","READ");
+            h_mr_corr_inb[i] = (TH1D*)input_files_inb[i]->Get("MR_corr");
+        }
+        out_file_name = "output_"+fwd_rec+"/"+torus_pol+"/AC_MR/"+detector+"/mr_"+hadron+"_"+mainVar;
+        plot_same_canvas_inb(h_mr_corr_inb, out_file_name);
+
+        for (int i = 0; i < 5; ++i){
+            input_files_inb[i] = new TFile(output_location+"/AC_MR/"+detector+"/"+targets_inb[i]+"/mr_1d_"+hadron+".root","READ");
+            h_mr_corr_inb[i] = (TH1D*)input_files_inb[i]->Get(mainVar+"_mr");
+        }
+        out_file_name = "output_"+fwd_rec+"/"+torus_pol+"/AC_MR/"+detector+"/mr_1dAC_"+hadron+"_"+mainVar;
+        plot_same_canvas_inb(h_mr_corr_inb, out_file_name);
     }
+
     else if (torus_pol=="out"){
         for (int i = 0; i < 2; ++i){
-            input_files_out[i] = new TFile(output_location+"/"+targets_out[i]+"/mr_clas12.root","READ");
+            input_files_out[i] = new TFile(output_location+"/data/"+detector+"/"+targets_out[i]+"/mr_clas12.root","READ");
             h_mr_corr_out[i] = (TH1D*)input_files_out[i]->Get(hadron+"_"+mainVar+"_mratio");
         }
-        plot_same_canvas_out(h_mr_corr_out);
+        out_file_name = "output_"+fwd_rec+"/"+torus_pol+"/data/"+detector+"/mr_"+hadron+"_"+mainVar;
+        plot_same_canvas_out(h_mr_corr_out, out_file_name);
+
+        for (int i = 0; i < 2; ++i){
+            input_files_out[i] = new TFile(output_location+"/AC_MR/"+detector+"/"+targets_out[i]+"/mr_"+mainVar+"_"+hadron+".root","READ");
+            h_mr_corr_out[i] = (TH1D*)input_files_out[i]->Get("MR_corr");
+        }
+        out_file_name = "output_"+fwd_rec+"/"+torus_pol+"/AC_MR/"+detector+"/mr_"+hadron+"_"+mainVar;
+        plot_same_canvas_out(h_mr_corr_out, out_file_name);
+
+        for (int i = 0; i < 5; ++i){
+            input_files_out[i] = new TFile(output_location+"/AC_MR/"+detector+"/"+targets_out[i]+"/mr_"+mainVar+"_"+hadron+".root","READ");
+            h_mr_corr_out[i] = (TH1D*)input_files_out[i]->Get(mainVar+"_mr");
+        }
+        out_file_name = "output_"+fwd_rec+"/"+torus_pol+"/AC_MR/"+detector+"/mr_1dAC_"+hadron+"_"+mainVar;
+        plot_same_canvas_inb(h_mr_corr_inb, out_file_name);
     }
 }

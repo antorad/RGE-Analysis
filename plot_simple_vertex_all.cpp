@@ -80,5 +80,5 @@ void plot_simple_vertex_all(){
             vline[i][j]->Draw();
         }
     }
-    canvas_sector->SaveAs("output_"+fwd_rec+"/"+torus_pol+"/data/"+detector+"/e_v_z_sector.pdf");
+    canvas_sector->SaveAs("output_"+fwd_rec+"/"+torus_pol+"/data/"+detector+"/e_v_z_sector.png");
 }

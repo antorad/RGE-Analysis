@@ -14,25 +14,18 @@ void make_multibinning_v3(int run_N=000000, TString Target="C", int Hadron_pid=2
         cout<<"PID not valid"<<endl;
         return;}
 
-    //Subdirectory name depending of type of input data
-    TString subdir;
-    TString thrown_dir = "";
-    if (type=="data"){subdir="data";}
-    if (type=="acc" || type =="thrown"){subdir="simul";}
-    if (type=="thrown"){thrown_dir="/thrown";}
-
     //Transform input run number to Tstring with correct number of digits
     TString run_N_str = TString::Format("%06d", run_N);
 
     //Output root file for histograms
     TString output_location;
-    if      (run_location=="own_pc"){output_location="output_"+fwd_rec+"/"+torus_pol+"/"+subdir+"/"+detector+"/"+Target+"/"+run_N_str+thrown_dir;}
+    if      (run_location=="own_pc"){output_location="output_"+fwd_rec+"/"+torus_pol+"/"+type+"/"+detector+"/"+Target+"/"+run_N_str;}
     else if (run_location=="farm"){output_location="/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass1/"+torus_pol+"/"+fwd_rec+"/"+detector+"/"+Target+"/"+run_N_str;}
     TFile *output = new TFile(output_location+"/data_binned_"+hadron+".root","RECREATE");
 
     //Get TNtuple input created from simple_plots
     TString input_location;
-    if      (run_location=="own_pc"){input_location="output_"+fwd_rec+"/"+torus_pol+"/"+subdir+"/"+detector+"/"+Target+"/"+run_N_str+thrown_dir;}
+    if      (run_location=="own_pc"){input_location="output_"+fwd_rec+"/"+torus_pol+"/"+type+"/"+detector+"/"+Target+"/"+run_N_str;}
     else if (run_location=="farm"){input_location="/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass1/"+torus_pol+"/"+fwd_rec+"/"+detector+"/"+Target+"/"+run_N_str;}
     TFile *input = new TFile(input_location+"/out_clas12.root","READ");
     TNtuple* h_tuple = (TNtuple*)input->Get(hadron+"_ntuple");
@@ -106,8 +99,8 @@ int total_liq = 0;
             for (int k = 0; k < N_Phi; ++k) {
                 if (Target=="D2" || type=="data") {hists_liq[i][j][k]->Write();}
                 if (Target!="D2") {hists_sol[i][j][k]->Write();}
-                total_sol = total_sol+hists_liq[i][j][k]->GetEntries();
-                total_liq = total_liq+hists_sol[i][j][k]->GetEntries();
+                total_sol = total_sol+hists_sol[i][j][k]->GetEntries();
+                total_liq = total_liq+hists_liq[i][j][k]->GetEntries();
             }
         }
     }

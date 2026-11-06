@@ -1,6 +1,6 @@
 #include "include.h"
 
-void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString mainVar="Zh"){
+void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString mainVar="z_h"){
     ROOT::EnableImplicitMT(); //To run with multithreads (idk if it works)
 
 ////////////////////////////////////////////////////////////////////////
@@ -13,19 +13,19 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     float *main_bins = nullptr;
 
     //N_main and main_bins correspond to the number of bins and their limits respectively
-    if (mainVar == "Zh"){
+    if (mainVar == "z_h"){
         N_main = N_Zh;
         main_bins = Zh_bins;
     }
-    else if (mainVar == "Pt2"){
+    else if (mainVar == "p_T2"){
         N_main = N_Pt2;
         main_bins = Pt2_bins;
     }
-    else if (mainVar == "Phi_PQ"){
+    else if (mainVar == "phi_PQ"){
         N_main = N_Phi;
         main_bins = Phi_bins;
     }
-    else if (mainVar == "Nu"){
+    else if (mainVar == "nu"){
         N_main = N_Nu;
         main_bins = Nu_bins;
     }
@@ -60,31 +60,30 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     //Get hadron and electron histograms from root file created with create_multibinning
     TFile *input_data = new TFile("output_"+fwd_rec+"/"+torus_pol+"/data/"+detector+"/"+Target+"/data_binned_"+hadron+".root","READ");
 
-/*
     //ACCEPTED
     //hadrons
-    TFile *input_acc_sol = new TFile("output_"+fwd_rec+"/simul/"+detector+"/"+Target+"/data_binned_"+hadron+".root","READ");
-    TFile *input_acc_liq = new TFile("output_"+fwd_rec+"/simul/D2/data_binned_"+hadron+".root","READ");
+    TFile *input_acc_sol = new TFile("output_"+fwd_rec+"/"+torus_pol+"/acc/"+detector+"/"+Target+"/data_binned_"+hadron+".root","READ");
+    TFile *input_acc_liq = new TFile("output_"+fwd_rec+"/"+torus_pol+"/acc/"+detector+"/D2/data_binned_"+hadron+".root","READ");
 
     //THROWN
     //hadrons
-    TFile *input_thr_sol = new TFile("output_"+fwd_rec+"/simul/"+detector+"/"+Target+"/thrown/data_binned_"+hadron+".root","READ");
-    TFile *input_thr_liq = new TFile("output_"+fwd_rec+"/simul/D2/thrown/data_binned_"+hadron+".root","READ");
-*/
+    TFile *input_thr_sol = new TFile("output_"+fwd_rec+"/"+torus_pol+"/thrown/"+detector+"/"+Target+"/data_binned_"+hadron+".root","READ");
+    TFile *input_thr_liq = new TFile("output_"+fwd_rec+"/"+torus_pol+"/thrown/"+detector+"/D2/data_binned_"+hadron+".root","READ");
+
     
 //ONLY FOR TESTING, USING DATA FILES AS SIMULATIONS
 //DELETE THIS BLOCK WHEN USING REAL SIMULATIONS AND UNCOMMENT LAST BLOCK
-
-    //ACCEPTED
-    //hadrons
-    TFile *input_acc_sol = new TFile("output_"+fwd_rec+"/"+torus_pol+"/data/"+detector+"/"+Target+"/data_binned_"+hadron+".root","READ");
-    TFile *input_acc_liq = new TFile("output_"+fwd_rec+"/"+torus_pol+"/data/"+detector+"/"+Target+"/data_binned_"+hadron+".root","READ");
-
-    //THROWN
-    //hadrons
-    TFile *input_thr_sol = new TFile("output_"+fwd_rec+"/"+torus_pol+"/data/"+detector+"/"+Target+"/data_binned_"+hadron+".root","READ");
-    TFile *input_thr_liq = new TFile("output_"+fwd_rec+"/"+torus_pol+"/data/"+detector+"/"+Target+"/data_binned_"+hadron+".root","READ");
-
+//
+//    //ACCEPTED
+//    //hadrons
+//    TFile *input_acc_sol = new TFile("output_"+fwd_rec+"/"+torus_pol+"/data/"+detector+"/"+Target+"/data_binned_"+hadron+".root","READ");
+//    TFile *input_acc_liq = new TFile("output_"+fwd_rec+"/"+torus_pol+"/data/"+detector+"/"+Target+"/data_binned_"+hadron+".root","READ");
+//
+//    //THROWN
+//    //hadrons
+//    TFile *input_thr_sol = new TFile("output_"+fwd_rec+"/"+torus_pol+"/data/"+detector+"/"+Target+"/data_binned_"+hadron+".root","READ");
+//    TFile *input_thr_liq = new TFile("output_"+fwd_rec+"/"+torus_pol+"/data/"+detector+"/"+Target+"/data_binned_"+hadron+".root","READ");
+//
 //END OF BLOCK TO BE DELETED WHEN SIMUALTIONS ARE COMPLETED
 
     //OUTPUT file
@@ -121,7 +120,7 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     h2_integ_sol_corr_total->Sumw2();
 
     //Loop every bin for every variable
-    if (mainVar =="Zh" || mainVar == "Pt2" || mainVar == "Phi_PQ"){
+    if (mainVar =="z_h" || mainVar == "p_T2" || mainVar == "phi_PQ"){
         for (int mainVarCounter = 0; mainVarCounter < N_main; mainVarCounter++) {
             //Create integration histogram for each main bin to save in the array
             h2_integ_liq_data[mainVarCounter] = new TH2D(Form("Integrated_histo_liq_data_%i",
@@ -153,13 +152,13 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
         for (int Pt2Counter = 0; Pt2Counter < N_Pt2; Pt2Counter++) {
             for (int PhiCounter = 0; PhiCounter < N_Phi; PhiCounter++) {
                 //Assign names for each var for getting the histo names
-                if (mainVar == "Zh" || mainVar == "Nu" || mainVar == "Q2"){
+                if (mainVar == "z_h" || mainVar == "nu" || mainVar == "Q2"){
                     mainVarCounter = ZhCounter;
                 }
-                if (mainVar == "Pt2"){
+                if (mainVar == "p_T2"){
                     mainVarCounter = Pt2Counter;
                 }
-                if (mainVar == "Phi_PQ"){
+                if (mainVar == "phi_PQ"){
                     mainVarCounter = PhiCounter;
                 }
 
@@ -186,7 +185,7 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
                 h2_liq_corr->Multiply(h2_liq_correction);
 
                 cout<<"adding corrected liq histo with integral:"<<h2_liq_corr->Integral()<<endl;
-                if (mainVar =="Zh" || mainVar == "Pt2" || mainVar == "Phi_PQ"){
+                if (mainVar =="z_h" || mainVar == "p_T2" || mainVar == "phi_PQ"){
                     h2_integ_liq_corr[mainVarCounter]->Add(h2_liq_corr);
                 }
                 h2_integ_liq_corr_total->Add(h2_liq_corr);
@@ -200,7 +199,7 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
                 h2_sol_corr->Multiply(h2_sol_correction);
 
                 cout<<"adding corrected sol histo with integral:"<<h2_sol_corr->Integral()<<endl;
-                if (mainVar =="Zh" || mainVar == "Pt2" || mainVar == "Phi_PQ"){
+                if (mainVar =="z_h" || mainVar == "p_T2" || mainVar == "phi_PQ"){
                     h2_integ_sol_corr[mainVarCounter]->Add(h2_sol_corr);
                 }
                 h2_integ_sol_corr_total->Add(h2_sol_corr);
@@ -211,7 +210,7 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
                 //Add uncorrected histos to integrated histograms
                 cout<<"adding data liq histo with integral:"<<h2_liq_data->Integral()<<endl;
                 cout<<"adding data sol histo with integral:"<<h2_sol_data->Integral()<<endl;
-                if (mainVar =="Zh" || mainVar == "Pt2" || mainVar == "Phi_PQ"){
+                if (mainVar =="z_h" || mainVar == "p_T2" || mainVar == "phi_PQ"){
                     h2_integ_liq_data[mainVarCounter]->Add(h2_liq_data);
                     h2_integ_sol_data[mainVarCounter]->Add(h2_sol_data);
                 }
@@ -247,7 +246,7 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     TH1D* h_ebin_liquid_corr[N_Nu][N_Q2];
     TH1D* h_ebin_solid_corr [N_Nu][N_Q2];
 
-    if (mainVar =="Zh" || mainVar == "Pt2" || mainVar == "Phi_PQ"){
+    if (mainVar =="z_h" || mainVar == "p_T2" || mainVar == "phi_PQ"){
         for (int NuCounter = 0; NuCounter < N_Nu; ++NuCounter){
             for (int Q2Counter = 0; Q2Counter < N_Q2; ++Q2Counter){
                 //Create integration histogram for each Nu and Q2 bin to save in the array
@@ -269,7 +268,7 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     Double_t error_liq_data, error_sol_data, error_sol_corr, error_liq_corr;
 
     //If main var is hadronic variable, set bin values and error using integrated histogram for each main var bin
-    if (mainVar =="Zh" || mainVar == "Pt2" || mainVar == "Phi_PQ"){
+    if (mainVar =="z_h" || mainVar == "p_T2" || mainVar == "phi_PQ"){
         for (int mainVarCounter = 0; mainVarCounter < N_main; mainVarCounter++) {
             //Uncorrected
             h_liquid_data->SetBinContent(mainVarCounter+1, h2_integ_liq_data[mainVarCounter]->IntegralAndError(1,N_Nu,1, N_Q2, error_liq_data));
@@ -317,7 +316,7 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     }
 
     //If main var is electron variable, project the total TH2 into TH1
-    else if (mainVar == "Nu"){
+    else if (mainVar == "nu"){
         //Nu histo
         h_liquid_corr = (TH1D*)h2_integ_liq_corr_total->ProjectionX("histo_liq_corr", 1 , N_Q2, "e");
         h_solid_corr  = (TH1D*)h2_integ_sol_corr_total->ProjectionX("histo_sol_corr", 1 , N_Q2, "e");
@@ -384,7 +383,7 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     h_elec_sol_corr->Sumw2();
 
     //For hadron MainVar. Convert number of electron into flat histogram with errors.
-    if (mainVar =="Zh" || mainVar == "Pt2" || mainVar == "Phi_PQ"){
+    if (mainVar =="z_h" || mainVar == "p_T2" || mainVar == "phi_PQ"){
         for (int i = 1; i <= N_main; i++) {
             h_elec_sol_corr->SetBinContent(i, n_elec_sol_corr);
             h_elec_liq_corr->SetBinContent(i, n_elec_liq_corr);
@@ -395,7 +394,7 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
 
     //For electron varaible, project TH2 into TH1.
     //Nu histo
-    else if (mainVar == "Nu"){
+    else if (mainVar == "nu"){
         h_elec_sol_corr = (TH1D*)h2_elec_sol_corr->ProjectionX("elec_nu_sol_corr", 1 , N_Q2, "e");
         h_elec_liq_corr = (TH1D*)h2_elec_liq_corr->ProjectionX("elec_nu_liq_corr", 1 , N_Q2, "e");
     }
@@ -430,7 +429,7 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     h_elec_liq_data->Sumw2();
     h_elec_sol_data->Sumw2();
 
-    if (mainVar =="Zh" || mainVar == "Pt2" || mainVar == "Phi_PQ"){
+    if (mainVar =="z_h" || mainVar == "p_T2" || mainVar == "phi_PQ"){
         for (int i = 1; i <= N_main; i++) {
             h_elec_sol_data->SetBinContent(i, n_elec_sol_data);
             h_elec_liq_data->SetBinContent(i, n_elec_liq_data);
@@ -441,7 +440,7 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
 
     //For electron varaible, project TH2 into TH1.
     //Nu histo
-    else if (mainVar == "Nu"){
+    else if (mainVar == "nu"){
         h_elec_sol_data = (TH1D*)h2_elec_sol_data->ProjectionX("elec_nu_sol_data", 1 , N_Q2, "e");
         h_elec_liq_data = (TH1D*)h2_elec_liq_data->ProjectionX("elec_nu_liq_data", 1 , N_Q2, "e");
     }
@@ -462,7 +461,7 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     TH1D* h_ebin_elec_liq_corr[N_Nu][N_Q2];
     TH1D* h_ebin_elec_sol_corr[N_Nu][N_Q2];   
     //For specific bin in Nu and Q2
-    if (mainVar =="Zh" || mainVar == "Pt2" || mainVar == "Phi_PQ"){
+    if (mainVar =="z_h" || mainVar == "p_T2" || mainVar == "phi_PQ"){
         for (int NuCounter = 0; NuCounter < N_Nu; ++NuCounter){
             for (int Q2Counter = 0; Q2Counter < N_Q2; ++Q2Counter){
                 //For hadronic variable, count number of corrected electrons and statistic errors
@@ -545,7 +544,7 @@ void integrate_multibinning_v2(TString Target="C", int Hadron_pid=211, TString m
     TH1D* h_ebin_mr_data[N_Nu][N_Q2];
     TH1D* h_ebin_mr_corr[N_Nu][N_Q2];
 
-    if (mainVar =="Zh" || mainVar == "Pt2" || mainVar == "Phi_PQ"){
+    if (mainVar =="z_h" || mainVar == "p_T2" || mainVar == "phi_PQ"){
         for (int NuCounter = 0; NuCounter < N_Nu; ++NuCounter){
             for (int Q2Counter = 0; Q2Counter < N_Q2; ++Q2Counter){
                 cout<<"Working on bin Nu:"<<NuCounter<<", Q2:"<<Q2Counter<<endl;

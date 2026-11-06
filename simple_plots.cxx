@@ -17,6 +17,8 @@ Float_t pimass = 0.139570;
 Float_t pmass = 0.938272;
 Float_t c = 29.9702547;
 int tar_n = -1;
+bool simul=0;
+bool thrown= 0;
 
 bool psf_eval(int sector, double p, double E_PCAL, double E_ECIN){
 	int bin;
@@ -92,7 +94,11 @@ bool valid_cd_pionm(double p, double D_T){ //using carbon for now (decide if usi
 int vertex_sel(int sector, double vz){ //using old cuts, change later for target dependent cuts
 	int targ_type;
 
-	if 		(vz>vertex_cut[tar_n][sector-1][0] && vz<vertex_cut[tar_n][sector-1][1]){targ_type = 1;} //liquid
+	if (simul){
+		if(tar_n==5){targ_type=1;}
+		else {targ_type=2;}
+	}
+	else if (vz>vertex_cut[tar_n][sector-1][0] && vz<vertex_cut[tar_n][sector-1][1]){targ_type = 1;} //liquid
 	else if (vz>vertex_cut[tar_n][sector-1][2] && vz<vertex_cut[tar_n][sector-1][3]){targ_type = 2;} //solid
 	else 	{targ_type=0;} //none
 
@@ -140,10 +146,10 @@ void draw_sector_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, floa
 		histo[i-1]->Write(output+Form("_%i",i));
 		if (TString(var)=="vz"){
 			float y_max = histo[i-1]->GetMaximum();
-			TLine *line_D2_l = new TLine(vertex_cut[tar_n][i][0], 0, vertex_cut[tar_n][i][0], y_max);
-			TLine *line_D2_r = new TLine(vertex_cut[tar_n][i][1], 0, vertex_cut[tar_n][i][1], y_max);
-			TLine *line_sol_l = new TLine(vertex_cut[tar_n][i][2], 0, vertex_cut[tar_n][i][2], y_max);
-			TLine *line_sol_r = new TLine(vertex_cut[tar_n][i][3], 0, vertex_cut[tar_n][i][3], y_max);
+			TLine *line_D2_l = new TLine(vertex_cut[tar_n][i-1][0], 0, vertex_cut[tar_n][i-1][0], y_max);
+			TLine *line_D2_r = new TLine(vertex_cut[tar_n][i-1][1], 0, vertex_cut[tar_n][i-1][1], y_max);
+			TLine *line_sol_l = new TLine(vertex_cut[tar_n][i-1][2], 0, vertex_cut[tar_n][i-1][2], y_max);
+			TLine *line_sol_r = new TLine(vertex_cut[tar_n][i-1][3], 0, vertex_cut[tar_n][i-1][3], y_max);
 
 			// Customize line appearance (optional)
 			line_D2_l->SetLineColor(kRed);
@@ -247,7 +253,7 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	TNtuple *pion_tuple = new TNtuple("pion_ntuple","pions",hadron_varslist);
 	TNtuple *hadron_tuple = new TNtuple("hadron_ntuple","hadrons",hadron_varslist);
 	TNtuple *pion_minus_tuple = new TNtuple("pion_minus_ntuple","positives",hadron_varslist);
-	TNtuple *proton_tuple = new TNtuple("proton_ntuple","protons",hadron_varslist);
+	//TNtuple *proton_tuple = new TNtuple("proton_ntuple","protons",hadron_varslist);
 	TNtuple *elec_tuple = new TNtuple("elec_tuple","electrons",elec_varslist);
 
 	vz_elec = -99;
@@ -257,21 +263,22 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
     cout<<"Starting processing loop "<<endl;
 	//Selection of particles
 	Long64_t n_entries = input_tuple->GetEntries();
-	for (Long64_t i=0;i<n_entries;i++) { //changed n_entries to 1000000 for testing
+	for (Long64_t i=0;i<1000000;i++) { //changed n_entries to 1000000 for testing
 		input_tuple->GetEntry(i);
 		if (pid == 11){valid_electron = false;}
 		//This part assumes that all hadrons after an electron come from that electron to save its vz
 		// Check if the particle fullfills being the scattered electron.
-		if  (pid==11 && status<=-2000 && status>-3000				//basic FD electron cut from CLAS12 event builder
+		if  ((pid==11 && status<=-2000 && status>-3000				//basic FD electron cut from CLAS12 event builder
 			&& Q2>Q2_min && W2>W2_min && y_bjorken<y_bjorken_max 	//DIS cuts
 			//&& p>p_min && p<p_max									//momentum cut
-			//&& theta*rad2deg>theta_min								//theta cut
+			//&& theta*rad2deg>theta_min							//theta cut
 			&& PCAL_V>PCAL_V_fc && PCAL_W>PCAL_W_fc					//PCAL fiducial cuts
 			&& DC_R1_edge>DC_R1_fc_e && DC_R2_edge>DC_R1_fc_e && DC_R3_edge>DC_R3_fc_e //DC fiducial cuts
 			//sector based cuts
 			&& psf_eval(sector, p, E_PCAL, E_ECIN) //Partial sampling fraction
 			&& sf_eval(sector, p, E_total) //Partial sampling fraction
-			) {
+			)
+			|| ((thrown) && pid==11 && Q2>Q2_min && W2>W2_min && y_bjorken<y_bjorken_max)) { //thrown
 			targ_type = vertex_sel(sector, vz);
 			elec_vars[0]  = pid;
 			elec_vars[1]  = NDF;
@@ -355,27 +362,30 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 
 			else if (pid!=11 && pid!=-11 && status>4000 && (detector=="cd" || detector=="all") && pid!=22){hadron_tuple->Fill(hadron_vars);}
 
-			//protons
-			if (pid==2212 && status<3000 && (detector=="fd" || detector=="all")){proton_tuple->Fill(hadron_vars);}
-
-			else if (pid==2212 && status>4000 && (detector=="cd" || detector=="all")){proton_tuple->Fill(hadron_vars);}
+			////protons
+			//if (pid==2212 && status<3000 && (detector=="fd" || detector=="all")){proton_tuple->Fill(hadron_vars);}
+//
+			//else if (pid==2212 && status>4000 && (detector=="cd" || detector=="all")){proton_tuple->Fill(hadron_vars);}
 
 			////positive pions
-			else if (pid==211 && status<3000  && (detector=="fd" || detector=="all") && valid_pion(p, D_T)
+			if (pid==211 && !thrown && status<3000  && (detector=="fd" || detector=="all") && valid_pion(p, D_T)
 				&& DC_R1_fc_pi<DC_R1_edge && DC_R2_fc_pi<DC_R2_edge && DC_R3_fc_pi<DC_R3_edge){
 					pion_tuple->Fill(hadron_vars);}
 
-			else if (pid==211 && status>4000 && (detector=="cd" || detector=="all") && valid_cd_pion(p, D_T)){
+			else if (pid==211 && !thrown && status>4000 && (detector=="cd" || detector=="all") && valid_cd_pion(p, D_T)){
 					pion_tuple->Fill(hadron_vars);}
+
+			else if (pid==211 && thrown){pion_tuple->Fill(hadron_vars);}
 
 			//negative pions
-			else if (pid==-211 && status<3000 && (detector=="fd" || detector=="all") && valid_pionm(p, D_T)
+			else if (pid==-211 && !thrown && status<3000 && (detector=="fd" || detector=="all") && valid_pionm(p, D_T)
 				&& DC_R1_fc_pi<DC_R1_edge && DC_R2_fc_pi<DC_R2_edge && DC_R3_fc_pi<DC_R3_edge){
 					pion_minus_tuple->Fill(hadron_vars);}
 
-			else if (pid==-211 && status>4000 && (detector=="cd" || detector=="all") && valid_cd_pionm(p, D_T)){
+			else if (pid==-211 && !thrown && status>4000 && (detector=="cd" || detector=="all") && valid_cd_pionm(p, D_T)){
 					pion_minus_tuple->Fill(hadron_vars);}
 
+			else if (pid==-211 && thrown){pion_minus_tuple->Fill(hadron_vars);}
 		}
 	}
 	cout<<"Writing output tuples into disk "<<endl;
@@ -397,10 +407,6 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	//z vertex (total)
 	draw_plot(elec_tuple, "", "vz",100,-15,6, "V_{z} [cm]", "dN/dV_{z}" , "e_vz",
 				output_location, output);
-
-	//z vertex by sector
-	draw_sector_plot(elec_tuple, "", "vz",100,-15,6, "V_{z} [cm]", "dN/dV_{z}",
-						"e_vz_sector", output_location, output);
 
 	//x vertex
 	draw_plot(elec_tuple, "", "vx",100,-5,5, "V_{x} [cm]", "dN/dV_{z}" , "e_vx",
@@ -426,10 +432,6 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	draw_plot(elec_tuple, "", "x_bjorken",100, 0,1, "#x_{b}", "dN/dx_{b}", "e_x_b",
 				output_location, output);
 
-	//P vs Etot/P
-	draw_plot_2D(elec_tuple, "", "E_total/p:E_total", 100,0,2,"E_{tot} [GeV]",
-					100, 0.150, 0.325, "E_{tot}/P", "sf", output_location, output);
-
 	//theta vs phi
 	draw_plot_2D(elec_tuple, "", "phi:theta",100, 0, 1, "#theta",
 					 180,-180,180,"#phi", "e_ThetaxPhi", output_location, output);
@@ -445,6 +447,15 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	//Nu vs Q2
 	draw_plot_2D(elec_tuple, "", "Q2:nu",100, 2, 11, "Nu",
 					 100,1,11,"Q2", "e_NuxQ2", output_location, output);
+
+	if (!thrown){
+	//z vertex by sector
+	draw_sector_plot(elec_tuple, "", "vz",100,-15,6, "V_{z} [cm]", "dN/dV_{z}",
+						"e_vz_sector", output_location, output);
+
+	//P vs Etot/P
+	draw_plot_2D(elec_tuple, "", "E_total/p:E_total", 100,0,2,"E_{tot} [GeV]",
+					100, 0.150, 0.325, "E_{tot}/P", "sf", output_location, output);
 
 	//x vs y (DC_R1)
 	draw_plot_2D(elec_tuple, "", "DC_R1_y:DC_R1_x",300, -400, 400, "x [cm]",
@@ -469,17 +480,13 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	//x vs y (DC_R3)
 	draw_plot_2D(input_tuple, "pid==11", "DC_R3_y:DC_R3_x",300, -400, 400, "x [cm]",
 					 300, -400, 400,"y [cm]", "e_nocut_xy_DCR3", output_location, output);
-
+	}
 	//-------------------
 	//----PION PLUS------
 	//-------------------
 
 	//z vertex
 	draw_plot(pion_tuple, "", "vz",100,-15,6, "V_{z} [cm]", "dN/dV_{z}", "pi_vz",
-				output_location, output);
-
-	//time diff theo vs exp vertex
-	draw_plot(pion_tuple, "", "D_T",100,-5,5, "Dt_{#pi} [ns]", "dN/dDT", "pi_dt",
 				output_location, output);
 
 	//z_h
@@ -505,6 +512,11 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	//P vz D_T
 	draw_plot_2D(pion_tuple, "", "D_T:p",100, 0, 5, "P",
 					 100, -55, 5,"#DeltaT_{#pi}", "pi_PxD_t", output_location, output);
+
+	if (!thrown){
+	//time diff theo vs exp vertex
+	draw_plot(pion_tuple, "", "D_T",100,-5,5, "Dt_{#pi} [ns]", "dN/dDT", "pi_dt",
+				output_location, output);
 
 	//P vz D_T
 	draw_plot_2D(hadron_tuple, "pid==211", "D_T:p",300, 0, 5, "P",
@@ -533,7 +545,7 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	//x vs y (DC_R3)
 	draw_plot_2D(hadron_tuple, "pid==211", "DC_R3_y:DC_R3_x",300, -400, 400, "x [cm]",
 					 300, -400, 400,"y [cm]", "pi_nocut_xy_DCR3", output_location, output);
-
+	}
 	//EXTRAS
 /*
 	//x vertex
@@ -673,10 +685,6 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	draw_plot(pion_minus_tuple, "", "vz",100,-15,6, "V_{z} [cm]", "dN/dV_{z}", "pim_vz",
 				output_location, output);
 
-	//time diff theo vs exp vertex
-	draw_plot(pion_minus_tuple, "", "D_T",100,-5,5, "Dt_{#pi} [ns]", "dN/dDT", "pim_dt",
-				output_location, output);
-
 	//z_h
 	draw_plot(pion_minus_tuple, "", "z_h",180,0,1, "Z_{h}", "dN/dZ_{h}", "pim_zh",
 				output_location, output);
@@ -696,6 +704,11 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	//Pt2 vz Zh
 	draw_plot_2D(pion_minus_tuple, "", "z_h:p_T2",100, 0, 5, "P_{T}^{2}",
 					 100, 0, 1,"Z_{h}", "pim_Pt2xZ", output_location, output);
+
+	if (!thrown){
+	//time diff theo vs exp vertex
+	draw_plot(pion_minus_tuple, "", "D_T",100,-5,5, "Dt_{#pi} [ns]", "dN/dDT", "pim_dt",
+				output_location, output);
 
 	//P vz D_T
 	draw_plot_2D(pion_minus_tuple, "", "D_T:p",100, 0, 5, "P",
@@ -728,7 +741,7 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	//x vs y (DC_R3)
 	draw_plot_2D(hadron_tuple, "pid==-211", "DC_R3_y:DC_R3_x",300, -400, 400, "x [cm]",
 					 300, -400, 400,"y [cm]", "pim_nocut_xy_DCR3", output_location, output);
-
+	}
 	//EXTRAS
 /*
 	//x vertex
@@ -1248,98 +1261,43 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	delete pion_tuple;
 	delete hadron_tuple;
 	delete pion_minus_tuple;
-	delete proton_tuple;
+	//delete proton_tuple;
 	delete elec_tuple;
 	delete output;
 }
 
-//Main function that recieves a txt with a list of run number asn the name of the output file
-//void simple_plots(const char* inputFileName, TString Target, TString type="data"){
-//	ROOT::EnableImplicitMT();
-//	cout<<"Running macro based on file name"<<endl;
-//
-//	if 		(Target=="C"){tar_n=0;}
-//    else if (Target=="Al"){tar_n=1;}
-//    else if (Target=="Cu"){tar_n=2;}
-//    else if (Target=="Sn"){tar_n=3;}
-//    else if (Target=="Pb"){tar_n=4;}
-//
-//	// Open the input text file
-//    std::ifstream inputFile(inputFileName);
-//
-//    // Create a TChain to combine input TNuples
-//    TChain* input_tuple = new TChain("DT");
-//    TChain* input_tuple_mc = new TChain("MC");
-//
-//    // Read each line from the text file and add the corresponding ROOT file to the TChain
-//    char buffer [10];
-//    std::string line;
-//    while (std::getline(inputFile, line)) {
-//    	int run_N = stoi(line);
-//    	sprintf(buffer,"%0*d", 6, run_N);
-//		TString run_N_str=TString(buffer);
-//        if (type=="data"){
-//        	cout<<"Adding run: "<<line<<endl;
-//        	input_tuple->Add(type+"/ntuples_"+fwd_rec+"_"+run_N_str+".root");
-//        }
-//        if (type=="simul"){
-//        	cout<<"Addind simul job: "<<line<<endl;
-//        	input_tuple->Add(type+"/"+Target+"/ntuples_"+fwd_rec+"_"+run_N_str+".root");
-//        	input_tuple_mc->Add(type+"/"+Target+"/ntuples_"+fwd_rec+"_"+run_N_str+".root");
-//        }
-//    }
-//
-//    // Close the input file
-//    inputFile.close();
-//
-//    //process the Tchain to make plots and output tuples
-//    TString output_location = "output_"+fwd_rec+"/"+type+"/"+Target+"/";
-//    gSystem->Exec("mkdir -vp "+output_location);
-//    cout<<"Output location: "<<output_location<<endl;
-//
-//    processChain(input_tuple, output_location);
-//    cout<<"Data tuple done"<<endl;
-//
-//	if (type=="simul") {
-//		output_location=output_location+"thrown/";
-//		processChain(input_tuple_mc, output_location);
-//		cout<<"MC tuple done"<<endl;
-//	}
-//
-//    //delete all objects
-//    delete input_tuple;
-//    delete input_tuple_mc;
-//}
-
 //Main function that recieves a run number as the input
 void simple_plots(int run_N=000000, TString Target="unkw", TString type="data"){
 	ROOT::EnableImplicitMT();
-
-	cout<<"Running macro based on run number"<<endl;
+	cout<<"Running macro based on run/job number"<<endl;
 
 	if 		(Target=="C"){tar_n=0;}
     else if (Target=="Al"){tar_n=1;}
     else if (Target=="Cu"){tar_n=2;}
     else if (Target=="Sn"){tar_n=3;}
     else if (Target=="Pb"){tar_n=4;}
+    else if (Target=="D2"){tar_n=5;}
+
+    if (type=="acc"){;}
 
 	//Transform input run number to Tstring with correct number of digits
 	TString run_N_str = TString::Format("%06d", run_N);;
 
 	//Get input file
 	TFile *input_file;
-	TNtuple *input_tuple, *input_tuple_mc;
+	TNtuple *input_tuple;
 
 	if (type=="data"){
-    	if 		(run_location=="own_pc"){input_file = new TFile(type+"/ntuples_"+fwd_rec+"_"+run_N_str+".root","READ");}
-    	else if (run_location=="farm")  {input_file = new TFile("/volatile/clas12/antorad/rge/data/pass1/"+torus_pol+"/"+Target+"_D2/"+fwd_rec+"/ntuple_files/ntuples_"+fwd_rec+"_"+run_N_str+".root", "READ");}
+    	if 		(run_location=="own_pc"){input_file = new TFile("data/ntuples_"+fwd_rec+"_"+run_N_str+".root","READ");}
+    	else if (run_location=="farm")  {input_file = new TFile("", "READ");}
     	input_tuple = (TNtuple*)input_file->Get("DT");
  	}
-    if (type=="simul"){
-    	if 		(run_location=="own_pc"){input_file = new TFile(type+"/"+Target+"/ntuples_"+fwd_rec+"_"+run_N_str+".root","READ");}
-    	else if (run_location=="farm")  {input_file = new TFile("/volatile/clas12/antorad/rge/data/pass1/"+torus_pol+"/"+Target+"_D2/"+fwd_rec+"/ntuple_files/ntuples_"+fwd_rec+"_"+run_N_str+".root", "READ");}
-    	input_tuple = (TNtuple*)input_file->Get("DT");
-    	input_tuple_mc = (TNtuple*)input_file->Get("MC");
+    if (type=="acc"||type=="thrown"){
+    	simul=1;
+    	if 		(run_location=="own_pc"){input_file = new TFile("simul/"+Target+"/ntuples_"+fwd_rec+"_"+run_N_str+".root","READ");}
+    	else if (run_location=="farm")  {input_file = new TFile("", "READ");}
+    	if (type=="acc") 	{input_tuple = (TNtuple*)input_file->Get("DT");}
+    	if (type=="thrown") {input_tuple = (TNtuple*)input_file->Get("MC");}
     }
 
 	//Output directory
@@ -1350,15 +1308,8 @@ void simple_plots(int run_N=000000, TString Target="unkw", TString type="data"){
 	cout<<"Output location: "<<output_location<<endl;
 
     //process the TNtuple to make plots and output tuples
+    if (type=="thrown") {thrown=1;}
 	processTuple(input_tuple, output_location);
-	cout<<"Data tuple done"<<endl;
+	cout<<type+" tuple done"<<endl;
 	delete input_tuple;
-
-	if (type=="simul") {
-		output_location=output_location+"thrown/";
-		processTuple(input_tuple_mc, output_location);
-		cout<<"MC tuple done"<<endl;
-		delete input_tuple_mc;
-	}
-
 }

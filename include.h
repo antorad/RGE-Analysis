@@ -125,14 +125,3 @@ float cd_pion_cuts[6] = {4.53685e-05, -0.329827, 0.538854, 0.338715, -0.201645, 
 
 //Pion minus cuts parameters //{a_up, b_up, e_up, a_low, b_low, e_low,} //taken from Cu
 float cd_pionm_cuts[6] = {7.14749e-07, -0.31339, 0.456721, 0.34309, -0.193846, 0.663907};
-;
-////data
-//TCut vz_d2_data=Form("(v_z>%f)&&(v_z<%f)",vertex_cut[][], D2_vz_max_data);
-//TCut vz_solid_data=Form("(v_z>%f)&&(v_z<%f)",C_vz_min_data, C_vz_max_data);
-//TCut vz_d2_h_data=Form("(v_z_elec>%f)&&(v_z_elec<%f)",D2_vz_min_data, D2_vz_max_data);
-//TCut vz_solid_h_data=Form("(v_z_elec>%f)&&(v_z_elec<%f)",C_vz_min_data, C_vz_max_data);
-////simul
-//TCut vz_d2_acc=Form("(v_z>%f)&&(v_z<%f)",D2_vz_min_simul, D2_vz_max_simul);
-//TCut vz_solid_acc=Form("(v_z>%f)&&(v_z<%f)",C_vz_min_simul, C_vz_max_simul);
-//TCut vz_d2_h_acc=Form("(v_z_elec>%f)&&(v_z_elec<%f)",D2_vz_min_simul, D2_vz_max_simul);
-//TCut vz_solid_h_acc=Form("(v_z_elec>%f)&&(v_z_elec<%f)",C_vz_min_simul, C_vz_max_simul);

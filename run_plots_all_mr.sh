@@ -12,13 +12,13 @@ while getopts "p:" opt; do
   esac
 done
 
-VARS_ALL=("Zh" "Pt2" "Phi_PQ" "Nu" "Q2")
-VARS_BIN=("Zh" "Pt2" "Phi_PQ")
+VARS_ALL=("z_h" "p_T2" "phi_PQ" "nu" "Q2")
+VARS_BIN=("z_h" "p_T2" "phi_PQ")
 
 # Loop over each target and launch a new terminal that closes after execution
 for VAR in "${VARS_ALL[@]}"; do
   #gnome-terminal --wait -- bash -c "root -l -q 'plot_mr_all.cpp($PID, \"$VAR\")'" &
-  root -l -q -b "plot_mr_all.cpp($PID, \"$VAR\")"
+  root -l -q -b "plot_simple_mr_all.cpp($PID, \"$VAR\")"
 done
 wait
 
