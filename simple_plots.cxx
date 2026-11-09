@@ -448,6 +448,52 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	draw_plot_2D(elec_tuple, "", "Q2:nu",100, 2, 11, "Nu",
 					 100,1,11,"Q2", "e_NuxQ2", output_location, output);
 
+	//Before any cut
+	//z vertex (total)
+	draw_plot(input_tuple, "pid==11", "vz",100,-15,6, "V_{z} [cm]", "dN/dV_{z}" , "raw_e_vz",
+				output_location, output);
+
+	//x vertex
+	draw_plot(input_tuple, "pid==11", "vx",100,-5,5, "V_{x} [cm]", "dN/dV_{z}" , "raw_e_vx",
+				output_location, output);
+
+	//y vertex
+	draw_plot(input_tuple, "pid==11", "vy",100,-5,5, "V_{y} [cm]", "dN/dV_{z}" , "raw_e_vy",
+				output_location, output);
+	//W2
+	draw_plot(input_tuple, "pid==11", "W2",100,0,20, "W^{2}", "dN/dW^{2}" , "raw_e_w2", output_location, output);
+
+	//Q2
+	draw_plot(input_tuple, "pid==11", "Q2",100,0,12, "Q^{2}", "dN/dQ^{2}" , "raw_e_q2", output_location, output);
+
+	//Nu
+	draw_plot(input_tuple, "pid==11", "nu",100,0,12, "#nu", "dN/d#nu" , "raw_e_nu", output_location, output);
+
+	//Phi 
+	draw_plot(input_tuple, "pid==11", "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "raw_e_phi",
+				output_location, output);
+
+	//X_b
+	draw_plot(input_tuple, "pid==11", "x_bjorken",100, 0,1, "#x_{b}", "dN/dx_{b}", "raw_e_x_b",
+				output_location, output);
+
+	//theta vs phi
+	draw_plot_2D(input_tuple, "pid==11", "phi:theta",100, 0, 1, "#theta",
+					 180,-180,180,"#phi", "raw_e_ThetaxPhi", output_location, output);
+
+	//P vs theta
+	draw_plot_2D(input_tuple, "pid==11", "theta:p",100, 0, 12, "P",
+					 100,0,1,"#theta", "raw_e_PxTheta", output_location, output);
+
+	//x_b vs Q2
+	draw_plot_2D(input_tuple, "pid==11", "Q2:x_bjorken",100, 0, 1, "X_{b}",
+					 100,0,11,"Q^{2}}", "raw_e_x_bxQ2", output_location, output);
+
+	//Nu vs Q2
+	draw_plot_2D(input_tuple, "pid==11", "Q2:nu",100, 2, 11, "Nu",
+					 100,1,11,"Q2", "raw_e_NuxQ2", output_location, output);
+
+	//Only Data and Acc
 	if (!thrown){
 	//z vertex by sector
 	draw_sector_plot(elec_tuple, "", "vz",100,-15,6, "V_{z} [cm]", "dN/dV_{z}",
@@ -457,13 +503,17 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	draw_plot_2D(elec_tuple, "", "E_total/p:E_total", 100,0,2,"E_{tot} [GeV]",
 					100, 0.150, 0.325, "E_{tot}/P", "sf", output_location, output);
 
+	//P vs Etot/P
+	draw_plot_2D(input_tuple, "pid==11", "E_total/p:E_total", 100,0,2,"E_{tot} [GeV]",
+					100, 0.150, 0.325, "E_{tot}/P", "raw_sf", output_location, output);
+
 	//x vs y (DC_R1)
 	draw_plot_2D(elec_tuple, "", "DC_R1_y:DC_R1_x",300, -400, 400, "x [cm]",
 					 300, -400, 400,"y [cm]", "e_xy_DCR1", output_location, output);
 
 	//x vs y (DC_R1)
 	draw_plot_2D(input_tuple, "pid==11", "DC_R1_y:DC_R1_x",300, -400, 400, "x [cm]",
-					 300, -400, 400,"y [cm]", "e_nocut_xy_DCR1", output_location, output);
+					 300, -400, 400,"y [cm]", "raw_e_xy_DCR1", output_location, output);
 
 	//x vs y (DC_R2)
 	draw_plot_2D(elec_tuple, "", "DC_R2_y:DC_R2_x",300, -400, 400, "x [cm]",
@@ -471,7 +521,7 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 
 	//x vs y (DC_R2)
 	draw_plot_2D(input_tuple, "pid==11", "DC_R2_y:DC_R2_x",300, -400, 400, "x [cm]",
-					 300, -400, 400,"y [cm]", "e_nocut_xy_DCR2", output_location, output);
+					 300, -400, 400,"y [cm]", "raw_e_xy_DCR2", output_location, output);
 
 	//x vs y (DC_R3)
 	draw_plot_2D(elec_tuple, "", "DC_R3_y:DC_R3_x",300, -400, 400, "x [cm]",
@@ -479,8 +529,9 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 
 	//x vs y (DC_R3)
 	draw_plot_2D(input_tuple, "pid==11", "DC_R3_y:DC_R3_x",300, -400, 400, "x [cm]",
-					 300, -400, 400,"y [cm]", "e_nocut_xy_DCR3", output_location, output);
+					 300, -400, 400,"y [cm]", "raw_e_xy_DCR3", output_location, output);
 	}
+
 	//-------------------
 	//----PION PLUS------
 	//-------------------
