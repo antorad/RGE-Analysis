@@ -22,14 +22,19 @@ TCanvas plot_same_canvas_inb(TH1D* h_mr[5], TString out_file_name){
     h_mr[0]->GetXaxis()->SetTitle(mainVar);
 
     //set colors
+    h_mr[0]->SetMarkerStyle(21);
     h_mr[0]->SetMarkerColor(1);
     h_mr[0]->SetLineColor(1);
+    h_mr[1]->SetMarkerStyle(21);
     h_mr[1]->SetMarkerColor(2);
     h_mr[1]->SetLineColor(2);
+    h_mr[2]->SetMarkerStyle(21);
     h_mr[2]->SetMarkerColor(4);
     h_mr[2]->SetLineColor(4);
+    h_mr[3]->SetMarkerStyle(21);
     h_mr[3]->SetMarkerColor(209);
     h_mr[3]->SetLineColor(209);
+    h_mr[4]->SetMarkerStyle(21);
     h_mr[4]->SetMarkerColor(205);
     h_mr[4]->SetLineColor(205);
 
@@ -73,8 +78,10 @@ TCanvas plot_same_canvas_out(TH1D* h_mr[2], TString out_file_name){
     h_mr[0]->GetXaxis()->SetTitle(mainVar);
 
     //set colors
+    h_mr[0]->SetMarkerStyle(21);
     h_mr[0]->SetMarkerColor(1);
     h_mr[0]->SetLineColor(1);
+    h_mr[1]->SetMarkerStyle(21);
     h_mr[1]->SetMarkerColor(205);
     h_mr[1]->SetLineColor(205);
 

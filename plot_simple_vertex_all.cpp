@@ -26,18 +26,23 @@ void plot_simple_vertex_all(){
 
     //set colors
     mr_hist_C->SetMarkerColor(1);
+    mr_hist_C->SetMarkerStyle(21);
     mr_hist_C->SetLineColor(1);
     mr_hist_C->Scale(1./mr_hist_C->Integral());
     mr_hist_Al->SetMarkerColor(2);
+    mr_hist_Al->SetMarkerStyle(21);
     mr_hist_Al->SetLineColor(2);
     mr_hist_Al->Scale(1./mr_hist_Al->Integral());
     mr_hist_Cu->SetMarkerColor(4);
+    mr_hist_Cu->SetMarkerStyle(21);
     mr_hist_Cu->SetLineColor(4);
     mr_hist_Cu->Scale(1./mr_hist_Cu->Integral());
     mr_hist_Sn->SetMarkerColor(209);
+    mr_hist_Sn->SetMarkerStyle(21);
     mr_hist_Sn->SetLineColor(209);
     mr_hist_Sn->Scale(1./mr_hist_Sn->Integral());
     mr_hist_Pb->SetMarkerColor(205);
+    mr_hist_Pb->SetMarkerStyle(21);
     mr_hist_Pb->SetLineColor(205);
     mr_hist_Pb->Scale(1./mr_hist_Pb->Integral());
 
