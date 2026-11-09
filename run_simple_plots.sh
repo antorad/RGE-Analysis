@@ -70,6 +70,9 @@ if [[ $TORUS_POL == "inb" ]]; then
 
   gnome-terminal --wait -- bash -c "root -l -q -b 'simple_plots.cxx(11, \"D2\", \"acc\")'" &
   gnome-terminal --wait -- bash -c "root -l -q -b 'simple_plots.cxx(21, \"D2\", \"acc\")'" &
+  gnome-terminal --wait -- bash -c "root -l -q -b 'simple_plots.cxx(31, \"D2\", \"acc\")'" &
+  gnome-terminal --wait -- bash -c "root -l -q -b 'simple_plots.cxx(41, \"D2\", \"acc\")'" &
+  gnome-terminal --wait -- bash -c "root -l -q -b 'simple_plots.cxx(51, \"D2\", \"acc\")'" &
 
   wait
 
@@ -112,6 +115,9 @@ if [[ $TORUS_POL == "inb" ]]; then
 
   gnome-terminal --wait -- bash -c "root -l -q -b 'simple_plots.cxx(11, \"D2\", \"thrown\")'" &
   gnome-terminal --wait -- bash -c "root -l -q -b 'simple_plots.cxx(21, \"D2\", \"thrown\")'" &
+  gnome-terminal --wait -- bash -c "root -l -q -b 'simple_plots.cxx(31, \"D2\", \"thrown\")'" &
+  gnome-terminal --wait -- bash -c "root -l -q -b 'simple_plots.cxx(41, \"D2\", \"thrown\")'" &
+  gnome-terminal --wait -- bash -c "root -l -q -b 'simple_plots.cxx(51, \"D2\", \"thrown\")'" &
 
   wait
 

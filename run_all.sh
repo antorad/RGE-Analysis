@@ -19,6 +19,7 @@ done
 
 #1D AC MR
 ./run_mr_ac_1d.sh -p 211 -m $TORUS_POL
+./run_mr_ac_1d.sh -p -211 -m $TORUS_POL
 
 #make multibbining
 ./run_make_multibinning.sh -p 211 -m $TORUS_POL -b $FWD_REC -d $DETECTOR
