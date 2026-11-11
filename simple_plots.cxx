@@ -169,6 +169,30 @@ void draw_sector_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, floa
 	delete canvas;
 }
 
+void draw_sector_plot_2D(TNtuple* tuple, TCut cut, char const* var, int xnbins, float xmin, float xmax,
+					TString xtitle, int ynbins, float ymin, float ymax, TString ytitle, 
+					TString output, TString location, TFile* output_file){
+	TCanvas *canvas= new TCanvas("canvas","canvas",1000,600);
+	canvas->Divide(3,2);
+	TH2F *histo[6];
+	for (int i = 1; i < 7; ++i){
+		canvas->cd(i);
+		TCut sector_cut = (TString::Format("sector==%i", i)).Data();
+		string title = (TString::Format("sec%i", i)).Data();
+		TString histo_to_draw;
+		histo_to_draw.Form("%s>>histo%i(%i,%f,%f,%i,%f,%f)", var, i, xnbins, xmin, xmax, ynbins, ymin, ymax);
+		tuple->Draw(histo_to_draw,cut&&sector_cut,"COLZ");
+		histo[i-1] = (TH2F*)gDirectory->GetList()->FindObject(Form("histo%i",i));
+		histo[i-1]->GetXaxis()->SetTitle(xtitle);
+		histo[i-1]->GetYaxis()->SetTitle(ytitle);
+		histo[i-1]->SetTitle(xtitle+Form(" Sector %i",i));
+		histo[i-1]->Draw("COLZ");
+		histo[i-1]->Write(output+Form("_%i",i));
+	}
+	canvas->SaveAs(location+output+".pdf");
+	delete canvas;
+}
+
 //plot 2D plots
 void draw_plot_2D(TNtuple* tuple, TCut cut, char const* var, int xnbins, float xmin, float xmax,
 					TString xtitle, int ynbins, float ymin, float ymax, TString ytitle, 
@@ -379,7 +403,7 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 
 			//negative pions
 			else if (pid==-211 && !thrown && status<3000 && (detector=="fd" || detector=="all") && valid_pionm(p, D_T)
-				&& DC_R1_fc_pi<DC_R1_edge && DC_R2_fc_pi<DC_R2_edge && DC_R3_fc_pi<DC_R3_edge){
+				&& DC_R1_fc_pim<DC_R1_edge && DC_R2_fc_pim<DC_R2_edge && DC_R3_fc_pim<DC_R3_edge){
 					pion_minus_tuple->Fill(hadron_vars);}
 
 			else if (pid==-211 && !thrown && status>4000 && (detector=="cd" || detector=="all") && valid_cd_pionm(p, D_T)){
@@ -530,6 +554,16 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	//x vs y (DC_R3)
 	draw_plot_2D(input_tuple, "pid==11", "DC_R3_y:DC_R3_x",300, -400, 400, "x [cm]",
 					 300, -400, 400,"y [cm]", "raw_e_xy_DCR3", output_location, output);
+
+	//Track quality
+	draw_sector_plot_2D(input_tuple, "pid==11", "(chi2/NDF):DC_R1_edge",100, 0, 30, "edge [cm]",
+					 100, 0, 50,"chi2/NDF", "raw_e_chi2_ndf_edge_R1", output_location, output);
+
+	draw_sector_plot_2D(input_tuple, "pid==11", "(chi2/NDF):DC_R2_edge",100, 0, 30, "edge [cm]",
+					 100, 0, 50,"chi2/NDF", "raw_e_chi2_ndf_edge_R2", output_location, output);
+
+	draw_sector_plot_2D(input_tuple, "pid==11", "(chi2/NDF):DC_R3_edge",100, 0, 30, "edge [cm]",
+					 100, 0, 50,"chi2/NDF", "raw_e_chi2_ndf_edge_R3", output_location, output);
 	}
 
 	//-------------------
@@ -596,6 +630,16 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	//x vs y (DC_R3)
 	draw_plot_2D(hadron_tuple, "pid==211", "DC_R3_y:DC_R3_x",300, -400, 400, "x [cm]",
 					 300, -400, 400,"y [cm]", "pi_nocut_xy_DCR3", output_location, output);
+
+	//Track quality
+	draw_sector_plot_2D(input_tuple, "pid==211", "(chi2/NDF):DC_R1_edge",100, 0, 30, "edge [cm]",
+					 100, 0, 50,"chi2/NDF", "raw_pi_chi2_ndf_edge_R1", output_location, output);
+
+	draw_sector_plot_2D(input_tuple, "pid==211", "(chi2/NDF):DC_R2_edge",100, 0, 30, "edge [cm]",
+					 100, 0, 50,"chi2/NDF", "raw_pi_chi2_ndf_edge_R2", output_location, output);
+
+	draw_sector_plot_2D(input_tuple, "pid==211", "(chi2/NDF):DC_R3_edge",100, 0, 30, "edge [cm]",
+					 100, 0, 50,"chi2/NDF", "raw_pi_chi2_ndf_edge_R3", output_location, output);
 	}
 	//EXTRAS
 /*
@@ -792,6 +836,16 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	//x vs y (DC_R3)
 	draw_plot_2D(hadron_tuple, "pid==-211", "DC_R3_y:DC_R3_x",300, -400, 400, "x [cm]",
 					 300, -400, 400,"y [cm]", "pim_nocut_xy_DCR3", output_location, output);
+
+	//Track quality
+	draw_sector_plot_2D(input_tuple, "pid==-211", "(chi2/NDF):DC_R1_edge",100, 0, 30, "edge [cm]",
+					 100, 0, 50,"chi2/NDF", "raw_pim_chi2_ndf_edge_R1", output_location, output);
+
+	draw_sector_plot_2D(input_tuple, "pid==-211", "(chi2/NDF):DC_R2_edge",100, 0, 30, "edge [cm]",
+					 100, 0, 50,"chi2/NDF", "raw_pim_chi2_ndf_edge_R2", output_location, output);
+
+	draw_sector_plot_2D(input_tuple, "pid==-211", "(chi2/NDF):DC_R3_edge",100, 0, 30, "edge [cm]",
+					 100, 0, 50,"chi2/NDF", "raw_pim_chi2_ndf_edge_R3", output_location, output);
 	}
 	//EXTRAS
 /*
