@@ -177,6 +177,7 @@ void draw_sector_plot_2D(TNtuple* tuple, TCut cut, char const* var, int xnbins, 
 	TH2F *histo[6];
 	for (int i = 1; i < 7; ++i){
 		canvas->cd(i);
+		gPad->SetLogz(1);
 		TCut sector_cut = (TString::Format("sector==%i", i)).Data();
 		string title = (TString::Format("sec%i", i)).Data();
 		TString histo_to_draw;
@@ -188,9 +189,64 @@ void draw_sector_plot_2D(TNtuple* tuple, TCut cut, char const* var, int xnbins, 
 		histo[i-1]->SetTitle(xtitle+Form(" Sector %i",i));
 		histo[i-1]->Draw("COLZ");
 		histo[i-1]->Write(output+Form("_%i",i));
+		if (TString(var)=="E_total/p:E_total"){
+			TF1* sf_mu = new TF1("sf_mu", "[0]+[1]/x+[2]/pow(x,2)", xmin, xmax);
+			sf_mu->SetParameters(sf_pars[i-1][0],sf_pars[i-1][1],sf_pars[i-1][2]);
+
+			TF1* sf_sigma = new TF1("sf_sigma", "[0]+[1]/x+[2]/pow(x,2)", xmin, xmax);
+
+			TF1 *sigma_up  = new TF1("sigma_up", "sf_mu+3.5*sf_sigma", xmin, xmax);
+			sigma_up->SetParameters(sf_pars[i-1][0],sf_pars[i-1][1],sf_pars[i-1][2],sf_pars[i-1][3],sf_pars[i-1][4],sf_pars[i-1][5]);
+			TF1 *sigma_low = new TF1("sigma_low", "sf_mu-3.5*sf_sigma", xmin, xmax);
+			sigma_low->SetParameters(sf_pars[i-1][0],sf_pars[i-1][1],sf_pars[i-1][2],sf_pars[i-1][3],sf_pars[i-1][4],sf_pars[i-1][5]);
+
+			// Customize line appearance (optional)
+			sf_mu->SetLineColor(kBlack);
+			sigma_up->SetLineColor(kRed);
+			sigma_low->SetLineColor(kRed);
+
+			// Draw the line on the current canvas/pad
+			sf_mu->Draw("same");
+			sigma_up->Draw("same");
+			sigma_low->Draw("same");
+		}
 	}
 	canvas->SaveAs(location+output+".pdf");
 	delete canvas;
+}
+
+void draw_psf_2D(TNtuple* tuple, TCut cut, char const* var, int xnbins, float xmin, float xmax,
+					TString xtitle, int ynbins, float ymin, float ymax, TString ytitle, 
+					TString output, TString location, TFile* output_file){
+	TH2F *histo[9][6];
+	int bin_limit[10] = {0,2,3,4,5,6,7,8,9,12};
+	for (int s = 1; s < 7; ++s){
+		TCanvas *canvas= new TCanvas("canvas","canvas",1000,1000);
+		canvas->Divide(3,3);
+		for (int i = 0; i < 9; ++i){
+			canvas->cd(i+1);
+			gPad->SetLogz(1);
+			TCut sector_cut = (TString::Format("sector==%i", s)).Data();
+			TCut p_cut = (TString::Format("p>%i&&p<%i", bin_limit[i], bin_limit[i+1])).Data();
+			TString histo_to_draw;
+			histo_to_draw.Form("%s>>histo%i_%i(%i,%f,%f,%i,%f,%f)", var, i, s, xnbins, xmin, xmax, ynbins, ymin, ymax);
+			tuple->Draw(histo_to_draw,cut&&sector_cut&&p_cut,"COLZ");
+			histo[i][s-1] = (TH2F*)gDirectory->GetList()->FindObject(Form("histo%i_%i",i,s));
+			histo[i][s-1]->GetXaxis()->SetTitle(xtitle);
+			histo[i][s-1]->GetYaxis()->SetTitle(ytitle);
+			histo[i][s-1]->SetTitle(xtitle+Form(" p bin %i",i));
+			histo[i][s-1]->Draw("COLZ");
+			histo[i][s-1]->Write(output+Form("_%i_%i",i,s));
+			TF1* l_cut = new TF1("l_cut", "[0]*x+[1]", xmin, xmax);
+			l_cut->SetParameters(psf_a[s-1][i],psf_b[s-1][i]);
+			l_cut->SetLineColor(kRed);
+
+			// Draw the line on the current canvas/pad
+			l_cut->Draw("same");
+		}
+		canvas->SaveAs(location+output+Form("_sec_%i.pdf",s));
+		delete canvas;
+	}
 }
 
 //plot 2D plots
@@ -524,12 +580,16 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 						"e_vz_sector", output_location, output);
 
 	//P vs Etot/P
-	draw_plot_2D(elec_tuple, "", "E_total/p:E_total", 100,0,2,"E_{tot} [GeV]",
-					100, 0.150, 0.325, "E_{tot}/P", "sf", output_location, output);
+	draw_sector_plot_2D(elec_tuple, "", "E_total/p:E_total", 100,0,2.5,"E_{tot} [GeV]",
+					100, 0., 0.4, "E_{tot}/P", "sf", output_location, output);
 
 	//P vs Etot/P
-	draw_plot_2D(input_tuple, "pid==11", "E_total/p:E_total", 100,0,2,"E_{tot} [GeV]",
-					100, 0.150, 0.325, "E_{tot}/P", "raw_sf", output_location, output);
+	draw_sector_plot_2D(input_tuple, "pid==11", "E_total/p:E_total", 100,0,2.5,"E_{tot} [GeV]",
+					100, 0., 0.4, "E_{tot}/P", "raw_e_sf", output_location, output);
+
+	//P vs Etot/P
+	draw_psf_2D(input_tuple, "pid==11", "E_PCAL/p:E_ECIN/p", 100,0,0.25,"E_{ECIN}/p",
+					100, 0., 0.3, "E_{PCAL}/p", "raw_e_psf", output_location, output);
 
 	//x vs y (DC_R1)
 	draw_plot_2D(elec_tuple, "", "DC_R1_y:DC_R1_x",300, -400, 400, "x [cm]",
