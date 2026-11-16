@@ -120,7 +120,7 @@ void draw_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, float xmin,
 	histo->SetTitle(xtitle);
 	histo->Draw("COLZ");
 	histo->Write(output);
-	canvas->SaveAs(location+output+".pdf");
+	canvas->SaveAs(location+output+".png");
 	delete histo;
 	delete canvas;
 }
@@ -165,7 +165,7 @@ void draw_sector_plot(TNtuple* tuple, TCut cut, char const* var, int nbins, floa
 			line_sol_r->Draw();
 		}
 	}
-	canvas->SaveAs(location+output+".pdf");
+	canvas->SaveAs(location+output+".png");
 	delete canvas;
 }
 
@@ -211,7 +211,7 @@ void draw_sector_plot_2D(TNtuple* tuple, TCut cut, char const* var, int xnbins, 
 			sigma_low->Draw("same");
 		}
 	}
-	canvas->SaveAs(location+output+".pdf");
+	canvas->SaveAs(location+output+".png");
 	delete canvas;
 }
 
@@ -244,7 +244,7 @@ void draw_psf_2D(TNtuple* tuple, TCut cut, char const* var, int xnbins, float xm
 			// Draw the line on the current canvas/pad
 			l_cut->Draw("same");
 		}
-		canvas->SaveAs(location+output+Form("_sec_%i.pdf",s));
+		canvas->SaveAs(location+output+Form("_sec_%i.png",s));
 		delete canvas;
 	}
 }
@@ -265,7 +265,13 @@ void draw_plot_2D(TNtuple* tuple, TCut cut, char const* var, int xnbins, float x
 	histo->SetTitle(xtitle + " vs " + ytitle);
 	histo->Draw("COLZ");
 	histo->Write(output);
-	canvas->SaveAs(location+output+".pdf");
+			if (TString(var)=="E_total/p:PCAL_V" || TString(var)=="E_total/p:PCAL_W"){
+			TLine *fc_line = new TLine(PCAL_V_fc, 0, PCAL_V_fc, ymax);
+			fc_line->SetLineColor(kRed);
+			fc_line->Draw("same");
+
+		}
+	canvas->SaveAs(location+output+".png");
 	delete histo;
 	delete canvas;
 }
@@ -590,6 +596,14 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	//P vs Etot/P
 	draw_psf_2D(input_tuple, "pid==11", "E_PCAL/p:E_ECIN/p", 100,0,0.25,"E_{ECIN}/p",
 					100, 0., 0.3, "E_{PCAL}/p", "raw_e_psf", output_location, output);
+
+	//P vs Etot/P
+	draw_plot_2D(input_tuple, "pid==11", "E_total/p:PCAL_V", 100,0,30,"PCAL V [cm]",
+					100, 0., 0.35, "E_{total}/p", "raw_e_sf_v", output_location, output);
+
+	//P vs Etot/P
+	draw_plot_2D(input_tuple, "pid==11", "E_total/p:PCAL_W", 100,0,30,"PCAL W [cm]",
+					100, 0., 0.35, "E_{total}/p", "raw_e_sf_w", output_location, output);
 
 	//x vs y (DC_R1)
 	draw_plot_2D(elec_tuple, "", "DC_R1_y:DC_R1_x",300, -400, 400, "x [cm]",
