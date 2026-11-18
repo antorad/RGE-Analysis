@@ -47,14 +47,19 @@ float DC_R2_fc_e = 3.5;
 float DC_R3_fc_e = 7.5;
 
 //DC pion fiducial cuts
-float DC_R1_fc_pi = 1.25;
-float DC_R2_fc_pi = 1.35;
-float DC_R3_fc_pi = 1.94;
+float DC_R1_fc_pi = 4.5;
+float DC_R2_fc_pi = 3.5;
+float DC_R3_fc_pi = 7.5;
 
 //DC pion fiducial cuts
-float DC_R1_fc_pim = 1.25;
-float DC_R2_fc_pim = 1.35;
-float DC_R3_fc_pim = 1.94;
+float DC_R1_fc_pim = 4.5;
+float DC_R2_fc_pim = 3.5;
+float DC_R3_fc_pim = 7.5;
+
+////DC pion fiducial cuts
+//float DC_R1_fc_pim = 1.25;
+//float DC_R2_fc_pim = 1.35;
+//float DC_R3_fc_pim = 1.94;
 
 //Partial sampling fraction {p_bin_1, p_bin_2, p_bin_3, p_bin_4, p_bin_5, p_bin_6, p_bin_7, p_bin_8, p_bin_9}
 float psf_a[6][9] ={ //[sector][bin]
