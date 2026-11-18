@@ -332,15 +332,16 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	input_tuple->SetBranchAddress("start_time",&start_time);
 
 	//------output ntuples------
-	Float_t hadron_vars[38];
-	Float_t elec_vars[27];
-	const char* hadron_varslist = "pid:NDF:chi2:Q2:nu:vx:vy:vz:vt:p:p_T2:p_L2:E_total:E_ECIN:E_ECOU:z_h:vx_elec:vy_elec:vz_elec:vt_elec:x_bjorken:y_bjorken:W2:beta:phi:sector:phi_PQ:theta:targ_type:D_T:D_Tp:D_Te:DC_R1_x:DC_R2_x:DC_R3_x:DC_R1_y:DC_R2_y:DC_R3_y";
-	const char* elec_varslist = "pid:NDF:chi2:Q2:nu:vx:vy:vz:vt:p:E_total:E_ECIN:E_ECOU:x_bjorken:y_bjorken:W2:beta:phi:sector:theta:targ_type:DC_R1_x:DC_R2_x:DC_R3_x:DC_R1_y:DC_R2_y:DC_R3_y";
+	Float_t hadron_vars[43];
+	Float_t elec_vars[33];
+	const char* hadron_varslist = "pid:charge:NDF:chi2:Q2:nu:vx:vy:vz:vt:p:p_T2:p_L2:E_total:E_PCAL:E_ECIN:E_ECOU:z_h:vx_elec:vy_elec:vz_elec:vt_elec:x_bjorken:y_bjorken:W2:beta:phi:sector:phi_PQ:theta:targ_type:D_T:D_Tp:D_Te:DC_R1_edge:DC_R2_edge:DC_R3_edge:DC_R1_x:DC_R2_x:DC_R3_x:DC_R1_y:DC_R2_y:DC_R3_y";
+	const char* elec_varslist = "pid:NDF:chi2:Q2:nu:vx:vy:vz:vt:p:E_total:E_PCAL:E_ECIN:E_ECOU:x_bjorken:y_bjorken:W2:beta:phi:sector:theta:targ_type:PCAL_V:PCAL_W:DC_R1_edge:DC_R2_edge:DC_R3_edge:DC_R1_x:DC_R2_x:DC_R3_x:DC_R1_y:DC_R2_y:DC_R3_y";
 	TNtuple *pion_tuple = new TNtuple("pion_ntuple","pions",hadron_varslist);
 	TNtuple *hadron_tuple = new TNtuple("hadron_ntuple","hadrons",hadron_varslist);
 	TNtuple *pion_minus_tuple = new TNtuple("pion_minus_ntuple","positives",hadron_varslist);
 	//TNtuple *proton_tuple = new TNtuple("proton_ntuple","protons",hadron_varslist);
 	TNtuple *elec_tuple = new TNtuple("elec_tuple","electrons",elec_varslist);
+	TNtuple *raw_elec_tuple = new TNtuple("raw_elec_tuple","raw_electrons",elec_varslist);
 
 	vz_elec = -99;
 	vt_elec = -99;
@@ -349,10 +350,46 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
     cout<<"Starting processing loop "<<endl;
 	//Selection of particles
 	Long64_t n_entries = input_tuple->GetEntries();
-	for (Long64_t i=0;i<1000000;i++) { //changed n_entries to 1000000 for testing
+	for (Long64_t i=0;i<n_entries;i++) { //changed n_entries to 1000000 for testing
 		input_tuple->GetEntry(i);
-		if (pid == 11){valid_electron = false;}
-		//This part assumes that all hadrons after an electron come from that electron to save its vz
+		if (pid == 11){
+			valid_electron = false;
+			targ_type = vertex_sel(sector, vz);
+			elec_vars[0]  = pid;
+			elec_vars[1]  = NDF;
+			elec_vars[2]  = chi2;
+			elec_vars[3]  = Q2;
+			elec_vars[4]  = nu;
+			elec_vars[5]  = vx;
+			elec_vars[6]  = vy;
+			elec_vars[7]  = vz;
+			elec_vars[8]  = vt;
+			elec_vars[9]  = p;
+			elec_vars[10] = E_total;
+			elec_vars[11] = E_PCAL;
+			elec_vars[12] = E_ECIN;
+			elec_vars[13] = E_ECOU;
+			elec_vars[14] = x_bjorken;
+			elec_vars[15] = y_bjorken;
+			elec_vars[16] = W2;
+			elec_vars[17] = beta;
+			elec_vars[18] = phi*rad2deg;
+			elec_vars[19] = sector;
+			elec_vars[20] = theta;
+			elec_vars[21] = targ_type;
+			elec_vars[22] = PCAL_V;
+			elec_vars[23] = PCAL_W;
+			elec_vars[24] = DC_R1_edge;
+			elec_vars[25] = DC_R2_edge;
+			elec_vars[26] = DC_R3_edge;
+			elec_vars[27] = DC_R1_x;
+			elec_vars[28] = DC_R2_x;
+			elec_vars[29] = DC_R3_x;
+			elec_vars[30] = DC_R1_y;
+			elec_vars[31] = DC_R2_y;
+			elec_vars[32] = DC_R3_y;
+			raw_elec_tuple->Fill(elec_vars);
+		}
 		// Check if the particle fullfills being the scattered electron.
 		if  ((pid==11 && status<=-2000 && status>-3000				//basic FD electron cut from CLAS12 event builder
 			&& Q2>Q2_min && W2>W2_min && y_bjorken<y_bjorken_max 	//DIS cuts
@@ -365,34 +402,6 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 			&& sf_eval(sector, p, E_total) //Partial sampling fraction
 			)
 			|| ((thrown) && pid==11 && Q2>Q2_min && W2>W2_min && y_bjorken<y_bjorken_max)) { //thrown
-			targ_type = vertex_sel(sector, vz);
-			elec_vars[0]  = pid;
-			elec_vars[1]  = NDF;
-			elec_vars[2]  = chi2;
-			elec_vars[3]  = Q2;
-			elec_vars[4]  = nu;
-			elec_vars[5]  = vx;
-			elec_vars[6]  = vy;
-			elec_vars[7]  = vz;
-			elec_vars[8]  = vt;
-			elec_vars[9]  = p;
-			elec_vars[10]  = E_total;
-			elec_vars[11]  = E_ECIN;
-			elec_vars[12]  = E_ECOU;
-			elec_vars[13] = x_bjorken;
-			elec_vars[14] = y_bjorken;
-			elec_vars[15] = W2;
-			elec_vars[16] = beta;
-			elec_vars[17] = phi*rad2deg;
-			elec_vars[18] = sector;
-			elec_vars[19] = theta;
-			elec_vars[20] = targ_type;
-			elec_vars[21] = DC_R1_x;
-			elec_vars[22] = DC_R2_x;
-			elec_vars[23] = DC_R3_x;
-			elec_vars[24] = DC_R1_y;
-			elec_vars[25] = DC_R2_y;
-			elec_vars[26] = DC_R3_y;
 			elec_tuple->Fill(elec_vars);
 			vx_elec = vx;
 			vy_elec = vy;
@@ -405,43 +414,48 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 		// Check if the particle is not an electron.
 		else if (valid_electron){
 			hadron_vars[0]  = pid;
-			hadron_vars[1]  = NDF;
-			hadron_vars[2]  = chi2;
-			hadron_vars[3]  = Q2;
-			hadron_vars[4]  = nu;
-			hadron_vars[5]  = vx;
-			hadron_vars[6]  = vy;
-			hadron_vars[7]  = vz;
-			hadron_vars[8]  = vt;
-			hadron_vars[9]  = p;
-			hadron_vars[10] = p_T2;
-			hadron_vars[11] = p_L2;
-			hadron_vars[12] = E_total;
-			hadron_vars[13] = E_ECIN;
-			hadron_vars[14] = E_ECOU;
-			hadron_vars[15] = z_h;
-			hadron_vars[16] = vx_elec;
-			hadron_vars[17] = vy_elec;
-			hadron_vars[18] = vz_elec;
-			hadron_vars[19] = vt_elec;
-			hadron_vars[20] = x_bjorken;
-			hadron_vars[21] = y_bjorken;
-			hadron_vars[22] = W2;
-			hadron_vars[23] = beta;
-			hadron_vars[24] = phi*rad2deg;
-			hadron_vars[25] = sector;
-			hadron_vars[26] = phi_PQ;
-			hadron_vars[27] = theta;
-			hadron_vars[28] = targ_type;
-			hadron_vars[29] = D_T = get_pion_D_T(p, path_tof, start_time, time_tof);
-			hadron_vars[30] = D_Tp = get_prot_D_T(p, path_tof, start_time, time_tof);
-			hadron_vars[31] = D_Te =time_tof-tof_elec;
-			hadron_vars[32] = DC_R1_x;
-			hadron_vars[33] = DC_R2_x;
-			hadron_vars[34] = DC_R3_x;
-			hadron_vars[35] = DC_R1_y;
-			hadron_vars[36] = DC_R2_y;
-			hadron_vars[37] = DC_R3_y;
+			hadron_vars[1]  = charge;
+			hadron_vars[2]  = NDF;
+			hadron_vars[3]  = chi2;
+			hadron_vars[4]  = Q2;
+			hadron_vars[5]  = nu;
+			hadron_vars[6]  = vx;
+			hadron_vars[7]  = vy;
+			hadron_vars[8]  = vz;
+			hadron_vars[9]  = vt;
+			hadron_vars[10] = p;
+			hadron_vars[11] = p_T2;
+			hadron_vars[12] = p_L2;
+			hadron_vars[13] = E_total;
+			hadron_vars[14] = E_PCAL;
+			hadron_vars[15] = E_ECIN;
+			hadron_vars[16] = E_ECOU;
+			hadron_vars[17] = z_h;
+			hadron_vars[18] = vx_elec;
+			hadron_vars[19] = vy_elec;
+			hadron_vars[20] = vz_elec;
+			hadron_vars[21] = vt_elec;
+			hadron_vars[22] = x_bjorken;
+			hadron_vars[23] = y_bjorken;
+			hadron_vars[24] = W2;
+			hadron_vars[25] = beta;
+			hadron_vars[26] = phi*rad2deg;
+			hadron_vars[27] = sector;
+			hadron_vars[28] = phi_PQ;
+			hadron_vars[29] = theta;
+			hadron_vars[30] = targ_type;
+			hadron_vars[31] = D_T = get_pion_D_T(p, path_tof, start_time, time_tof);
+			hadron_vars[32] = D_Tp = get_prot_D_T(p, path_tof, start_time, time_tof);
+			hadron_vars[33] = D_Te =time_tof-tof_elec;
+			hadron_vars[34] = DC_R1_edge;
+			hadron_vars[35] = DC_R2_edge;
+			hadron_vars[36] = DC_R3_edge;
+			hadron_vars[37] = DC_R1_x;
+			hadron_vars[38] = DC_R2_x;
+			hadron_vars[39] = DC_R3_x;
+			hadron_vars[40] = DC_R1_y;
+			hadron_vars[41] = DC_R2_y;
+			hadron_vars[42] = DC_R3_y;
 
 			//all hadrons
 			if (pid!=11 && pid!=-11 && status<3000 && (detector=="fd" || detector=="all") && pid!=22){hadron_tuple->Fill(hadron_vars);}
@@ -487,6 +501,18 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	cout<<"Creating plots "<<endl;
 
 	//-----------------
+	//----HADRONS----
+	//-----------------
+
+	//Beta vs P
+	draw_plot_2D(hadron_tuple, "charge==1", "beta:p",100, 0, 5, "P",
+					 100, 0, 1.2,"#beta", "h_pos_betaxP", output_location, output);
+
+	//Beta vs P
+	draw_plot_2D(hadron_tuple, "charge==-1", "beta:p",100, 0, 5, "P",
+					 100, 0, 1.2,"#beta", "h_neg_betaxP", output_location, output);
+
+	//-----------------
 	//----ELECTRONS----
 	//-----------------
 
@@ -528,7 +554,7 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 
 	//x_b vs Q2
 	draw_plot_2D(elec_tuple, "", "Q2:x_bjorken",100, 0, 1, "X_{b}",
-					 100,0,11,"Q^{2}}", "e_x_bxQ2", output_location, output);
+					 100,0,11,"Q^{2}", "e_x_bxQ2", output_location, output);
 
 	//Nu vs Q2
 	draw_plot_2D(elec_tuple, "", "Q2:nu",100, 2, 11, "Nu",
@@ -536,47 +562,47 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 
 	//Before any cut
 	//z vertex (total)
-	draw_plot(input_tuple, "pid==11", "vz",100,-15,6, "V_{z} [cm]", "dN/dV_{z}" , "raw_e_vz",
+	draw_plot(raw_elec_tuple, "", "vz",100,-15,6, "V_{z} [cm]", "dN/dV_{z}" , "raw_e_vz",
 				output_location, output);
 
 	//x vertex
-	draw_plot(input_tuple, "pid==11", "vx",100,-5,5, "V_{x} [cm]", "dN/dV_{z}" , "raw_e_vx",
+	draw_plot(raw_elec_tuple, "", "vx",100,-5,5, "V_{x} [cm]", "dN/dV_{z}" , "raw_e_vx",
 				output_location, output);
 
 	//y vertex
-	draw_plot(input_tuple, "pid==11", "vy",100,-5,5, "V_{y} [cm]", "dN/dV_{z}" , "raw_e_vy",
+	draw_plot(raw_elec_tuple, "", "vy",100,-5,5, "V_{y} [cm]", "dN/dV_{z}" , "raw_e_vy",
 				output_location, output);
 	//W2
-	draw_plot(input_tuple, "pid==11", "W2",100,0,20, "W^{2}", "dN/dW^{2}" , "raw_e_w2", output_location, output);
+	draw_plot(raw_elec_tuple, "", "W2",100,0,20, "W^{2}", "dN/dW^{2}" , "raw_e_w2", output_location, output);
 
 	//Q2
-	draw_plot(input_tuple, "pid==11", "Q2",100,0,12, "Q^{2}", "dN/dQ^{2}" , "raw_e_q2", output_location, output);
+	draw_plot(raw_elec_tuple, "", "Q2",100,0,12, "Q^{2}", "dN/dQ^{2}" , "raw_e_q2", output_location, output);
 
 	//Nu
-	draw_plot(input_tuple, "pid==11", "nu",100,0,12, "#nu", "dN/d#nu" , "raw_e_nu", output_location, output);
+	draw_plot(raw_elec_tuple, "", "nu",100,0,12, "#nu", "dN/d#nu" , "raw_e_nu", output_location, output);
 
 	//Phi 
-	draw_plot(input_tuple, "pid==11", "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "raw_e_phi",
+	draw_plot(raw_elec_tuple, "", "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "raw_e_phi",
 				output_location, output);
 
 	//X_b
-	draw_plot(input_tuple, "pid==11", "x_bjorken",100, 0,1, "#x_{b}", "dN/dx_{b}", "raw_e_x_b",
+	draw_plot(raw_elec_tuple, "", "x_bjorken",100, 0,1, "#x_{b}", "dN/dx_{b}", "raw_e_x_b",
 				output_location, output);
 
 	//theta vs phi
-	draw_plot_2D(input_tuple, "pid==11", "phi:theta",100, 0, 1, "#theta",
+	draw_plot_2D(raw_elec_tuple, "", "phi:theta",100, 0, 1, "#theta",
 					 180,-180,180,"#phi", "raw_e_ThetaxPhi", output_location, output);
 
 	//P vs theta
-	draw_plot_2D(input_tuple, "pid==11", "theta:p",100, 0, 12, "P",
+	draw_plot_2D(raw_elec_tuple, "", "theta:p",100, 0, 12, "P",
 					 100,0,1,"#theta", "raw_e_PxTheta", output_location, output);
 
 	//x_b vs Q2
-	draw_plot_2D(input_tuple, "pid==11", "Q2:x_bjorken",100, 0, 1, "X_{b}",
+	draw_plot_2D(raw_elec_tuple, "", "Q2:x_bjorken",100, 0, 1, "X_{b}",
 					 100,0,11,"Q^{2}}", "raw_e_x_bxQ2", output_location, output);
 
 	//Nu vs Q2
-	draw_plot_2D(input_tuple, "pid==11", "Q2:nu",100, 2, 11, "Nu",
+	draw_plot_2D(raw_elec_tuple, "", "Q2:nu",100, 2, 11, "Nu",
 					 100,1,11,"Q2", "raw_e_NuxQ2", output_location, output);
 
 	//Only Data and Acc
@@ -587,22 +613,22 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 
 	//P vs Etot/P
 	draw_sector_plot_2D(elec_tuple, "", "E_total/p:E_total", 100,0,2.5,"E_{tot} [GeV]",
-					100, 0., 0.4, "E_{tot}/P", "sf", output_location, output);
+					100, 0., 0.4, "E_{tot}/P", "e_sf", output_location, output);
 
 	//P vs Etot/P
-	draw_sector_plot_2D(input_tuple, "pid==11", "E_total/p:E_total", 100,0,2.5,"E_{tot} [GeV]",
+	draw_sector_plot_2D(raw_elec_tuple, "", "E_total/p:E_total", 100,0,2.5,"E_{tot} [GeV]",
 					100, 0., 0.4, "E_{tot}/P", "raw_e_sf", output_location, output);
 
 	//P vs Etot/P
-	draw_psf_2D(input_tuple, "pid==11", "E_PCAL/p:E_ECIN/p", 100,0,0.25,"E_{ECIN}/p",
+	draw_psf_2D(raw_elec_tuple, "", "E_PCAL/p:E_ECIN/p", 100,0,0.25,"E_{ECIN}/p",
 					100, 0., 0.3, "E_{PCAL}/p", "raw_e_psf", output_location, output);
 
 	//P vs Etot/P
-	draw_plot_2D(input_tuple, "pid==11", "E_total/p:PCAL_V", 100,0,30,"PCAL V [cm]",
+	draw_plot_2D(raw_elec_tuple, "", "E_total/p:PCAL_V", 100,0,30,"PCAL V [cm]",
 					100, 0., 0.35, "E_{total}/p", "raw_e_sf_v", output_location, output);
 
 	//P vs Etot/P
-	draw_plot_2D(input_tuple, "pid==11", "E_total/p:PCAL_W", 100,0,30,"PCAL W [cm]",
+	draw_plot_2D(raw_elec_tuple, "", "E_total/p:PCAL_W", 100,0,30,"PCAL W [cm]",
 					100, 0., 0.35, "E_{total}/p", "raw_e_sf_w", output_location, output);
 
 	//x vs y (DC_R1)
@@ -610,7 +636,7 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 					 300, -400, 400,"y [cm]", "e_xy_DCR1", output_location, output);
 
 	//x vs y (DC_R1)
-	draw_plot_2D(input_tuple, "pid==11", "DC_R1_y:DC_R1_x",300, -400, 400, "x [cm]",
+	draw_plot_2D(raw_elec_tuple, "", "DC_R1_y:DC_R1_x",300, -400, 400, "x [cm]",
 					 300, -400, 400,"y [cm]", "raw_e_xy_DCR1", output_location, output);
 
 	//x vs y (DC_R2)
@@ -618,7 +644,7 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 					 300, -400, 400,"y [cm]", "e_xy_DCR2", output_location, output);
 
 	//x vs y (DC_R2)
-	draw_plot_2D(input_tuple, "pid==11", "DC_R2_y:DC_R2_x",300, -400, 400, "x [cm]",
+	draw_plot_2D(raw_elec_tuple, "", "DC_R2_y:DC_R2_x",300, -400, 400, "x [cm]",
 					 300, -400, 400,"y [cm]", "raw_e_xy_DCR2", output_location, output);
 
 	//x vs y (DC_R3)
@@ -626,17 +652,17 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 					 300, -400, 400,"y [cm]", "e_xy_DCR3", output_location, output);
 
 	//x vs y (DC_R3)
-	draw_plot_2D(input_tuple, "pid==11", "DC_R3_y:DC_R3_x",300, -400, 400, "x [cm]",
+	draw_plot_2D(raw_elec_tuple, "", "DC_R3_y:DC_R3_x",300, -400, 400, "x [cm]",
 					 300, -400, 400,"y [cm]", "raw_e_xy_DCR3", output_location, output);
 
 	//Track quality
-	draw_sector_plot_2D(input_tuple, "pid==11", "(chi2/NDF):DC_R1_edge",100, 0, 30, "edge [cm]",
+	draw_sector_plot_2D(raw_elec_tuple, "", "(chi2/NDF):DC_R1_edge",100, 0, 30, "edge [cm]",
 					 100, 0, 50,"chi2/NDF", "raw_e_chi2_ndf_edge_R1", output_location, output);
 
-	draw_sector_plot_2D(input_tuple, "pid==11", "(chi2/NDF):DC_R2_edge",100, 0, 30, "edge [cm]",
+	draw_sector_plot_2D(raw_elec_tuple, "", "(chi2/NDF):DC_R2_edge",100, 0, 30, "edge [cm]",
 					 100, 0, 50,"chi2/NDF", "raw_e_chi2_ndf_edge_R2", output_location, output);
 
-	draw_sector_plot_2D(input_tuple, "pid==11", "(chi2/NDF):DC_R3_edge",100, 0, 30, "edge [cm]",
+	draw_sector_plot_2D(raw_elec_tuple, "", "(chi2/NDF):DC_R3_edge",100, 0, 30, "edge [cm]",
 					 100, 0, 50,"chi2/NDF", "raw_e_chi2_ndf_edge_R3", output_location, output);
 	}
 
@@ -668,11 +694,15 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	draw_plot_2D(pion_tuple, "", "z_h:p_T2",100, 0, 5, "P_{T}^{2}",
 					 100, 0, 1,"Z_{h}", "pi_Pt2xZ", output_location, output);
 
+	//Beta vs P
+	draw_plot_2D(pion_tuple, "", "beta:p",100, 0, 5, "P",
+					 100, 0, 1.2,"#beta", "pi_betaxP", output_location, output);
+
+	if (!thrown){
 	//P vz D_T
 	draw_plot_2D(pion_tuple, "", "D_T:p",100, 0, 5, "P",
 					 100, -55, 5,"#DeltaT_{#pi}", "pi_PxD_t", output_location, output);
 
-	if (!thrown){
 	//time diff theo vs exp vertex
 	draw_plot(pion_tuple, "", "D_T",100,-5,5, "Dt_{#pi} [ns]", "dN/dDT", "pi_dt",
 				output_location, output);
@@ -706,13 +736,13 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 					 300, -400, 400,"y [cm]", "pi_nocut_xy_DCR3", output_location, output);
 
 	//Track quality
-	draw_sector_plot_2D(input_tuple, "pid==211", "(chi2/NDF):DC_R1_edge",100, 0, 30, "edge [cm]",
+	draw_sector_plot_2D(hadron_tuple, "pid==211", "(chi2/NDF):DC_R1_edge",100, 0, 30, "edge [cm]",
 					 100, 0, 50,"chi2/NDF", "raw_pi_chi2_ndf_edge_R1", output_location, output);
 
-	draw_sector_plot_2D(input_tuple, "pid==211", "(chi2/NDF):DC_R2_edge",100, 0, 30, "edge [cm]",
+	draw_sector_plot_2D(hadron_tuple, "pid==211", "(chi2/NDF):DC_R2_edge",100, 0, 30, "edge [cm]",
 					 100, 0, 50,"chi2/NDF", "raw_pi_chi2_ndf_edge_R2", output_location, output);
 
-	draw_sector_plot_2D(input_tuple, "pid==211", "(chi2/NDF):DC_R3_edge",100, 0, 30, "edge [cm]",
+	draw_sector_plot_2D(hadron_tuple, "pid==211", "(chi2/NDF):DC_R3_edge",100, 0, 30, "edge [cm]",
 					 100, 0, 50,"chi2/NDF", "raw_pi_chi2_ndf_edge_R3", output_location, output);
 	}
 	//EXTRAS
@@ -874,6 +904,10 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	draw_plot_2D(pion_minus_tuple, "", "z_h:p_T2",100, 0, 5, "P_{T}^{2}",
 					 100, 0, 1,"Z_{h}", "pim_Pt2xZ", output_location, output);
 
+	//Beta vs P
+	draw_plot_2D(pion_minus_tuple, "", "beta:p",100, 0, 5, "P",
+					 100, 0, 1.2,"#beta", "pim_betaxP", output_location, output);
+
 	if (!thrown){
 	//time diff theo vs exp vertex
 	draw_plot(pion_minus_tuple, "", "D_T",100,-5,5, "Dt_{#pi} [ns]", "dN/dDT", "pim_dt",
@@ -912,13 +946,13 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 					 300, -400, 400,"y [cm]", "pim_nocut_xy_DCR3", output_location, output);
 
 	//Track quality
-	draw_sector_plot_2D(input_tuple, "pid==-211", "(chi2/NDF):DC_R1_edge",100, 0, 30, "edge [cm]",
+	draw_sector_plot_2D(hadron_tuple, "pid==-211", "(chi2/NDF):DC_R1_edge",100, 0, 30, "edge [cm]",
 					 100, 0, 50,"chi2/NDF", "raw_pim_chi2_ndf_edge_R1", output_location, output);
 
-	draw_sector_plot_2D(input_tuple, "pid==-211", "(chi2/NDF):DC_R2_edge",100, 0, 30, "edge [cm]",
+	draw_sector_plot_2D(hadron_tuple, "pid==-211", "(chi2/NDF):DC_R2_edge",100, 0, 30, "edge [cm]",
 					 100, 0, 50,"chi2/NDF", "raw_pim_chi2_ndf_edge_R2", output_location, output);
 
-	draw_sector_plot_2D(input_tuple, "pid==-211", "(chi2/NDF):DC_R3_edge",100, 0, 30, "edge [cm]",
+	draw_sector_plot_2D(hadron_tuple, "pid==-211", "(chi2/NDF):DC_R3_edge",100, 0, 30, "edge [cm]",
 					 100, 0, 50,"chi2/NDF", "raw_pim_chi2_ndf_edge_R3", output_location, output);
 	}
 	//EXTRAS
@@ -1457,10 +1491,8 @@ void simple_plots(int run_N=000000, TString Target="unkw", TString type="data"){
     else if (Target=="Pb"){tar_n=4;}
     else if (Target=="D2"){tar_n=5;}
 
-    if (type=="acc"){;}
-
 	//Transform input run number to Tstring with correct number of digits
-	TString run_N_str = TString::Format("%06d", run_N);;
+	TString run_N_str = TString::Format("%06d", run_N);
 
 	//Get input file
 	TFile *input_file;
