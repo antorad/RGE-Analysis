@@ -1,114 +1,124 @@
+#include "include.h"
 gStyle->SetOptStat(0);
 
-void fancy_plots(TString Target="Pb", int Hadron_pid=211, TString type="data"){
+void fancy_plots(int run_N=20156, TString Target="C", TString type="data"){
     ROOT::EnableImplicitMT();
-    if (type=="data"){
-        //output directory
-        TString output_location = "output_"+fwd_rec+"/"+Target+"/";
+    TString run_N_str = TString::Format("%06d", run_N);
+    //output directory
+    TString output_location = "plots/";
 
-        //get TNtuple input created from simple_plots
-        TFile *input = new TFile("output_"+fwd_rec+"/"+Target+"/out_clas12.root","READ");
+    //----------------------------------------------------
+    //---------------PLOTS FROM OUT_CLAS12----------------
+    //----------------------------------------------------
+    //get TNtuple input created from simple_plots
+    TFile *input = new TFile("output_"+fwd_rec+"/"+torus_pol+"/"+type+"/"+detector+"/"+Target+"/"+run_N_str+"/out_clas12.root","READ");
 
-        //Get histograms to make the pretty
-        TCanvas *canvas = new TCanvas("canvas","canvas",1000,600);
-        TH1F* hist_pt2_d2 =(TH1F*)input->Get("pi_pt2_d2");
-        TH1F* hist_pt2_sol =(TH1F*)input->Get("pi_pt2_sol");
-        //Making them pretty
-        canvas->SetLogy();
-        canvas->SetGrid();
-        //liq
-        hist_pt2_d2->SetTitle("P_{T}^{2} for #pi^{+}");
-        hist_pt2_d2->SetMarkerStyle(21);
-        hist_pt2_d2->SetMarkerColor(2);
-        hist_pt2_d2->SetLineColor(2);
-        hist_pt2_d2->Draw("sameCOLZ");
-        //sol
-        hist_pt2_sol->SetTitle("P_{T}^{2} for #pi^{+}");
-        hist_pt2_sol->SetMarkerStyle(21);
-        hist_pt2_sol->SetMarkerColor(4);
-        hist_pt2_sol->SetLineColor(4);
-        hist_pt2_sol->Draw("sameCOLZ");
+    TH2F *th2, *th2_raw;
+    TCanvas *canvas = new TCanvas("canvas","canvas",1000,600);
 
-        //TLegend
-        TLegend* legend = new TLegend(0.7,0.8,0.9,0.9);
-        legend->AddEntry(hist_pt2_d2, "Deuterium");
-        legend->AddEntry(hist_pt2_sol, Target);
-        legend->Draw("same");
+    //Get histograms to plot
+    canvas->cd();
+    th2 =(TH2F*)input->Get("e_x_bxQ2");
+    th2->Draw("COLZ");
+    th2->SetTitle("Electron x_{b} vs Q^{2}");
+    //Making them pretty
+    canvas->SetLogz();
+    //Save
+    canvas->SaveAs(output_location+"e_xb_Q2.png");
 
-        //output
-        TFile* output = new TFile("pt2.root", "UPDATE");
-        output->cd();
+    canvas->cd();
+    th2 =(TH2F*)input->Get("e_ThetaxPhi");
+    th2->Draw("COLZ");
+    th2->SetTitle("Electron #theta vs #phi");
+    //Making them pretty
+    canvas->SetLogz();
+    //Save
+    canvas->SaveAs(output_location+"e_theta_phi.png");
 
-        //Unnormalized version
-        hist_pt2_sol->Write("pt2_solid");
-        hist_pt2_d2->Write("pt2_liquid");
-        canvas->SaveAs("pt2_"+Target+".pdf");
-        canvas->Write();
+    canvas->cd();
+    th2 =(TH2F*)input->Get("e_PxTheta");
+    th2->Draw("COLZ");
+    th2->SetTitle("Electron P vs #theta");
+    //Making them pretty
+    canvas->SetLogz();
+    //Save
+    canvas->SaveAs(output_location+"e_p_theta.png");
 
-        //Normalized version
-        hist_pt2_d2->DrawNormalized("COLZ");
-        hist_pt2_sol->DrawNormalized("sameCOLZ");
-        legend->Draw("same");
-        canvas->Write();
-        canvas->SaveAs("pt2_"+Target+"_nor.pdf");
+    canvas->cd();
+    th2 =(TH2F*)input->Get("e_NuxQ2");
+    th2->Draw("COLZ");
+    th2->SetTitle("Electron #nu vs Q_{2}");
+    //Making them pretty
+    canvas->SetLogz();
+    //Save
+    canvas->SaveAs(output_location+"e_nu_q2.png");
 
-        output->Close();
-    }
+    canvas->cd();
+    th2_raw =(TH2F*)input->Get("raw_e_xy_DCR1");
+    th2 =(TH2F*)input->Get("e_xy_DCR1");
+    th2_raw->Draw();
+    th2_raw->SetMarkerColor(kRed);
+    th2_raw->Draw("SCAT");
+    th2->Draw("COLZsame");
+    th2_raw->SetTitle("Electron Drift Chamber hits Region 1");
+    //Making them pretty
+    canvas->SetLogz();
+    //Save
+    canvas->SaveAs(output_location+"e_DC_R1.png");
 
-    if (type=="simul"){
-        //output directory
-        TString output_location = "output_"+fwd_rec+"/simul/"+Target+"/";
+    canvas->cd();
+    th2_raw =(TH2F*)input->Get("raw_e_xy_DCR2");
+    th2 =(TH2F*)input->Get("e_xy_DCR2");
+    th2_raw->Draw();
+    th2_raw->SetMarkerColor(kRed);
+    th2_raw->Draw("SCAT");
+    th2->Draw("COLZsame");
+    th2_raw->SetTitle("Electron Drift Chamber hits Region 2");
+    //Making them pretty
+    canvas->SetLogz();
+    //Save
+    canvas->SaveAs(output_location+"e_DC_R2.png");
 
-        //get TNtuple input created from simple_plots
-        TFile *input_liq = new TFile("output_"+fwd_rec+"/simul/"+Target+"/out_clas12.root","READ");
+    canvas->cd();
+    th2_raw =(TH2F*)input->Get("raw_e_xy_DCR3");
+    th2 =(TH2F*)input->Get("e_xy_DCR3");
+    th2_raw->Draw();
+    th2_raw->SetMarkerColor(kRed);
+    th2_raw->Draw("SCAT");
+    th2->Draw("COLZsame");
+    th2_raw->SetTitle("Electron Drift Chamber hits Region 3");
+    //Making them pretty
+    canvas->SetLogz();
+    //Save
+    canvas->SaveAs(output_location+"e_DC_R3.png");
 
-        //get TNtuple input created from simple_plots
-        TFile *input_sol = new TFile("output_"+fwd_rec+"/simul/D2/out_clas12.root","READ");
+    canvas->cd();
+    th2_raw =(TH2F*)input->Get("h_pos_betaxP");
+    th2 =(TH2F*)input->Get("pi_betaxP");
+    th2_raw->Draw("COLZ");
+    th2->SetContour(1);
+    th2->SetLineWidth(3);
+    th2->SetLineColor(kRed);
+    th2->Draw("CONT3same");
+    th2->SetTitle("Electron Drift Chamber hits Region 3");
+    //Making them pretty
+    canvas->SetLogz();
+    //Save
+    canvas->SaveAs(output_location+"pi_betaxP.png");
 
-        //Get histograms to make the pretty
-        TCanvas *canvas = new TCanvas("canvas","canvas",1000,600);
-        TH1F* hist_pt2_d2 =(TH1F*)input_liq->Get("pi_pt2_d2");
-        TH1F* hist_pt2_sol =(TH1F*)input_sol->Get("pi_pt2_sol");
-        //Making them pretty
-        canvas->SetLogy();
-        canvas->SetGrid();
-        //liq
-        hist_pt2_d2->GetXaxis()->SetRangeUser(0,2);
-        hist_pt2_d2->SetTitle("P_{T}^{2} for #pi^{+}");
-        hist_pt2_d2->SetMarkerStyle(21);
-        hist_pt2_d2->SetMarkerColor(2);
-        hist_pt2_d2->SetLineColor(2);
-        hist_pt2_d2->Draw("sameCOLZ");
-        //sol
-        hist_pt2_sol->SetTitle("P_{T}^{2} for #pi^{+}");
-        hist_pt2_sol->SetMarkerStyle(21);
-        hist_pt2_sol->SetMarkerColor(4);
-        hist_pt2_sol->SetLineColor(4);
-        hist_pt2_sol->Draw("sameCOLZ");
+    canvas->cd();
+    th2_raw =(TH2F*)input->Get("h_neg_betaxP");
+    th2 =(TH2F*)input->Get("pim_betaxP");
+    th2_raw->Draw("COLZ");
+    th2->SetContour(1);
+    th2->SetLineWidth(3);
+    th2->SetLineColor(kRed);
+    th2->Draw("CONT3same");
+    th2->SetTitle("Electron Drift Chamber hits Region 3");
+    //Making them pretty
+    canvas->SetLogz();
+    //Save
+    canvas->SaveAs(output_location+"pim_betaxP.png");
 
-        //TLegend
-        TLegend* legend = new TLegend(0.7,0.8,0.9,0.9);
-        legend->AddEntry(hist_pt2_d2, "Deuterium");
-        legend->AddEntry(hist_pt2_sol, Target);
-        legend->Draw("same");
-
-        //output
-        TFile* output = new TFile("pt2.root", "UPDATE");
-        output->cd();
-
-        //Unnormalized version
-        hist_pt2_sol->Write("pt2_solid");
-        hist_pt2_d2->Write("pt2_liquid");
-        canvas->SaveAs(output_location+"pt2_"+Target+".pdf");
-        canvas->Write();
-
-        //Normalized version
-        hist_pt2_d2->DrawNormalized("COLZ");
-        hist_pt2_sol->DrawNormalized("sameCOLZ");
-        legend->Draw("same");
-        canvas->Write();
-        canvas->SaveAs(output_location+"pt2_"+Target+"_nor.pdf");
-
-        output->Close();
-    }
+    input->Close();
 }
