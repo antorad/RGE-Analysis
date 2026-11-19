@@ -8,8 +8,7 @@ void vertex_dependence(int run_N=000000, TString Target="C", TString type="data"
 
     //output directory
     TString output_location;
-    if      (run_location=="own_pc"){output_location="output_"+fwd_rec+"/"+torus_pol+"/data/"+detector+"/"+Target+"/"+run_N_str;}
-    else if (run_location=="farm"){output_location="/volatile/clas12/antorad/rge/MR_analysis/"+type+"/pass1/"+fwd_rec+"/"+Target+"/"+run_N_str;}
+    output_location="plots/";
 
     //input directory
     TString input_location;
@@ -93,6 +92,6 @@ void vertex_dependence(int run_N=000000, TString Target="C", TString type="data"
         legend[i]->Draw("same");
     }
     canvas_6->Write();
-    canvas_6->SaveAs("vertex_dependence_"+fwd_rec+".png");
+    canvas_6->SaveAs(output_location+"vertex_dependence_"+fwd_rec+".png");
     output->Close();
 }

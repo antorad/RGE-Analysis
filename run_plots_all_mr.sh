@@ -28,4 +28,12 @@ for VAR in "${VARS_BIN[@]}"; do
 done
 wait
 
+root -l -q -b "fancy_plots.cxx(20150, \"C\", \"data\")"
+
+root -l -q -b "plot_simple_vertex_all.cpp"
+
+root -l -q -b "vertex_dependence.cpp(20150, \"C\", \"data\")"
+
+root -l -q -b "chi2_ndf_edge.cpp(20150, \"C\", \"data\")"
+
 echo run_plots_all_mr finished.

@@ -95,7 +95,7 @@ void plot_profiles(TFile* input_file, char const*particle, TString output_locati
     fc_R3->Draw("same");
     legend->Draw("same");
 
-    canvas->SaveAs(output_location+TString(particle)+"_ndf_chi2.pdf");
+    //canvas->SaveAs(output_location+TString(particle)+"_ndf_chi2.pdf");
     canvas->SaveAs(output_location+TString(particle)+"_ndf_chi2.png");
 }
 
@@ -106,7 +106,7 @@ void chi2_ndf_edge(int run_N=000000, TString Target="unkw", TString type="data")
     TString run_N_str = TString::Format("%06d", run_N);;
 
     TFile* input_file = new TFile("output_"+fwd_rec+"/"+torus_pol+"/"+type+"/"+detector+"/"+Target+"/"+run_N_str+"/out_clas12.root","READ");
-    TString output_location = "output_"+fwd_rec+"/"+torus_pol+"/"+type+"/"+detector+"/"+Target+"/"+run_N_str+"/";
+    TString output_location = "plots/";
 
     plot_profiles(input_file, "e", output_location);
     plot_profiles(input_file, "pi", output_location);
