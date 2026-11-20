@@ -544,6 +544,50 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	draw_plot(elec_tuple, "", "x_bjorken",100, 0,1, "#x_{b}", "dN/dx_{b}", "e_x_b",
 				output_location, output);
 
+
+	//z vertex
+	draw_plot(elec_tuple, "targ_type==1", "vz",100,-15,6, "V_{z} [cm]", "dN/dV_{z}" , "e_vz_d2",
+				output_location, output);
+
+	//W2
+	draw_plot(elec_tuple, "targ_type==1", "W2",100,0,20, "W^{2}", "dN/dW^{2}" , "e_w2_d2", output_location, output);
+
+	//Q2
+	draw_plot(elec_tuple, "targ_type==1", "Q2",100,0,12, "Q^{2}", "dN/dQ^{2}" , "e_q2_d2", output_location, output);
+
+	//Nu
+	draw_plot(elec_tuple, "targ_type==1", "nu",100,0,12, "#nu", "dN/d#nu" , "e_nu_d2", output_location, output);
+
+	//Phi 
+	draw_plot(elec_tuple, "targ_type==1", "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "e_phi_d2",
+				output_location, output);
+
+	//X_b
+	draw_plot(elec_tuple, "targ_type==1", "x_bjorken",100, 0,1, "#x_{b}", "dN/dx_{b}", "e_x_b_d2",
+				output_location, output);
+
+
+	//z vertex
+	draw_plot(elec_tuple, "targ_type==2", "vz",100,-15,6, "V_{z} [cm]", "dN/dV_{z}" , "e_vz_sol",
+				output_location, output);
+
+	//W2
+	draw_plot(elec_tuple, "targ_type==2", "W2",100,0,20, "W^{2}", "dN/dW^{2}" , "e_w2_sol", output_location, output);
+
+	//Q2
+	draw_plot(elec_tuple, "targ_type==2", "Q2",100,0,12, "Q^{2}", "dN/dQ^{2}" , "e_q2_sol", output_location, output);
+
+	//Nu
+	draw_plot(elec_tuple, "targ_type==2", "nu",100,0,12, "#nu", "dN/d#nu" , "e_nu_sol", output_location, output);
+
+	//Phi 
+	draw_plot(elec_tuple, "targ_type==2", "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "e_phi_sol",
+				output_location, output);
+
+	//X_b
+	draw_plot(elec_tuple, "targ_type==2", "x_bjorken",100, 0,1, "#x_{b}", "dN/dx_{b}", "e_x_b_sol",
+				output_location, output);
+
 	//theta vs phi
 	draw_plot_2D(elec_tuple, "", "phi:theta",100, 0, 1, "#theta",
 					 180,-180,180,"#phi", "e_ThetaxPhi", output_location, output);
@@ -689,6 +733,41 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 	//phiPQ
 	draw_plot(pion_tuple, "", "phi_PQ",360,-3.15,3.15, "#phi_PQ [deg]", "dN/d#phi_PQ", "pi_phi_PQ",
 				output_location, output);
+
+
+	//z_h
+	draw_plot(pion_tuple, "targ_type==1", "z_h",180,0,1, "Z_{h}", "dN/dZ_{h}", "pi_zh_d2",
+				output_location, output);
+
+	//pt2
+	draw_plot(pion_tuple, "targ_type==1", "p_T2",100,0,5, "P_{T}^{2}", "dN/dP_{T}^{2}", "pi_pt2_d2",
+				output_location, output);
+
+	//phi
+	draw_plot(pion_tuple, "targ_type==1", "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "pi_phi_d2",
+				output_location, output);
+
+	//phiPQ
+	draw_plot(pion_tuple, "targ_type==1", "phi_PQ",360,-3.15,3.15, "#phi_PQ [deg]", "dN/d#phi_PQ", "pi_phi_PQ_d2",
+				output_location, output);
+
+
+	//z_h
+	draw_plot(pion_tuple, "targ_type==2", "z_h",180,0,1, "Z_{h}", "dN/dZ_{h}", "pi_zh_sol",
+				output_location, output);
+
+	//pt2
+	draw_plot(pion_tuple, "targ_type==2", "p_T2",100,0,5, "P_{T}^{2}", "dN/dP_{T}^{2}", "pi_pt2_sol",
+				output_location, output);
+
+	//phi
+	draw_plot(pion_tuple, "targ_type==2", "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "pi_phi_sol",
+				output_location, output);
+
+	//phiPQ
+	draw_plot(pion_tuple, "targ_type==2", "phi_PQ",360,-3.15,3.15, "#phi_PQ [deg]", "dN/d#phi_PQ", "pi_phi_PQ_sol",
+				output_location, output);
+
 
 	//Pt2 vz Zh
 	draw_plot_2D(pion_tuple, "", "z_h:p_T2",100, 0, 5, "P_{T}^{2}",
@@ -898,6 +977,40 @@ void processTuple(TNtuple* input_tuple, TString output_location) {
 
 	//phiPQ
 	draw_plot(pion_minus_tuple, "", "phi_PQ",360,-3.15,3.15, "#phi_PQ [deg]", "dN/d#phi_PQ", "pim_phi_PQ",
+				output_location, output);
+
+
+	//z_h
+	draw_plot(pion_minus_tuple, "targ_type==1", "z_h",180,0,1, "Z_{h}", "dN/dZ_{h}", "pim_zh_d2",
+				output_location, output);
+
+	//pt2
+	draw_plot(pion_minus_tuple, "targ_type==1", "p_T2",100,0,5, "P_{T}^{2}", "dN/dP_{T}^{2}", "pim_pt2_d2",
+				output_location, output);
+
+	//phi
+	draw_plot(pion_minus_tuple, "targ_type==1", "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "pim_phi_d2",
+				output_location, output);
+
+	//phiPQ
+	draw_plot(pion_minus_tuple, "targ_type==1", "phi_PQ",360,-3.15,3.15, "#phi_PQ [deg]", "dN/d#phi_PQ", "pim_phi_PQ_d2",
+				output_location, output);
+
+
+	//z_h
+	draw_plot(pion_minus_tuple, "targ_type==2", "z_h",180,0,1, "Z_{h}", "dN/dZ_{h}", "pim_zh_sol",
+				output_location, output);
+
+	//pt2
+	draw_plot(pion_minus_tuple, "targ_type==2", "p_T2",100,0,5, "P_{T}^{2}", "dN/dP_{T}^{2}", "pim_pt2_sol",
+				output_location, output);
+
+	//phi
+	draw_plot(pion_minus_tuple, "targ_type==2", "phi",360,-180,180, "#phi [deg]", "dN/d#phi", "pim_phi_sol",
+				output_location, output);
+
+	//phiPQ
+	draw_plot(pion_minus_tuple, "targ_type==2", "phi_PQ",360,-3.15,3.15, "#phi_PQ [deg]", "dN/d#phi_PQ", "pim_phi_PQ_sol",
 				output_location, output);
 
 	//Pt2 vz Zh
