@@ -55,7 +55,12 @@ void plot_data_simul_comapare(){
     TString var;
 
     //array for files and inputs
-    TString vars_to_plot[8] = {"e_nu", "e_q2", "e_w2", "e_phi", "e_x_b", "pi_zh", "pi_pt2", "pi_phi_PQ"};
+    TString vars_to_plot[28] = {"e_vz_d2", "e_w2_d2", "e_q2_d2", "e_nu_d2", "e_phi_d2", "e_x_b_d2",
+                                "pi_zh_d2", "pi_pt2_d2", "pi_phi_d2", "pi_phi_PQ_d2",
+                                "pim_zh_d2", "pim_pt2_d2", "pim_phi_d2", "pim_phi_PQ_d2",
+                                "e_vz_sol", "e_w2_sol", "e_q2_sol", "e_nu_sol", "e_phi_sol", "e_x_b_sol",
+                                "pi_zh_sol", "pi_pt2_sol", "pi_phi_sol", "pi_phi_PQ_sol",
+                                "pim_zh_sol", "pim_pt2_sol", "pim_phi_sol", "pim_phi_PQ_sol"};
     TString Target[5] = {"C", "Al", "Cu", "Sn", "Pb"};
     TH1D* histo[3];
 
@@ -64,7 +69,7 @@ void plot_data_simul_comapare(){
     TFile* thrown_input_files_inb;
 
     //After cuts
-    for (int v=0; v<8; v++){
+    for (int v=0; v<28; v++){
         var = vars_to_plot[v];
         for (int i = 0; i < 5; ++i){
             data_input_files_inb  = new TFile(output_location+"/data/"+detector+"/"+Target[i]+"/out_clas12.root","READ");
